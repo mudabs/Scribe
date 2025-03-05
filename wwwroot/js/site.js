@@ -16,6 +16,35 @@ function readURL(input) {
     }
 };
 
+//Modal Popup
+function loadEditPartial(controllerName, id) {
+    $.ajax({
+        url: '/' + controllerName + '/Edit',
+        type: 'GET',
+        data: { id: id },
+        success: function (result) {
+            $('#modalContainer').html(result);
+            $('#editModal').modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading partial view:', error);
+        }
+    });
+}
+function loadDeletePartial(controllerName, id) {
+    $.ajax({
+        url: '/' + controllerName + '/Delete',
+        type: 'GET',
+        data: { id: id },
+        success: function (result) {
+            $('#modalContainer').html(result);
+            $('#deleteModal').modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading partial view:', error);
+        }
+    });
+}
 
 //Modal Popup
 //$(function () {
