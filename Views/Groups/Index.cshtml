@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Scribe.Models.Group>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<style>
+    .display {
+        margin-bottom: 0;
+    }
+</style>
+
+<p>
+    <a class="btn btn-success" asp-action="Create">Create New</a>
+</p>
+
+<table id="groupTable" class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                Devices
+            </th>
+            <th>
+                Users
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @if (item.SerialNumberGroups != null && item.SerialNumberGroups.Any())
+                    {
+                        foreach (var sn in item.SerialNumberGroups)
+                        {
+                            <p class="display">
+                                <small>
+                                    @sn.SerialNumber?.Name
+                                </small>
+                            </p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="display">No serial numbers found.</p>
+                    }
+                </td>
+                <td>
+                    @if (item.UserGroups != null && item.UserGroups.Any())
+                    {
+                        foreach (var n in item.UserGroups)
+                        {
+                            <p class="display">
+                                <small>
+                                    @n.User?.Name
+                                </small>
+                            </p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="display">
+                            <small>No users found.</small>
+                        </p>
+                    }
+                </td>
+                <td>
+                    <a class="btn btn-outline-primary" asp-action="AllocateGroup" asp-route-id="@item.Id">Allocate</a> |
+                    <a class="btn btn-outline-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+
+    <script>
+        // $(document).ready( function () {
+        //     $('#groupTable').DataTable();
+        // } );
+    </script>
+}

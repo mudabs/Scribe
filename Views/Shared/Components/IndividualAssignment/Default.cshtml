@@ -1,0 +1,215 @@
+﻿@model Scribe.ViewComponents.IndividualAssignmentViewModel;
+
+@{
+    ViewData["Title"] = "Individual Allocations";
+    var users = ViewData["ADUsersId"] as List<Scribe.Models.ADUsers>;
+    var brands = ViewData["BrandId"] as List<Scribe.Models.Brand>;
+    var name = ViewData["User"] as Scribe.Models.ADUsers;
+    DateTime currentDateTime = ViewData["CurrentDateTime"] != null ? (DateTime)ViewData["CurrentDateTime"] : DateTime.Now;
+    Layout = "_Layout";
+}
+
+
+<div class="container mt-4">
+    <div class="mb-3">
+        <label for="groupName" class="form-label">User Name</label>
+        <span class="form-control">@name.Name</span>
+    </div>
+    @* <form asp-action="DownloadPdf" asp-controller="IndividualAssignments" asp-route-individualAllocationId="@name.Id" method="post">
+    <input class="btn btn-success btn-sm" type="submit" name="DownloadPdf" value="DownloadPdf" />
+    </form> *@
+    <a id="printPDF" class="btn btn-primary">Print</a>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Devices</h3>
+            <form method="post" asp-action="CreateIndividualAllocation">
+                <input type="hidden" name="ADUsersId" value="@Model.ADUsersId" />
+                <div class="mb-3">
+                    @Html.DropDownList("BrandId", (SelectList)ViewData["BrandId"], "Select Brand", new { @class = "form-control", id = "brand-select" })
+                </div>
+
+                <div class="mb-3">
+                    <select id="model-select" class="form-select" name="ModelId" disabled>
+                        <option value="">Select Model</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <select id="serial-number-select" class="form-select" name="SerialNumberId" disabled>
+                        <option value="">Select Serial Number</option>
+                    </select>
+                </div>
+
+                <input type="submit" class="btn btn-primary" value="Save Device" />
+            </form>
+        </div>
+        
+    </div>
+
+    
+
+    <div class="row">
+        <div class="col" id="parentDiv" style="height:100%; width:100%; ">
+            <h2 style="text-align: center;">IT EQUIPMENT CHECKLIST</h2>
+            <h2 style="text-align: center;">@currentDateTime.ToString("MMMM yyyy")</h2>
+            
+            <table class="table table-hover" id="tblExport">
+                <thead>
+                    <tr>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Type</th>
+                        <th>Serial Number</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.SerialNumbers != null && Model.SerialNumbers.Any())
+                    {
+                        @foreach (var serial in Model.SerialNumbers)
+                        {
+                            <tr>
+                                <td>@serial.SerialNumber.Model.Brand.Name</td>
+                                <td>@serial.SerialNumber.Model.Name</td>
+                                <td>@serial.SerialNumber.Model.Category.Name</td>
+                                <td>@serial.SerialNumber.Name</td>
+                                <td class ="hide-in-pdf">
+                                    <form asp-action="RemoveDevice" method="post" class="delete-form" style="display:inline;">
+                                        <input type="hidden" name="ADUsersId" value="@serial.ADUsersId" />
+                                        <input type="hidden" name="SerialNumberId" value="@serial.SerialNumberId" />
+                                        <button type="submit"  class="btn btn-outline-danger btn-sm" style="margin-left: 5px;" 
+                                                onclick="return confirm('Are you sure you want to Deallocate Device')">
+                                            Deallocate
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+
+
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">No Devices are associated with this user.</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+            <div class="col" style="padding-left:25px;">
+                <span class="row fs-6">Assigned To: @name.Name</span>
+
+                <span class="row fs-6">Date: @currentDateTime.ToString("dd/MM/yyyy")</span>
+                <span class="row fs-6">Signature: ______________________________</span>
+            </div>
+            <br /> <br />
+            <div >
+                
+            </div>
+
+            @* <div class="row">
+                <div class="col">
+
+                </div>
+                <div class="col">
+                    <br /> <br /> <br />
+                    <h3>Assigned To: @name.ADUsers.Name</h3>
+                    <br /><br />
+                    <h3>Signature: </h3>
+                    <br /><br />
+                    <h3>Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@currentDateTime.ToString("dd/MM/yyyy")</h3>
+                    <br /><br />
+                </div>
+                <div class="col">
+
+                </div>
+
+            </div>
+ *@
+        </div>
+    </div>
+</div>
+
+<a class="btn btn-outline-secondary" asp-action="Index">Back to Users</a>
+<br /> <br /> <br />
+
+@section Scripts {
+    <script>
+        $("#printPDF").click(function () {
+            // Get all rows in the table
+            var rows = document.querySelectorAll('#tblExport tr');
+
+            // Hide the last column
+            rows.forEach(row => {
+                if (row.cells.length > 0) {
+                    row.cells[row.cells.length - 1].style.display = 'none';
+                }
+            });
+
+            // Generate the PDF
+            html2pdf().from(document.getElementById('parentDiv')).set({
+                margin: 1,
+                filename: 'Equipment_Checklists.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            }).save().then(() => {
+                // Show the last column again after the PDF has been generated
+                rows.forEach(row => {
+                    if (row.cells.length > 0) {
+                        row.cells[row.cells.length - 1].style.display = '';
+                    }
+                });
+            });
+
+            console.log("Print");
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#brand-select').on('change', function () {
+                const brandId = $(this).val();
+                $('#model-select').prop('disabled', !brandId);
+                $('#model-select').empty().append('<option value="">Select Model</option>');
+                $('#serial-number-select').empty().append('<option value="">Select Serial Number</option>').prop('disabled', true);
+
+                if (brandId) {
+                    $.ajax({
+                        url: '@Url.Action("GetModelsByBrand", "ADUsers")', // Adjust the controller name
+                        type: 'GET',
+                        data: { brandId: brandId },
+                        success: function (models) {
+                            $.each(models, function (i, model) {
+                                console.log("hello");
+                                console.log(model);
+                                console.log(model.id);
+                                console.log(model.name);
+                                $('#model-select').append($('<option>').val(model.id).text(model.name));
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#model-select').on('change', function () {
+                const modelId = $(this).val();
+                $('#serial-number-select').prop('disabled', !modelId);
+                $('#serial-number-select').empty().append('<option value="">Select Serial Number</option>');
+
+                if (modelId) {
+                    $.ajax({
+                        url: '@Url.Action("GetSerialNumbersByModel", "ADUsers")', // Adjust the controller name
+                        type: 'GET',
+                        data: { modelId: modelId },
+                        success: function (serialNumbers) {
+                            $.each(serialNumbers, function (i, serialNumber) {
+                                $('#serial-number-select').append($('<option>').val(serialNumber.id).text(serialNumber.name));
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,193 @@
+﻿@using Scribe.Models
+@model Scribe.Infrastructure.HistoryViewModel
+
+@{
+    ViewData["Title"] = ViewData["ModelName"] + " (" + ViewData["SerialNumber"] + ")";
+    Layout = "_Layout";
+
+}
+<div class="row">
+    <div class="col-md-6">
+        <h3>Create Service Log</h3>
+        <form asp-action="CreateServiceLog" asp-controller="SerialNumbers">
+            @* Replace with your controller *@
+            <input type="hidden" name="SerialNumberId" value="@Model.SerialNumberId" /> @* Important! *@
+            <div class="form-group">
+                <label asp-for="NewServiceLog.ServiceDescription">Description:</label>
+                <input name="ServiceDescription" type="text" class="form-control" required />
+            </div>
+            <br />
+            <div class="form-group">
+                <label asp-for="NewServiceLog.ServiceDate">Service Date:</label>
+                <input name="ServiceDate" type="date" class="form-control" required />
+            </div>
+            <br />
+            <div class="form-group">
+                <label asp-for="NewServiceLog.NextServiceDate">Next Service Date:</label>
+                <input name="NextServiceDate" type="date" class="form-control" required />
+            </div>
+            <br />
+            <div class="form-group">
+                <label asp-for="NewServiceLog.ConditionId">Condition:</label>
+                <select asp-for="NewServiceLog.ConditionId" id="condition-search" name="ConditionId" class="form-control" asp-items="ViewBag.ConditionId" value="@ViewBag.SelectedConditionId">
+                    <option value="">Choose Condition</option>
+                </select>
+            </div>
+            <br />
+            <div class="form-group">
+                <label asp-for="NewServiceLog.SystemUserId">Done By:</label>
+                <select asp-for="NewServiceLog.SystemUserId" name="SystemUserId" asp-items="@ViewData["Users"] as SelectList" class="form-control" id="user-search">
+                    <option value="">-- Select a User --</option>
+                </select>
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h3>Create Allocation</h3>
+
+        @{
+           //Checking if there is a device that is currently allocated to someone, if so, the form is disabled until deallocated
+            bool disableForm = Model.AllocationHistory.Any(item => item.DeallocationDate == null || item.DeallocationDate == DateTime.MinValue);
+        }
+
+        <form asp-action="CreateAllocation" asp-controller="SerialNumbers">
+            @* Replace with your controller *@
+            <input type="hidden" name="SerialNumberId" value="@Model.SerialNumberId" /> @* Important! *@
+            <div class="form-group">
+                <label asp-for="NewAllocation.ADUsersId">Employee:</label>
+                <select id="aduser-search" name="ADUsersId" class="form-control mb-3" @(disableForm ? "disabled" : "")>
+                    <option>---Select Employee---</option>
+                    @foreach (var user in (List<ADUsers>)ViewData["ADUsersId"])
+                    {
+                        <option value="@user.Id">@user.Name</option>
+                    }
+                </select>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="AllocationDate">Allocation Date:</label>
+                <input name="AllocationDate" type="date" class="form-control" required @(disableForm ? "disabled" : "") />
+            </div>
+            <br />
+            <div class="form-group">
+                <label asp-for="NewAllocation.AllocatedBy">Allocated By:</label>
+                <select id="sysUser-search" name="allocatedBy" class="form-control mb-3" @(disableForm ? "disabled" : "")>
+                    <option value="">---Select a User---</option>
+                    @foreach (var user in (SelectList)ViewData["Users"])
+                    {
+                        <option value="@user.Value">@user.Text</option>
+                    }
+                </select>        
+            </div>
+            <br />
+            @* <div class="form-group">
+                <label asp-for="NewAllocation.DeallocationDate">Deallocation Date (Optional):</label>
+                <input name="DeallocationDate" type="date" class="form-control" />
+            </div> *@
+            <br />
+            <button type="submit" class="btn btn-primary" @(disableForm ? "disabled" : "")>Create</button>
+            <br />
+            <br />
+            <span class="fs-4 btn user-select-none" style="background-color:@ViewData["ConditionColorCode"]; cursor: none">@ViewData["Condition"]</span>
+            
+        </form>
+    </div>
+</div>
+<br />
+<a class="btn btn-outline-secondary" asp-action="Index">Back to Devices</a>
+<div class="row mt-4">
+    @* Add margin-top for spacing *@
+    <div class="col-md-6">
+        <h3>Service History</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Next Service</th>
+                    <th>Condition</th>
+                    <th>Serviced By</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ServiceHistory != null && Model.ServiceHistory.Any())
+                {
+                    @foreach (var item in Model.ServiceHistory)
+                    {
+                        <tr>
+                            <td>@item.ServiceDescription</td>
+                            <td>@item.ServiceDate.ToString("MMMM yyyy")</td>
+                            <td>@item.NextServiceDate.ToString("MMMM yyyy")</td>
+                            <td>@item.Condition.Name</td>
+                            <td>@item.SystemUserId</td>
+                            <td>
+                                @* Important Do not Delete *@
+                                @*<form asp-controller="SerialNumbers" asp-action="RemoveService" method="post">
+                                    <input type="hidden" name="serviceId" value="@item.Id" />
+                                   
+                                   <input type="submit" name="remove" class="btn btn-outline-danger" value="Remove" onclick="return confirm('Are you sure you want to delete?')" /> 
+                                </form>*@
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3">No Service History Available</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <h3>Allocation History</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Allocation Date</th>
+                    <th>Allocated By</th>
+                    <th>Deallocation Date</th>
+                    <th>Deallocated By</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.AllocationHistory != null && Model.AllocationHistory.Any())
+                {
+                    @foreach (var item in Model.AllocationHistory)
+                    {
+                        <tr>
+                            <td>@item.ADUsers?.Name</td> @* Use null-conditional operator *@
+                            <td>@item.AllocationDate</td>
+                            <td>@item.AllocatedBy</td>
+                            <td>@item.DeallocationDate</td>
+                            <td>@item.DeallocatedBy</td>
+                            @* <td>@item.DeallocatedBy.Substring(0, item.DeallocatedBy.IndexOf("@universalleaf.com"))</td> *@
+                            <td>
+                                <form asp-controller="SerialNumbers" asp-action="Deallocate" method="post">
+                                    <input type="hidden" name="allocationId" value="@item.Id" />
+                                    @* <input type="submit" name="remove" class="btn btn-outline-danger" value="Remove" /> *@
+                                    @if (item.DeallocationDate == null || item.DeallocationDate == DateTime.MinValue)
+                                    {
+                                        <input type="submit" value="Deallocate" class="btn btn-outline-danger btn-sm" style="margin-left: 5px;" onclick="return confirm('Are you sure you want to Deallocate Device')" />
+                                    }
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4">No Allocation History Available</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

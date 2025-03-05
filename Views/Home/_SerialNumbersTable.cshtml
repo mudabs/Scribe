@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Scribe.Models.SerialNumber> // Adjust the namespace accordingly
+
+<table class="table table-striped">
+    <thead class="table-header">
+        <tr>
+            <th scope="col">Serial Number</th>
+            <th scope="col">Description</th> <!-- Add any other relevant fields -->
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var serial in Model)
+            {
+                <tr>
+                    <td>@serial.Model.Name</td> <!-- Adjust according to your model -->
+                    <td>@serial.Name</td>  <!-- Adjust according to your model -->
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="2" class="text-center">No Serial Numbers found.</td>
+            </tr>
+        }
+    </tbody>
+</table>

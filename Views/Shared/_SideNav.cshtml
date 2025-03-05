@@ -1,0 +1,80 @@
+﻿@{
+    // var currentAction = ViewContext.RouteData.Values["action"].ToString();
+    // var currentController = ViewContext.RouteData.Values["controller"].ToString();
+    var currentAction = "Home";
+    var currentController = "Home";
+}
+
+<ul class="list-group">
+    <li class="list-group-item">
+        <a asp-action="" asp-controller="Home" style="text-decoration:none"><h5>@currentAction</h5></a>
+    </li>
+
+
+    <li class="list-group-item dropdown">
+        <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")"
+           asp-controller="Home" asp-action="Assets" id="assetsDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="/images/icons/laptop-alt-2-svgrepo-com (2).svg" style="width:20px;" /> Assets
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="assetsDropdown">
+            <li><a class="dropdown-item" asp-controller="SerialNumbers" asp-action="">All Assets</a></li>
+            <li><a class="dropdown-item" asp-controller="Models" asp-action="">Add Asset</a></li>
+            <li>
+                <a class="dropdown-item" asp-controller="Brands" asp-action="Index" id="inventorySetupLink">Brands</a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-controller="Categories" asp-action="Index" id="inventorySetupLink">Categories</a>
+            </li>
+
+            <li>
+                <a class="dropdown-item" asp-controller="Conditions" asp-action="Index" id="inventorySetupLink">Conditions</a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-controller="Locations" asp-action="Index" id="inventorySetupLink">Locations</a>
+            </li>
+        </ul>
+    </li>
+    <li class="list-group-item dropdown">
+        <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")"
+           id="reportsDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="/images/icons/report-barchart-svgrepo-com.svg" style="width:20px;" /> System Logs
+        </a>
+
+        <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+            <li><a class="dropdown-item" asp-controller="Logs" asp-action="">All Logs</a></li>
+        </ul>
+
+    </li>
+    <li class="list-group-item dropdown">
+        <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")"
+           id="reportsDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="/images/icons/users-svgrepo-com.svg" style="width:20px;" /> Allocations
+        </a>
+
+        <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+
+            <li><a class="dropdown-item" asp-controller="IndividualAssignments" asp-action="">Individual Allocations</a></li>
+            <li><a class="dropdown-item" asp-controller="Groups" asp-action="">Group Allocations</a></li>
+            <li> <a class="dropdown-item" asp-controller="Departments" asp-action="Index" id="inventorySetupLink">Departments</a> </li>
+            <li><a class="dropdown-item" asp-controller="ADUsers" asp-action="Index">All AD Users</a></li>
+        </ul>
+
+    </li>
+    @* <li class="list-group-item">
+        <a class="nav-link text-dark @(currentAction == "Settings" && currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Settings"> <img src="/images/icons/settings-svgrepo-com.svg" style="width:20px;" /> Settings</a>
+    </li> *@
+    <li class="list-group-item">
+        <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index"> <img src="/images/icons/help-circle-svgrepo-com.svg" style="width:20px;" /> Help</a>
+    </li>
+
+
+</ul>
+
+@section Scripts {
+    <script>
+        // Optional: Add any JS for dropdowns or other interactions
+    </script>
+}

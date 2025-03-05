@@ -1,0 +1,116 @@
+﻿@model Scribe.Models.ServiceLog
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>ServiceLog</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @* <div class="form-group">
+                <label asp-for="SerialNumberId" class="control-label"></label>
+                <select asp-for="SerialNumberId" class ="form-control" asp-items="ViewBag.SerialNumberId"></select>
+            </div> *@
+            <div class="mb-3">
+                @Html.DropDownList("BrandId", (SelectList)ViewData["BrandId"], "Select Brand", new { @class = "form-control", id = "brand-select" })
+            </div>
+
+            <div class="mb-3">
+                <select id="model-select" class="form-select" disabled>
+                    <option value="">Select Model</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <select id="serial-number-select" class="form-select" name="SerialNumberId" disabled>
+                    <option value="">Select Serial Number</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> 
+    <script>
+        $(document).ready(function () {
+            $('#brand-select').select2();
+            $('#user-search').select2();
+            $('#model-select').select2();
+            $('#serial-number-select').select2();
+        });
+    </script>
+
+    <script>
+
+        $(document).ready(function () {
+            $('#brand-select').change(function () {
+                var brandId = $(this).val();
+                $('#model-select').prop('disabled', !brandId);
+                $('#model-select').html('<option value="">Select Model</option>');
+                $('#serial-number-select').html('<option value="">Select Serial Number</option>').prop('disabled', true);
+
+                if (brandId) {
+                    $.ajax({
+                        url: '/api/models',
+                        type: 'GET',
+                        data: { brandId: brandId },
+                        success: function (data) {
+                            $.each(data, function (index, model) {
+                                $('#model-select').append('<option value="' + model.id + '">' + model.name + '</option>');
+                                console.log("Fetching models for brandId:", model.name)// Log before AJAX call
+                            });
+                        }
+                    });
+
+                    
+                }
+            });
+
+            $('#model-select').change(function () {
+                var modelId = $(this).val();
+                $('#serial-number-select').prop('disabled', !modelId);
+                $('#serial-number-select').html('<option value="">Select Serial Number</option>');
+
+                if (modelId) {
+                    $.ajax({
+                        url: '/api/serialnumbers',
+                        type: 'GET',
+                        data: { modelId: modelId },
+                        success: function (data) {
+                            $.each(data, function (index, serial) {
+                                $('#serial-number-select').append('<option value="' + serial.id + '">' + serial.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+}

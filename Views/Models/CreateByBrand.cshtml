@@ -1,0 +1,90 @@
+﻿@model Scribe.Models.Model
+
+@{
+    ViewData["Title"] = "CreateByBrand";
+}
+
+<h1>Create</h1>
+
+<h4>Model</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label>Brand</label>
+                <input type="text" class="form-control" value="@ViewBag.BrandName" readonly />
+                <input type="hidden" asp-for="BrandId" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select id="category-search" asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                    <option>Choose Category</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Image" class="control-label"></label>
+                <input asp-for="ImageUpload" class="form-control" />
+                <br />
+                <img src="" id="imgpreview" alt="" />
+                <span asp-validation-for="ImageUpload" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <link href="~/lib/select2/select2.min.css" rel="stylesheet" />
+    <script src="~/lib/select2/select2.min.js"></script>
+    
+    <script>
+        $(document).ready(function () {
+            $('#category-search').select2();
+        });
+    </script>
+
+    <script>
+        $("#ImageUpload").change(function () {
+            readURL(this);
+        });
+    </script>
+
+    <script>
+        //Cascading Dropdown
+        $(function () {
+            $("select#BrandList").change(function () {
+                var cid = $(this).val();
+                $("select#ModelList").empty();
+                var url = '@Url.Content("~/")' + "Devices/LoadModel?cid=${cid}";
+                var ddlsource = "#BrandList";
+                $.getJSON(url, { id: $(ddlsource).val() }, function (data) {
+                    var items = '';
+                    $("select#ModelList").append($('<option></option>').val('').text('- Please select -'));
+                    $.each(data, function (i, row) {
+                        $("select#ModelList").append(`<option value="${row.value}">${row.text}</option>`);
+                    });
+                });
+            })
+        });
+    </script>
+}

@@ -1,0 +1,77 @@
+﻿@using Newtonsoft.Json
+@model Scribe.Controllers.ReportModel
+
+@{
+    ViewData["Title"] = "Report";
+}
+
+<h1>Report</h1>
+
+<!-- Table to display the report data -->
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Category</th>
+            <th>Condition</th>
+            <th>Location</th>
+            <th>Creation</th>
+            <th>Allocation</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Items != null && Model.Items.Any())
+        {
+            foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Model.Brand.Name</td>
+                    <td>@item.Model.Name</td>
+                    <td>@item.Model.Category.Name</td>
+                    <td>@item.Condition.Name</td>
+                    <td>@item.Location.Name</td>
+                    <td>@item.Creation</td>
+                    <td>@item.Allocation</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center">No data available</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Form to select the file format and download the report -->
+<form asp-action="Download" asp-controller="Home" method="post">
+    <div class="form-group">
+        <label for="Format">Select File Format:</label>
+        <input type="hidden" id="ItemsData" name="ItemsData" value="@Model.Items" />
+
+        <select id="Format" name="Format" class="form-control" required>
+            <option value="XLSX" selected>Excel (.xlsx)</option>
+            <option value="XLS">Excel (.xls)</option>
+            <option value="ODS">OpenDocument Spreadsheet (.ods)</option>
+            <option value="CSV">CSV (.csv)</option>
+            <option value="PDF">PDF (.pdf)</option>
+            <option value="HTML">HTML (.html)</option>
+            <option value="XPS">XPS (.xps)</option>
+            <option value="BMP">Bitmap (.bmp)</option>
+            <option value="PNG">PNG (.png)</option>
+            <option value="JPG">JPEG (.jpg)</option>
+            <option value="GIF">GIF (.gif)</option>
+            <option value="TIF">TIFF (.tif)</option>
+            <option value="SVG">SVG (.svg)</option>
+            <option value="SVG">SVG (.svg)</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Download Report</button>|
+
+    <a asp-action="Exports" class="btn btn-outline-secondary">Back to List</a>
+</form>

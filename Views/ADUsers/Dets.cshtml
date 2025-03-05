@@ -1,0 +1,75 @@
+﻿@model IEnumerable<Scribe.Infrastructure.UserDevicesViewModel>
+
+@{
+    ViewData["Title"] = "Users and Assigned Devices";
+}
+
+<h2>Users and Assigned Devices</h2>
+
+
+@if (Model.Any())
+{
+    <table class="table" id="allocationsTable">
+        <thead>
+            <tr>
+                <th>User Name</th>
+                <th>Assigned Devices</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.User.Name</td>
+                    <td>
+                        @if (user.Devices.Any())
+                        {
+                            <ul>
+                                @foreach (var device in user.Devices)
+                                {
+                                    <li>@device.Name (@device.Model?.Brand?.Name @device.Model?.Name @device.Model?.Category?.Name)</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span>No devices assigned</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No users found.</p>
+}
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#allocationsTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'copy'
+                    },
+                    {
+                        extend: 'csv'
+                    },
+                    {
+                        extend: 'excel'
+                    },
+                    {
+                        extend: 'pdf'
+                    },
+                    {
+                        extend: 'print'
+                    }
+                ]
+            });
+        });
+    </script>
+}

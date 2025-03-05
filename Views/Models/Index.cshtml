@@ -1,0 +1,137 @@
+﻿@model IEnumerable<Scribe.Models.Model>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Devices</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Create New</a>
+</p>
+
+
+<div class="column-selector">
+    <label><input type="checkbox" class="column-toggle" data-column="0" checked> Brand</label>
+    <label><input type="checkbox" class="column-toggle" data-column="1" checked> Model Name</label>
+    <label><input type="checkbox" class="column-toggle" data-column="2" checked> Device Type</label>
+    <label><input type="checkbox" class="column-toggle" data-column="3" checked> Image</label>
+    <label><input type="checkbox" class="column-toggle" data-column="10" checked> Actions</label>
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col">
+        <table class="table table-hover table-striped" id="modelsTable">
+
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Brand)
+                    </th>
+                    <th>
+                        Model Name
+                    </th>
+                    <th>
+                        Device Type
+                    </th>
+                    <th>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Brand.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Category.Name)
+                        </td>
+                        <td>
+                            <img src="/media/devices/@item.Image" width="100px" />
+                        </td>
+                        <td>
+                            <a asp-action="AllocateSerialNumber" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Serial Numbers</a> |
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+   
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Define common options for the DataTables instance
+            var dataTableOptions = {
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"row"<"col-sm-12"tr>><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>B',
+                buttons: [
+                    {
+                        extend: 'copy',
+                        exportOptions: {
+                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        exportOptions: {
+                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        exportOptions: {
+                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        exportOptions: {
+                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        exportOptions: {
+                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
+                        }
+                    }
+                ],
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                language: {
+                    lengthMenu: "_MENU_ records per page"
+                }
+            };
+
+            // Initialize #modelsTable with filtering and column visibility toggle
+            var modelsTable = $('#modelsTable').DataTable(dataTableOptions);
+            $('.column-toggle').change(function () {
+                var columnIndex = $(this).data('column');
+                modelsTable.column(columnIndex).visible(this.checked);
+            });
+
+            function isColumnVisible(columnIndex) {
+                return $('.column-toggle[data-column="' + columnIndex + '"]').is(':checked');
+            }
+
+            // Handle page size changes (optional, if you have a page size dropdown)
+            $('#pageSize').change(function () {
+                modelsTable.page.len($(this).val()).draw();
+            });
+        });
+    </script>
+}

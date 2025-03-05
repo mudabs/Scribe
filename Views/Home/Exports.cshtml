@@ -1,0 +1,233 @@
+﻿@model Scribe.Controllers.ReportModel
+
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="fas fa-download me-2"></i>
+        Export Inventory Data
+    </h2>
+
+    <form action="Export" >
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label class="form-label">Brand</label>
+                <select name="brands" id="brand-select" class="form-select" multiple size="5">
+                    <option value="">All Brands</option>
+                    @foreach (var brand in (SelectList)ViewData["BrandId"])
+                    {
+                        <option value="@brand.Value">@brand.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select name="categories" id="category-select" class="form-select" multiple size="5">
+                    <option>All Categories</option>
+                    @foreach (var category in (SelectList)ViewData["CategoryId"])
+                    {
+                        <option value="@category.Value">@category.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Location</label>
+                <select name="locations" id="location-select" class="form-select" multiple size="5">
+                    <option>All Locations</option>
+                    @foreach (var location in (SelectList)ViewData["LocationId"])
+                    {
+                        <option value="@location.Value">@location.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Condition</label>
+                <select name="conditions" id="status-select" class="form-select" multiple size="5">
+                    <option>All Conditions</option>
+                    @foreach (var condition in (SelectList)ViewData["ConditionId"])
+                    {
+                        <option value="@condition.Value">@condition.Text</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label">Allocation Date Range</label>
+                <div class="row">
+
+                    <div class="col-md-6">
+                        
+                        <div class="input-group">
+                            <input name="allocationStartDate" type="date" class="form-control">
+                            <span class="input-group-text">
+                                <i class="far fa-calendar"></i>
+                            </span>
+                        </div>
+                        <span class="small">Min</span>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input name="allocationEndDate" type="date" class="form-control">
+                            <span class="input-group-text">
+                                <i class="far fa-calendar"></i>
+                            </span>
+                        </div>
+
+                        <span class="small">Max</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">User Groups</label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <select name="groups" id="group-select" class="form-select" multiple size="5">
+                            <option>All User Groups</option>
+                            @foreach (var group in (SelectList)ViewData["GroupId"])
+                            {
+                                <option value="@group.Value">@group.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Include Fields</label>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" checked value="Brand">
+                        <label class="form-check-label">Brand</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" checked value="Model">
+                        <label class="form-check-label">Model</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" checked value="Category">
+                        <label class="form-check-label">Category</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" checked value="Status">
+                        <label class="form-check-label">Status</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" checked value="Location">
+                        <label class="form-check-label">Location</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" checked value="Creation Date">
+                        <label class="form-check-label">Creation Date</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" checked value="Allocation Date">
+                        <label class="form-check-label">Allocation Date</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4 col-md-3">
+            <label class="form-label">Sort By</label>
+            <select name="sort" id="group-select" class="form-select" multiple size="5">
+                <option value="SerialNumber">Serial Number</option>
+                <option value="Brand">Brand</option>
+                <option value="Model">Model</option>
+                <option value="Category">Category</option>
+                <option value="Location">Status</option>
+                <option value="Location">Location</option>
+                <option value="CreationDate">Creation Date</option>
+                <option value="AllocationDate">Allocation Date</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">File Format</label>
+            <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="fileFormat" value="csv" id="csv" checked>
+                <label class="btn btn-outline-primary rounded f-button" for="csv">CSV</label>
+
+                <input type="radio" class="btn-check" name="fileFormat" value="excel" id="excel">
+                <label class="btn btn-outline-primary rounded f-button" for="excel">Excel (XLSX)</label>
+
+                <input type="radio" class="btn-check" name="fileFormat" value="pdf" id="pdf">
+                <label class="btn btn-outline-primary rounded f-button" for="pdf">PDF</label>
+
+                <input type="radio" class="btn-check" name="fileFormat" value="json" id="json">
+                <label class="btn btn-outline-primary rounded f-button" for="json">JSON</label>
+
+                <input type="radio" class="btn-check" name="fileFormat" value="xml" id="xml">
+                <label class="btn btn-outline-primary rounded f-button" for="xml">XML</label>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-outline-secondary" onclick="clearUrlParams();">
+                Reset Filters
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-download me-2"></i>
+                Export Data
+            </button>
+        </div>
+    </form>
+    <br />
+
+    @await Html.PartialAsync("_ReportPartial",Model)
+
+</div>
+<br />
+<br />
+<br />
+@section Scripts {
+    
+
+    
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <link href="~/lib/select2/select2.min.css" rel="stylesheet" />
+    <script src="~/lib/select2/select2.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#brand-select').select2();
+            $('#model-select').select2();
+            $('#location-select').select2();
+            $('#category-select').select2();
+            $('#status-select').select2();
+            $('#group-select').select2();
+        });
+    </script>
+    <script>
+        function clearUrlParams() {
+            // Get the current URL
+            const url = window.location.origin + window.location.pathname;
+            // Redirect to the base URL without parameters
+            window.location.href = url;
+        }
+    </script>
+
+}

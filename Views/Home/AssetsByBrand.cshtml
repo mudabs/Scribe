@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Assets By Brand";
+    var brands = ViewBag.Brands as List<Scribe.Models.Brand>;
+}
+
+<h1>Assets By Brand</h1>
+
+<div>
+    <label for="brandDropdown">Select a Brand:</label>
+    <select id="brandDropdown" class="form-control">
+        <option value="">-- Select a Brand --</option>
+        @foreach (var brand in brands)
+        {
+            <option value="@brand.Id">@brand.Name</option>
+        }
+    </select>
+</div>
+
+<div id="serialNumbersTable" style="margin-top: 20px; display: none;">
+    <h3>Serial Numbers</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>Model</th>
+                <th>User</th>
+                <th>Condition</th>
+                <th>Department</th>
+                <th>Location</th>
+                <th>Created On</th>
+            </tr>
+        </thead>
+        <tbody id="serialNumbersBody">
+            <!-- Rows will be dynamically inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- CSRF Token -->
+<form id="csrfTokenForm" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<script>
+    document.getElementById('brandDropdown').addEventListener('change', function () {
+        const brandId = this.value;
+        const tableDiv = document.getElementById('serialNumbersTable');
+        const tableBody = document.getElementById('serialNumbersBody');
+        const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        if (brandId) {
+            // Make an Ajax request to fetch serial numbers for the selected brand
+            fetch('/Home/GetSerialNumbersByBrand', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken // Include CSRF token
+                },
+                body: JSON.stringify(parseInt(brandId))
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Clear the table body
+                    tableBody.innerHTML = '';
+
+                    if (data.length > 0) {
+                        // Populate the table with serial numbers
+                        data.forEach(serial => {
+                            const row = `<tr>
+                                <td>${serial.name || 'N/A'}</td>
+                                <td>${serial.modelName || 'N/A'}</td>
+                                <td>${serial.user || 'N/A'}</td>
+                                <td>${serial.conditionName || 'N/A'}</td>
+                                <td>${serial.departmentName || 'N/A'}</td>
+                                <td>${serial.locationName || 'N/A'}</td>
+                                <td>${serial.creationDate ? new Date(serial.creationDate).toLocaleDateString() : 'N/A'}</td>
+                            </tr>`;
+                            tableBody.innerHTML += row;
+                        });
+
+                        // Show the table
+                        tableDiv.style.display = 'block';
+                    } else {
+                        // No serial numbers found
+                        tableBody.innerHTML = '<tr><td colspan="7">No serial numbers found for the selected brand.</td></tr>';
+                    }
+                })
+                .catch(error => console.error('Error fetching serial numbers:', error));
+        } else {
+            // Hide the table if no brand is selected
+            tableDiv.style.display = 'none';
+        }
+    });
+</script>
