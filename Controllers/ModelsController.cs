@@ -145,7 +145,7 @@ namespace Scribe.Controllers
         {
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: Models/Create
@@ -375,7 +375,8 @@ namespace Scribe.Controllers
             }
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
-            return View(model);
+            //return View(model);
+            return PartialView("_Edit", model);
         }
 
         // POST: Models/Edit/5
@@ -468,7 +469,8 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(model);
+            //return View(model);
+            return PartialView("_Delete", model);
         }
 
         // POST: Models/Delete/5

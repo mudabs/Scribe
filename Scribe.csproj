@@ -26,4 +26,8 @@
     <Using Include="Scribe.Data" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\NewFolder\" />
+  </ItemGroup>
+
 </Project>

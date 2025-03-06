@@ -17,14 +17,14 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //    .AddNegotiate();
 
 //Use cookie-based authentication
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-        options.SlidingExpiration = true;
-    });
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options =>
+//    {
+//        options.LoginPath = "/Account/Login";
+//        options.LogoutPath = "/Account/Logout";
+//        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+//        options.SlidingExpiration = true;
+//    });
 
 builder.Services.AddAuthorization(options =>
 {
@@ -70,15 +70,15 @@ app.UseAuthentication(); // Ensure this is included
 app.UseAuthorization();
 
 //Redirect unauthenticated users to the login page
-app.Use(async (context, next) =>
-{
-    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Account/Login"))
-    {
-        context.Response.Redirect("/Account/Login");
-        return;
-    }
-    await next();
-});
+//app.Use(async (context, next) =>
+//{
+//    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Account/Login"))
+//    {
+//        context.Response.Redirect("/Account/Login");
+//        return;
+//    }
+//    await next();
+//});
 
 app.MapControllerRoute(
      name: "default",

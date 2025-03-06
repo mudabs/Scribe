@@ -17,6 +17,20 @@ function readURL(input) {
 };
 
 //Modal Popup
+
+function loadCreatePartial(controllerName) {
+    $.ajax({
+        url: '/' + controllerName + '/Create',
+        type: 'GET',
+        success: function (result) {
+            $('#modalContainer').html(result);
+            $('#createModal').modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading partial view:', error);
+        }
+    });
+}
 function loadEditPartial(controllerName, id) {
     $.ajax({
         url: '/' + controllerName + '/Edit',
