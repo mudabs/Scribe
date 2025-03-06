@@ -481,6 +481,15 @@ namespace Scribe.Controllers
             var model = await _context.Models.FindAsync(id);
             if (model != null)
             {
+
+                // Get the count of SerialNumbers linked to the model
+                int linkedSerialNumbersCount = await _context.SerialNumbers.CountAsync(sn => sn.ModelId == id);
+                if (linkedSerialNumbersCount > 0)
+                {
+                    TempData["Failure"] = $"Cannot delete the model as there are {linkedSerialNumbersCount} linked Serial Numbers.";
+                    return RedirectToAction("Index");
+                }
+
                 _context.Models.Remove(model);
                 DeleteImage(model.Image);
                 await _context.SaveChangesAsync();
@@ -494,7 +503,7 @@ namespace Scribe.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         private bool ModelExists(int id)
