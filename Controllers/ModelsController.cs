@@ -489,7 +489,7 @@ namespace Scribe.Controllers
                 if (linkedSerialNumbersCount > 0)
                 {
                     TempData["Failure"] = $"Cannot delete the model as there are {linkedSerialNumbersCount} linked Serial Numbers.";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", "Models");
                 }
 
                 _context.Models.Remove(model);
@@ -505,7 +505,7 @@ namespace Scribe.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Models");
         }
 
         private bool ModelExists(int id)
