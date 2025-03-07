@@ -201,8 +201,9 @@ namespace Scribe.Controllers
         }
 
         // GET: Models/CreateByBrand/5
-        public IActionResult CreateByBrand(int brandId)
+        public IActionResult CreateByBrand(int id)
         {
+            int brandId = id;
             // Fetch the brand with the specified ID
             var brand = _context.Brands.Find(brandId);
 
@@ -225,7 +226,7 @@ namespace Scribe.Controllers
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
 
             // Return the view
-            return View(model);
+            return PartialView("_CreateByBrand", model);
         }
 
         // POST: Models/CreateCreateByBrand/5
@@ -275,13 +276,14 @@ namespace Scribe.Controllers
             // If we got this far, something failed, redisplay form
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
-            return View(model);
+            return PartialView("_CreateByBrand", model);
         }
 
 
         // GET: Models/CreateByCategory/5
-        public IActionResult CreateByCategory(int categoryId)
+        public IActionResult CreateByCategory(int id)
         {
+            int categoryId = id;
             // Fetch the brand with the specified ID
             var category = _context.Categories.Find(categoryId);
 
@@ -304,7 +306,7 @@ namespace Scribe.Controllers
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
 
             // Return the view
-            return View(model);
+            return PartialView("_CreateByCategory", model);
         }
 
         // POST: Models/CreateByCategory/5
@@ -356,7 +358,7 @@ namespace Scribe.Controllers
             // If the model state is invalid, repopulate the dropdown lists
             ViewData["CategoryName"] = _context.Categories.Find(model.CategoryId)?.Name; // Fetch the brand name again
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
-            return View(model);
+            return PartialView("_CreateByCategory", model);
         }
 
         // GET: Models/Edit/5

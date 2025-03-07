@@ -31,6 +31,34 @@ function loadCreatePartial(controllerName) {
         }
     });
 }
+function loadCreateByCPartial(controllerName, id) {
+    $.ajax({
+        url: '/' + controllerName + '/CreateByCategory',
+        type: 'GET',
+        data: { id: id },
+        success: function (result) {
+            $('#modalContainer').html(result);
+            $('#createModal').modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading partial view:', error);
+        }
+    });
+}
+function loadCreateByBPartial(controllerName, id) {
+    $.ajax({
+        url: '/' + controllerName + '/CreateByBrand',
+        type: 'GET',
+        data: { id: id },
+        success: function (result) {
+            $('#modalContainer').html(result);
+            $('#createModal').modal('show');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading partial view:', error);
+        }
+    });
+}
 function loadEditPartial(controllerName, id) {
     $.ajax({
         url: '/' + controllerName + '/Edit',
@@ -59,6 +87,8 @@ function loadDeletePartial(controllerName, id) {
         }
     });
 }
+
+
 
 //Modal Popup
 //$(function () {
