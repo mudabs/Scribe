@@ -51,7 +51,7 @@ namespace Scribe.Controllers
         // GET: Locations/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: Locations/Create
@@ -76,7 +76,8 @@ namespace Scribe.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(location);
+            //return View(location);
+            return PartialView("_Create");
         }
 
         // GET: Locations/Edit/5
@@ -92,7 +93,8 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return View(location);
+
+            return PartialView("_Edit", location);
         }
 
         // POST: Locations/Edit/5
@@ -154,7 +156,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(location);
+            return PartialView("_Delete", location);
         }
 
         // POST: Locations/Delete/5

@@ -1,17 +1,14 @@
-﻿@using Scribe.Models
-@model Scribe.Models.Model
-
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+﻿<!-- Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit Locations</h5>
+                <h5 class="modal-title" id="createLocationModalLabel">Create Location</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form asp-action="Edit">
+                <form asp-action="Create">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
                     <div class="form-group">
                         <label asp-for="Name" class="control-label"></label>
                         <input asp-for="Name" class="form-control" />
@@ -24,15 +21,14 @@
                     </div>
                     <br />
                     <div class="form-group">
-                        <input type="submit" value="Save" class="btn btn-primary" /> |
+                        <input type="submit" value="Create" class="btn btn-primary" /> |
                         <a class="btn btn-outline-secondary" asp-action="Index">Back to List</a>
                     </div>
                 </form>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
