@@ -25,7 +25,8 @@ namespace Scribe.Data
         public DbSet<UserGroup> UserGroup { get; set; } = default!;
         public DbSet<SerialNumberGroup> SerialNumberGroup { get; set; } = default!;
         public DbSet<ADUsers> ADUsers { get; set; } = default!;
-        public DbSet<ServiceLog> ServiceLogs { get; set; } = default!;
+        public DbSet<IndividualAssignment> IndividualAssignment { get; set; } = default!;
+        public DbSet<AllocationHistory> AllocationHistory { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -105,9 +106,6 @@ namespace Scribe.Data
                 .OnDelete(DeleteBehavior.SetNull); // Prevent cascading deletion
         }
 
-        public DbSet<IndividualAssignment> IndividualAssignment { get; set; } = default!;
-        public DbSet<ServiceHistory> ServiceHistory { get; set; } = default!;
-        public DbSet<AllocationHistory> AllocationHistory { get; set; } = default!;
 
     }
 }

@@ -112,9 +112,9 @@
                 </tr>
             </thead>
             <tbody>
-                @if (Model.ServiceHistory != null && Model.ServiceHistory.Any())
+                @if (Model.Maintenance != null && Model.Maintenance.Any())
                 {
-                    @foreach (var item in Model.ServiceHistory)
+                    @foreach (var item in Model.Maintenance)
                     {
                         <tr>
                             <td>@item.ServiceDescription</td>

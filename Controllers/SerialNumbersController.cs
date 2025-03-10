@@ -308,7 +308,7 @@ namespace Scribe.Controllers
             var viewModel = new HistoryViewModel
             {
                 SerialNumberId = id,
-                ServiceHistory = _context.ServiceHistory
+                Maintenance = _context.Maintenances
                     .Where(sh => sh.SerialNumberId == id)
                     .OrderByDescending(sh => sh.ServiceDate) // Order by date if needed
                     .ToList(),
@@ -327,7 +327,7 @@ namespace Scribe.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateServiceLog(int SerialNumberId, string ServiceDescription, DateTime ServiceDate, DateTime NextServiceDate, int ConditionId, string SystemUserId)
         {
-            var serviceHistory = new ServiceHistory
+            var serviceHistory = new Maintenance
             {
                 SerialNumberId = SerialNumberId,
                 ServiceDescription = ServiceDescription,
@@ -341,7 +341,7 @@ namespace Scribe.Controllers
             sn.ConditionId = ConditionId;
 
             _context.SerialNumbers.Update(sn);
-            _context.ServiceHistory.Add(serviceHistory);
+            _context.Maintenances.Add(serviceHistory);
             await _context.SaveChangesAsync();
             TempData["Success"] = "Service Log Added";
             return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId }); // Or wherever you want to redirect
@@ -352,7 +352,7 @@ namespace Scribe.Controllers
         public async Task<IActionResult> RemoveService(int serviceId)
         {
             // Find the service history entry by ID
-            var serviceHistory = await _context.ServiceHistory.FindAsync(serviceId);
+            var serviceHistory = await _context.Maintenances.FindAsync(serviceId);
 
             if (serviceHistory == null)
             {
@@ -360,7 +360,7 @@ namespace Scribe.Controllers
                 return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId }); // Redirect to the appropriate view
             }
 
-            _context.ServiceHistory.Remove(serviceHistory);
+            _context.Maintenances.Remove(serviceHistory);
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Service Log removed successfully.";

@@ -30,14 +30,14 @@ namespace Scribe.Controllers
             _adService = adService;
         }
 
-        // GET: ServiceHistories
+        // GET: Maintenances
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.ServiceHistory.Include(s => s.SerialNumber).Include(s => s.Condition);
+            var applicationDbContext = _context.Maintenances.Include(s => s.SerialNumber).Include(s => s.Condition);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: ServiceHistories/Details/5
+        // GET: Maintenances/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,7 +45,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            var serviceHistory = await _context.ServiceHistory
+            var serviceHistory = await _context.Maintenances
                 .Include(s => s.SerialNumber)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (serviceHistory == null)
@@ -56,7 +56,7 @@ namespace Scribe.Controllers
             return View(serviceHistory);
         }
 
-        // GET: ServiceHistories/Create
+        // GET: Maintenances/Create
         public IActionResult Create()
         {
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name");
@@ -71,12 +71,12 @@ namespace Scribe.Controllers
             return View();
         }
 
-        // POST: ServiceHistories/Create
+        // POST: Maintenances/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ServiceHistory serviceHistory)
+        public async Task<IActionResult> Create(Maintenance serviceHistory)
         {
             if (ModelState.IsValid)
             {
@@ -105,7 +105,7 @@ namespace Scribe.Controllers
             return View(serviceHistory);
         }
 
-        // GET: ServiceHistories/Edit/5
+        // GET: Maintenances/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -113,7 +113,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            var serviceHistory = await _context.ServiceHistory.FindAsync(id);
+            var serviceHistory = await _context.Maintenances.FindAsync(id);
             if (serviceHistory == null)
             {
                 return NotFound();
@@ -130,12 +130,12 @@ namespace Scribe.Controllers
             return View(serviceHistory);
         }
 
-        // POST: ServiceHistories/Edit/5
+        // POST: Maintenances/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, ServiceHistory serviceHistory)
+        public async Task<IActionResult> Edit(int id, Maintenance serviceHistory)
         {
             if (id != serviceHistory.Id)
             {
@@ -183,7 +183,7 @@ namespace Scribe.Controllers
             return View(serviceHistory);
         }
 
-        // GET: ServiceHistories/Delete/5
+        // GET: Maintenances/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -191,7 +191,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            var serviceHistory = await _context.ServiceHistory
+            var serviceHistory = await _context.Maintenances
                 .Include(s => s.SerialNumber)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (serviceHistory == null)
@@ -202,15 +202,15 @@ namespace Scribe.Controllers
             return View(serviceHistory);
         }
 
-        // POST: ServiceHistories/Delete/5
+        // POST: Maintenances/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var serviceHistory = await _context.ServiceHistory.FindAsync(id);
+            var serviceHistory = await _context.Maintenances.FindAsync(id);
             if (serviceHistory != null)
             {
-                _context.ServiceHistory.Remove(serviceHistory);
+                _context.Maintenances.Remove(serviceHistory);
             }
 
             await _context.SaveChangesAsync();
@@ -219,7 +219,7 @@ namespace Scribe.Controllers
 
         private bool ServiceHistoryExists(int id)
         {
-            return _context.ServiceHistory.Any(e => e.Id == id);
+            return _context.Maintenances.Any(e => e.Id == id);
         }
 
         //JavaScript Returns

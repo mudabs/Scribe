@@ -28,10 +28,10 @@ namespace Scribe.Infrastructure
     public class HistoryViewModel
     {
         public int SerialNumberId { get; set; }
-        public List<ServiceHistory>? ServiceHistory { get; set; }
+        public List<Maintenance>? Maintenance { get; set; }
         public List<AllocationHistory>? AllocationHistory { get; set; }
         public List<SerialNumberGroup>? SerialNumbers { get; set; }
-        public ServiceHistory NewServiceLog { get; set; } = new ServiceHistory();
+        public Maintenance NewServiceLog { get; set; } = new Maintenance();
         public AllocationHistory NewAllocation { get; set; } = new AllocationHistory();  
     }
 }
