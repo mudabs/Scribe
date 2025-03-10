@@ -5,24 +5,33 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Scribe.Data;
+using Scribe.Infrastructure;
 using Scribe.Models;
+using Scribe.Services;
+using System.Drawing.Drawing2D;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Scribe.Data;
 
 namespace Scribe.Controllers
 {
     public class MaintenancesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILoggingService _loggingService;
+        private readonly IActiveDirectoryService _adService;
 
-        public MaintenancesController(ApplicationDbContext context)
+        public MaintenancesController(ApplicationDbContext context, ILoggingService loggingService, IActiveDirectoryService adService)
         {
             _context = context;
+            _loggingService = loggingService;
+            _adService = adService;
         }
 
         // GET: Maintenances
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Maintenances.Include(m => m.Condition).Include(m => m.SerialNumber);
+            var applicationDbContext = _context.Maintenances.Include(s => s.SerialNumber).Include(s => s.Condition);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -34,23 +43,29 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            var maintenance = await _context.Maintenances
-                .Include(m => m.Condition)
-                .Include(m => m.SerialNumber)
+            var serviceHistory = await _context.Maintenances
+                .Include(s => s.SerialNumber)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (maintenance == null)
+            if (serviceHistory == null)
             {
                 return NotFound();
             }
 
-            return View(maintenance);
+            return View(serviceHistory);
         }
 
         // GET: Maintenances/Create
         public IActionResult Create()
         {
-            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Id");
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name");
+            ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
+            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
+
+            // Get users from the AD group "ZIM-WEB-IT"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+
+
             return View();
         }
 
@@ -59,17 +74,34 @@ namespace Scribe.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,MaintenanceDate,NextMaintenance,Details,SerialNumberId,ConditionId")] Maintenance maintenance)
+        public async Task<IActionResult> Create(Maintenance serviceHistory)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(maintenance);
+                //Updating the Condition of the device
+                var sn = await _context.SerialNumbers.FindAsync(serviceHistory.SerialNumberId);
+                sn.ConditionId = serviceHistory.ConditionId;
+                _context.Update(sn);
+
+                if (serviceHistory.SystemUserId == "")
+                {
+                    serviceHistory.SystemUserId = User.Identity.Name;
+                }
+
+                _context.Add(serviceHistory);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Service Log Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Id", maintenance.ConditionId);
-            ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", maintenance.SerialNumberId);
-            return View(maintenance);
+            ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", serviceHistory.SerialNumberId);
+            ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
+            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
+
+            // Get users from the AD group "ZIM-WEB-IT"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+
+            return View(serviceHistory);
         }
 
         // GET: Maintenances/Edit/5
@@ -80,14 +112,21 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            var maintenance = await _context.Maintenances.FindAsync(id);
-            if (maintenance == null)
+            var serviceHistory = await _context.Maintenances.FindAsync(id);
+            if (serviceHistory == null)
             {
                 return NotFound();
             }
-            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Id", maintenance.ConditionId);
-            ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", maintenance.SerialNumberId);
-            return View(maintenance);
+            ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", serviceHistory.SerialNumberId);
+            ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
+            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
+
+            // Get users from the AD group "ZIM-WEB-IT"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+
+
+            return View(serviceHistory);
         }
 
         // POST: Maintenances/Edit/5
@@ -95,9 +134,9 @@ namespace Scribe.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,MaintenanceDate,NextMaintenance,Details,SerialNumberId,ConditionId")] Maintenance maintenance)
+        public async Task<IActionResult> Edit(int id, Maintenance serviceHistory)
         {
-            if (id != maintenance.Id)
+            if (id != serviceHistory.Id)
             {
                 return NotFound();
             }
@@ -106,12 +145,21 @@ namespace Scribe.Controllers
             {
                 try
                 {
-                    _context.Update(maintenance);
+                    if (serviceHistory.SystemUserId == "")
+                    {
+                        serviceHistory.SystemUserId = User.Identity.Name;
+                    }
+                    //Updating Device Condition
+                    var sn = await _context.SerialNumbers.FindAsync(serviceHistory.SerialNumberId);
+                    sn.ConditionId = serviceHistory.ConditionId;
+                    _context.Update(sn);
+
+                    _context.Update(serviceHistory);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MaintenanceExists(maintenance.Id))
+                    if (!ServiceHistoryExists(serviceHistory.Id))
                     {
                         return NotFound();
                     }
@@ -122,9 +170,16 @@ namespace Scribe.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Id", maintenance.ConditionId);
-            ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", maintenance.SerialNumberId);
-            return View(maintenance);
+            ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", serviceHistory.SerialNumberId);
+            ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
+            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
+
+            // Get users from the AD group "ZIM-WEB-IT"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+
+
+            return View(serviceHistory);
         }
 
         // GET: Maintenances/Delete/5
@@ -135,16 +190,15 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            var maintenance = await _context.Maintenances
-                .Include(m => m.Condition)
-                .Include(m => m.SerialNumber)
+            var serviceHistory = await _context.Maintenances
+                .Include(s => s.SerialNumber)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (maintenance == null)
+            if (serviceHistory == null)
             {
                 return NotFound();
             }
 
-            return View(maintenance);
+            return View(serviceHistory);
         }
 
         // POST: Maintenances/Delete/5
@@ -152,19 +206,54 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var maintenance = await _context.Maintenances.FindAsync(id);
-            if (maintenance != null)
+            var serviceHistory = await _context.Maintenances.FindAsync(id);
+            if (serviceHistory != null)
             {
-                _context.Maintenances.Remove(maintenance);
+                _context.Maintenances.Remove(serviceHistory);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MaintenanceExists(int id)
+        private bool ServiceHistoryExists(int id)
         {
             return _context.Maintenances.Any(e => e.Id == id);
+        }
+
+        //JavaScript Returns
+
+        [HttpGet]
+        public JsonResult GetModelsByBrand(int brandId)
+        {
+            var models = _context.Models.Where(m => m.BrandId == brandId)
+                                         .Select(m => new { Id = m.Id, Name = m.Name })
+                                         .ToList();
+            return Json(models);
+        }
+
+        [HttpGet]
+        public JsonResult GetSerialNumbersByModel(int modelId)
+        {
+            var serialNumbers = _context.SerialNumbers.Where(s => s.ModelId == modelId)
+                                                      .Select(s => new { Id = s.Id, Name = s.Name })
+                                                      .ToList();
+            return Json(serialNumbers);
+        }
+
+        // New action to get condition by SerialNumberId
+        public IActionResult GetConditionBySerialNumber(int serialNumberId)
+        {
+            var condition = _context.SerialNumbers
+                .Where(sn => sn.Id == serialNumberId)
+                .Select(sn => new
+                {
+                    Id = sn.ConditionId, // Assuming you have a ConditionId in your SerialNumber model
+                    Name = sn.Condition.Name // Assuming you have navigation property for Condition
+                })
+                .FirstOrDefault();
+
+            return Json(condition);
         }
     }
 }

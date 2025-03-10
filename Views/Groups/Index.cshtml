@@ -12,9 +12,9 @@
     }
 </style>
 
-<p>
-    <a class="btn btn-success" asp-action="Create">Create New</a>
-</p>
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#createModal" onclick="loadCreatePartial('Groups')">
+    Create New
+</button>
 
 <table id="groupTable" class="table">
     <thead>
@@ -76,9 +76,12 @@
                 </td>
                 <td>
                     <a class="btn btn-outline-primary" asp-action="AllocateGroup" asp-route-id="@item.Id">Allocate</a> |
-                    <a class="btn btn-outline-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a class="btn btn-outline-info" asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Groups',@item.Id)">
+                        Edit
+                    </button> |
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('Groups',@item.Id)">
+                        Delete
+                    </button>
                 </td>
             </tr>
         }

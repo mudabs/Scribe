@@ -63,9 +63,9 @@
         </ul>
 
     </li>
-    @* <li class="list-group-item">
-        <a class="nav-link text-dark @(currentAction == "Settings" && currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Settings"> <img src="/images/icons/settings-svgrepo-com.svg" style="width:20px;" /> Settings</a>
-    </li> *@
+    <li class="list-group-item">
+        <a class="nav-link text-dark" asp-controller="Maintenances" asp-action="Index"> <img src="/images/icons/tools-svgrepo-com.svg" style="width:20px;" /> Maintenance</a>
+    </li> 
     <li class="list-group-item">
         <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index"> <img src="/images/icons/help-circle-svgrepo-com.svg" style="width:20px;" /> Help</a>
     </li>
