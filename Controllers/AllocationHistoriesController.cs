@@ -56,7 +56,7 @@ namespace Scribe.Controllers
         {
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id");
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name");
-            return View();
+           return PartialView("_Create");
         }
 
         // POST: AllocationHistories/Create
@@ -74,7 +74,7 @@ namespace Scribe.Controllers
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", allocationHistory.ADUsersId);
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", allocationHistory.SerialNumberId);
-            return View(allocationHistory);
+            return PartialView("_Create");
         }
 
         // GET: AllocationHistories/Edit/5
@@ -92,7 +92,7 @@ namespace Scribe.Controllers
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", allocationHistory.ADUsersId);
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", allocationHistory.SerialNumberId);
-            return View(allocationHistory);
+            return PartialView("_Edit",allocationHistory); 
         }
 
         // POST: AllocationHistories/Edit/5
@@ -129,7 +129,7 @@ namespace Scribe.Controllers
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", allocationHistory.ADUsersId);
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", allocationHistory.SerialNumberId);
-            return View(allocationHistory);
+            return PartialView("_Edit",allocationHistory);
         }
 
         // GET: AllocationHistories/Delete/5
@@ -149,7 +149,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(allocationHistory);
+            return PartialView("_Delete",allocationHistory);
         }
 
         // POST: AllocationHistories/Delete/5

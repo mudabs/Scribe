@@ -68,7 +68,7 @@ namespace Scribe.Controllers
         // GET: ADUsers/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_Create");
         }
         // GET: ADUsers/Create
         public IActionResult RefreshDC()
@@ -108,7 +108,7 @@ namespace Scribe.Controllers
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
                 return RedirectToAction(nameof(Index));
             }
-            return View(aDUsers);
+            return PartialView("_Create");
         }
 
         // GET: ADUsers/Edit/5
@@ -124,7 +124,7 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return View(aDUsers);
+            return PartialView("_Edit", aDUsers);
         }
 
         // POST: ADUsers/Edit/5
@@ -164,7 +164,7 @@ namespace Scribe.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(aDUsers);
+            return PartialView("_Edit", aDUsers);
         }
 
         // GET: ADUsers/Delete/5
@@ -183,7 +183,7 @@ namespace Scribe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(aDUsers);
+            return PartialView("_Delete", aDUsers);
         }
 
         // POST: ADUsers/Delete/5

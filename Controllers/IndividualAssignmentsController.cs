@@ -48,7 +48,7 @@ namespace Scribe.Controllers
         public IActionResult Create()
         {
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id");
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: IndividualAssignments/Create
@@ -65,7 +65,7 @@ namespace Scribe.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", individualAssignment.ADUsersId);
-            return View(individualAssignment);
+            return PartialView("_Create");
         }
 
         // GET: IndividualAssignments/Edit/5
@@ -82,7 +82,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", individualAssignment.ADUsersId);
-            return View(individualAssignment);
+            return PartialView("_Edit");
         }
 
         // POST: IndividualAssignments/Edit/5
@@ -118,7 +118,7 @@ namespace Scribe.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", individualAssignment.ADUsersId);
-            return View(individualAssignment);
+            return PartialView("_Edit");
         }
 
         // GET: IndividualAssignments/Delete/5
@@ -137,7 +137,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(individualAssignment);
+            return PartialView("_Delete");
         }
 
         // POST: IndividualAssignments/Delete/5

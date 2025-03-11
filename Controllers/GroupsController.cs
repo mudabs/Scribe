@@ -81,7 +81,7 @@ namespace Scribe.Controllers
         // GET: Groups/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: Groups/Create
@@ -143,7 +143,7 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return View(@group);
+            return PartialView("_Edit",group);
         }
 
         // POST: Groups/Edit/5
@@ -197,7 +197,7 @@ namespace Scribe.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(@group);
+            return PartialView("_Edit", group);
         }
 
         // GET: Groups/Delete/5
@@ -215,7 +215,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(@group);
+            return PartialView("_Delete",group);
         }
 
         // POST: Groups/Delete/5

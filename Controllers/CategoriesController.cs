@@ -56,7 +56,7 @@ namespace Inventory.Controllers
         // GET: Categories/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: Categories/Create
@@ -124,7 +124,7 @@ namespace Inventory.Controllers
             {
                 return NotFound();
             }
-            return View(category);
+            return PartialView("_Edit",category);
         }
 
         // POST: Categories/Edit/5
@@ -207,7 +207,7 @@ namespace Inventory.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return PartialView("_Edit",category);
         }
 
 
@@ -226,7 +226,7 @@ namespace Inventory.Controllers
                 return NotFound();
             }
 
-            return View(category);
+            return PartialView("_Delete",category);
         }
 
         // POST: Categories/Delete/5

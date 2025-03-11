@@ -80,8 +80,9 @@
                 $('#model-select').prop('disabled', !brandId);
                 $('#model-select').empty().append('<option value="">Select Model</option>');
                 $('#serial-number-select').empty().append('<option value="">Select Serial Number</option>').prop('disabled', true);
-
+                
                 if (brandId) {
+                    console.log(brandId);
                     $.ajax({
                         url: '@Url.Action("GetModelsByBrand", "Maintenances")', // Adjust the controller name
                         type: 'GET',

@@ -55,7 +55,7 @@ namespace Scribe.Controllers
         // GET: Brands/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: Brands/Create
@@ -101,7 +101,7 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return View(brand);
+            return PartialView("_Edit",brand);
         }
 
         // POST: Brands/Edit/5
@@ -169,7 +169,7 @@ namespace Scribe.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(brand);
+            return PartialView("_Edit", brand);
         }
 
         // GET: Brands/Delete/5

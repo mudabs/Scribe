@@ -50,7 +50,7 @@ namespace Scribe.Controllers
         // GET: Conditions/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: Conditions/Create
@@ -79,7 +79,7 @@ namespace Scribe.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            return View(condition);
+            return PartialView("_Create");
         }
 
         // GET: Conditions/Edit/5
@@ -95,7 +95,7 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return View(condition);
+            return PartialView("_Edit",condition);
         }
 
         // POST: Conditions/Edit/5
@@ -167,7 +167,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(condition);
+            return PartialView("_Delete",condition);
         }
 
         // POST: Conditions/Delete/5

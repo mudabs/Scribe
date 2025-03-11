@@ -66,7 +66,8 @@ namespace Scribe.Controllers
             ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
 
 
-            return View();
+            return PartialView("_Create");
+            //return View();
         }
 
         // POST: Maintenances/Create
@@ -101,7 +102,7 @@ namespace Scribe.Controllers
             // Get users from the AD group "ZIM-WEB-IT"
             ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
 
-            return View(serviceHistory);
+            return PartialView("_Create");
         }
 
         // GET: Maintenances/Edit/5
@@ -126,7 +127,7 @@ namespace Scribe.Controllers
             ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
 
 
-            return View(serviceHistory);
+            return PartialView("_Edit", serviceHistory);
         }
 
         // POST: Maintenances/Edit/5
@@ -179,7 +180,7 @@ namespace Scribe.Controllers
             ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
 
 
-            return View(serviceHistory);
+            return PartialView("_Edit", serviceHistory);
         }
 
         // GET: Maintenances/Delete/5
@@ -198,7 +199,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(serviceHistory);
+            return PartialView("_Delete", serviceHistory);
         }
 
         // POST: Maintenances/Delete/5

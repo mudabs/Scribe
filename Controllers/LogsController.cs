@@ -53,7 +53,7 @@ namespace Scribe.Controllers
         // GET: Logs/Create
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_Create");
         }
 
         // POST: Logs/Create
@@ -85,7 +85,7 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return View(log);
+            return PartialView("_Edit",log);
         }
 
         // POST: Logs/Edit/5
@@ -138,7 +138,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(log);
+            return PartialView("Delete",log);
         }
 
         // POST: Logs/Delete/5
