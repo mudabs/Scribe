@@ -141,15 +141,6 @@ namespace Inventory.Controllers
 
             if (ModelState.IsValid)
             {
-                // Check for existing Category with the same Name
-                bool exists = await _context.Categories
-                    .AnyAsync(m => m.Name == category.Name);
-
-                if (exists)
-                {
-                    TempData["Failure"] = "A category with the same Name already exists.";
-                    return RedirectToAction(nameof(Create));
-                }
 
                 try
                 {
@@ -160,14 +151,15 @@ namespace Inventory.Controllers
                         return NotFound();
                     }
 
-                    // Check for existing Category with the same Name, but exclude the current category
+                    // Check for existing Category with the same Name
                     bool exists2 = await _context.Categories
-                        .AnyAsync(m => m.Name.Equals(category.Name, StringComparison.OrdinalIgnoreCase) && m.Id != id);
+                        .AnyAsync(m => m.Name == category.Name);
 
+                   
                     if (exists2)
                     {
                         TempData["Failure"] = "A category with the same Name already exists.";
-                        return RedirectToAction(nameof(Edit));
+                        return RedirectToAction(nameof(Index));
                     }
 
                     string iconName = originalCategory.Icon; // Preserve current icon if no new upload

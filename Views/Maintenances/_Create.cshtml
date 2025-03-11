@@ -135,3 +135,64 @@
         });
     </script>
 }
+
+
+<script>
+    $(document).ready(function () {
+        $('#brand-select').on('change', function () {
+            const brandId = $(this).val();
+            $('#model-select').prop('disabled', !brandId);
+            $('#model-select').empty().append('<option value="">Select Model</option>');
+            $('#serial-number-select').empty().append('<option value="">Select Serial Number</option>').prop('disabled', true);
+
+            if (brandId) {
+                $.ajax({
+                    url: '@Url.Action("GetModelsByBrand", "Maintenances")', // Adjust the controller name
+                    type: 'GET',
+                    data: { brandId: brandId },
+                    success: function (models) {
+                        $.each(models, function (i, model) {
+                            $('#model-select').append($('<option>').val(model.id).text(model.name));
+                        });
+                    }
+                });
+            }
+        });
+
+        $('#model-select').on('change', function () {
+            const modelId = $(this).val();
+            $('#serial-number-select').prop('disabled', !modelId);
+            $('#serial-number-select').empty().append('<option value="">Select Serial Number</option>');
+
+            if (modelId) {
+                $.ajax({
+                    url: '@Url.Action("GetSerialNumbersByModel", "Maintenances")', // Adjust the controller name
+                    type: 'GET',
+                    data: { modelId: modelId },
+                    success: function (serialNumbers) {
+                        $.each(serialNumbers, function (i, serialNumber) {
+                            $('#serial-number-select').append($('<option>').val(serialNumber.id).text(serialNumber.name));
+                        });
+                    }
+                });
+            }
+        });
+
+        $('#serial-number-select').on('change', function () {
+            const serialNumberId = $(this).val();
+            if (serialNumberId) {
+                $.ajax({
+                    url: '@Url.Action("GetConditionBySerialNumber", "Maintenances")', // New action to get condition
+                    type: 'GET',
+                    data: { serialNumberId: serialNumberId },
+                    success: function (condition) {
+                        $('#ConditionId').val(condition.id); // Set the ConditionId field
+                        console.log(condition);
+                        console.log("Hello");
+                    }
+                });
+            }
+        });
+    });
+</script>
+

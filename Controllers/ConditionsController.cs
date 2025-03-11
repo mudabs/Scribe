@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Scribe.Data;
-using Scribe.Infrastructure;
 using Scribe.Models;
 using Scribe.Services;
 
@@ -17,7 +14,7 @@ namespace Scribe.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILoggingService _loggingService;
 
-        public ConditionsController(ApplicationDbContext context,ILoggingService loggingService)
+        public ConditionsController(ApplicationDbContext context, ILoggingService loggingService)
         {
             _context = context;
             _loggingService = loggingService;
@@ -34,6 +31,7 @@ namespace Scribe.Controllers
         {
             if (id == null)
             {
+                TempData["Failure"] = "Condition ID is required.";
                 return NotFound();
             }
 
@@ -41,6 +39,7 @@ namespace Scribe.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (condition == null)
             {
+                TempData["Failure"] = "Condition not found.";
                 return NotFound();
             }
 
@@ -54,32 +53,49 @@ namespace Scribe.Controllers
         }
 
         // POST: Conditions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,ColorCode")] Condition condition)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(condition);
-                await _context.SaveChangesAsync();
-
-                // Create a log entry
-                var log = new Log
+                // Check for duplicate Name (case-insensitive)
+                if (_context.Condition.Any(c => c.Name.ToLower() == condition.Name.ToLower()))
                 {
-                    Details = $"Condition {condition.Name} with ColorCode {condition.ColorCode} created.",
-                    User = User.Identity.Name ?? "Anonymous", // Assuming you have user authentication
-                    Date = DateTime.Now
-                };
+                    TempData["Failure"] = $"A condition with the name '{condition.Name}' already exists.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                // Add the log entry to the database
-                _context.Add(log);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Add(condition);
+                    await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                    // Log entry
+                    var log = new Log
+                    {
+                        Details = $"Condition {condition.Name} with ColorCode {condition.ColorCode} created.",
+                        User = User.Identity.Name ?? "Anonymous",
+                        Date = DateTime.Now
+                    };
+
+                    _context.Add(log);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Condition created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData["Failure"] = $"Failed to create condition. Error: {ex.Message}";
+                }
             }
-            return PartialView("_Create");
+            else
+            {
+                TempData["Failure"] = "Failed to create condition. Please check the form for errors.";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Conditions/Edit/5
@@ -87,69 +103,89 @@ namespace Scribe.Controllers
         {
             if (id == null)
             {
+                TempData["Failure"] = "Condition ID is required.";
                 return NotFound();
             }
 
             var condition = await _context.Condition.FindAsync(id);
             if (condition == null)
             {
+                TempData["Failure"] = "Condition not found.";
                 return NotFound();
             }
-            return PartialView("_Edit",condition);
+            return PartialView("_Edit", condition);
         }
 
         // POST: Conditions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ColorCode")] Condition condition)
         {
             if (id != condition.Id)
             {
+                TempData["Failure"] = "Condition ID mismatch.";
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                // Check for duplicate Name (case-insensitive) excluding the current condition
+                if (_context.Condition.Any(c => c.Name.ToLower() == condition.Name.ToLower() && c.Id != id))
+                {
+                    TempData["Failure"] = $"A condition with the name '{condition.Name}' already exists.";
+                    return PartialView("_Edit", condition);
+                }
+
                 try
                 {
-                    // Retrieve the original condition
                     var originalCondition = await _context.Condition.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
                     if (originalCondition == null)
                     {
-                        return NotFound();
+                        TempData["Failure"] = "Condition not found.";
+                        return RedirectToAction(nameof(Index));
                     }
 
                     _context.Update(condition);
                     await _context.SaveChangesAsync();
 
-                    // Create a log entry
+                    // Log entry
                     var log = new Log
                     {
                         Details = $"Condition updated from Name: {originalCondition.Name}, ColorCode: {originalCondition.ColorCode} to Name: {condition.Name}, ColorCode: {condition.ColorCode}",
-                        User = User.Identity.Name ?? "Anonymous", // Assuming you have user authentication
+                        User = User.Identity.Name ?? "Anonymous",
                         Date = DateTime.Now
                     };
 
-                    // Add the log entry to the database
                     _context.Add(log);
                     await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Condition updated successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!ConditionExists(condition.Id))
                     {
-                        return NotFound();
+                        TempData["Failure"] = "Condition not found.";
+                        return RedirectToAction(nameof(Index));
                     }
                     else
                     {
+                        TempData["Failure"] = "Failed to update condition due to a concurrency issue.";
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    TempData["Failure"] = $"Failed to update condition. Error: {ex.Message}";
+                }
             }
-            return View(condition);
+            else
+            {
+                TempData["Failure"] = "Failed to update condition. Please check the form for errors.";
+            }
+
+            return PartialView("_Edit", condition);
         }
 
         // GET: Conditions/Delete/5
@@ -157,6 +193,7 @@ namespace Scribe.Controllers
         {
             if (id == null)
             {
+                TempData["Failure"] = "Condition ID is required.";
                 return NotFound();
             }
 
@@ -164,38 +201,51 @@ namespace Scribe.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (condition == null)
             {
+                TempData["Failure"] = "Condition not found.";
                 return NotFound();
             }
 
-            return PartialView("_Delete",condition);
+            return PartialView("_Delete", condition);
         }
 
         // POST: Conditions/Delete/5
         [HttpPost, ActionName("Delete")]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteConfirmed(int id)
-{
-    var condition = await _context.Condition.FindAsync(id);
-    if (condition != null)
-    {
-        _context.Condition.Remove(condition);
-        await _context.SaveChangesAsync();
-
-        // Create a log entry
-        var log = new Log
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            Details = $"Condition {condition.Name} with ColorCode {condition.ColorCode} deleted.",
-            User = User.Identity.Name ?? "Anonymous", // Assuming you have user authentication
-            Date = DateTime.Now
-        };
+            var condition = await _context.Condition.FindAsync(id);
+            if (condition != null)
+            {
+                try
+                {
+                    _context.Condition.Remove(condition);
+                    await _context.SaveChangesAsync();
 
-        // Add the log entry to the database
-        _context.Add(log);
-        await _context.SaveChangesAsync();
-    }
+                    // Log entry
+                    var log = new Log
+                    {
+                        Details = $"Condition {condition.Name} with Color Code {condition.ColorCode} deleted.",
+                        User = User.Identity.Name ?? "Anonymous",
+                        Date = DateTime.Now
+                    };
 
-    return RedirectToAction(nameof(Index));
-}
+                    _context.Add(log);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Condition deleted successfully.";
+                }
+                catch (Exception ex)
+                {
+                    TempData["Failure"] = $"Failed to delete condition. Error: {ex.Message}";
+                }
+            }
+            else
+            {
+                TempData["Failure"] = "Condition not found.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
 
         private bool ConditionExists(int id)
         {

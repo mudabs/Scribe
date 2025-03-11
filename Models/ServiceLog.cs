@@ -13,7 +13,7 @@ namespace Scribe.Models
         [ForeignKey("SerialNumberId")]
         public SerialNumber? SerialNumber { get; set; }
         public string Description { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime Date { get; set; }
     }
 }

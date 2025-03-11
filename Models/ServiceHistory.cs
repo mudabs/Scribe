@@ -10,10 +10,10 @@ namespace Scribe.Models
         public SerialNumber? SerialNumber { get; set; } // Navigation property
         [DisplayName("Description")]
         public string? ServiceDescription { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [DisplayName("Service Date")]
         public DateTime ServiceDate { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [DisplayName("Next Service")]
         public DateTime NextServiceDate { get; set; }
         [DisplayName("Condition")]

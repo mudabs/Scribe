@@ -9,7 +9,6 @@ using Scribe.Infrastructure;
 using Scribe.Models;
 using Microsoft.AspNetCore.Hosting;
 using Scribe.Services;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Scribe.Data;
 
 namespace Scribe.Controllers
@@ -19,7 +18,6 @@ namespace Scribe.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILoggingService _loggingService;
-
 
         public BrandsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, ILoggingService loggingService)
         {
@@ -49,7 +47,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(brand);
+             return RedirectToAction(nameof(Index));
         }
 
         // GET: Brands/Create
@@ -59,33 +57,51 @@ namespace Scribe.Controllers
         }
 
         // POST: Brands/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Brand brand, IFormFile imageFile)
         {
             if (ModelState.IsValid)
             {
-                // Handle image upload
-                if (imageFile != null && IsImageValid(imageFile))
+                // Check if a brand with the same name already exists (case insensitive)
+                if (_context.Brands.Any(b => b.Name.ToLower() == brand.Name.ToLower()))
                 {
-                    brand.ImageName = await SaveImageAsync(imageFile);
+                    TempData["Failure"] = $"A brand with the name '{brand.Name}' already exists. Please choose a different name.";
+                     return RedirectToAction(nameof(Index));
                 }
-                // Add the brand to the database
-                _context.Add(brand);
-                await _context.SaveChangesAsync();
 
-                // Create a log entry using logging service
-                var details = $"Brand: {brand.Name} created.";
-                var myUser = User.Identity.Name; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
 
-                await _context.SaveChangesAsync();
+                try
+                {
+                    // Handle image upload
+                    if (imageFile != null && IsImageValid(imageFile))
+                    {
+                        brand.ImageName = await SaveImageAsync(imageFile);
+                    }
 
-                return RedirectToAction(nameof(Index));
+                    // Add the brand to the database
+                    _context.Add(brand);
+                    await _context.SaveChangesAsync();
+
+                    // Log the creation
+                    var details = $"Brand: {brand.Name} created.";
+                    var myUser = User.Identity.Name; // Assuming you have user authentication
+                    await _loggingService.LogActionAsync(details, myUser);
+
+                    TempData["Success"] = "Brand created successfully."; // Success message
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData["Failure"] = $"Failed to create brand. Error: {ex.Message}"; // Failure message
+                }
             }
-            return View(brand);
+            else
+            {
+                TempData["Failure"] = "Failed to create brand. Please check the form for errors."; // Model state error
+            }
+
+             return RedirectToAction(nameof(Index));
         }
 
         // GET: Brands/Edit/5
@@ -101,40 +117,46 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return PartialView("_Edit",brand);
+            return PartialView("_Edit", brand);
         }
 
         // POST: Brands/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Brand brand)
         {
             if (id != brand.Id)
             {
-                return NotFound();
+                TempData["Failure"] = "Invalid brand ID.";
+                return RedirectToAction(nameof(Index));
             }
 
             if (ModelState.IsValid)
             {
+                // Check if a brand with the same name already exists (case insensitive)
+                if (_context.Brands.Any(b => b.Name.ToLower() == brand.Name.ToLower()))
+                {
+                    TempData["Failure"] = $"A brand with the name '{brand.Name}' already exists. Please choose a different name.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 try
                 {
                     // Retrieve the initial brand from the database
                     var originalBrand = await _context.Brands.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
-                    var initialBrandName = originalBrand.Name;
                     if (originalBrand == null)
                     {
-                        return NotFound();
+                        TempData["Failure"] = "Brand not found.";
+                        return RedirectToAction(nameof(Index));
                     }
 
-                    var imageName = originalBrand.Name;
+                    var initialBrandName = originalBrand.Name;
 
-
+                    // Update image if provided
                     if (brand.ImageName != null)
                     {
                         string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/brands");
-                        imageName = Guid.NewGuid().ToString() + "_" + brand.ImageUpload.FileName;
+                        var imageName = Guid.NewGuid().ToString() + "_" + brand.ImageUpload.FileName;
                         string filePath = Path.Combine(uploadDir, imageName);
                         using (var fs = new FileStream(filePath, FileMode.Create))
                         {
@@ -142,33 +164,46 @@ namespace Scribe.Controllers
                         }
                         brand.ImageName = imageName;
                     }
+                    else
+                    {
+                        brand.ImageName = originalBrand.ImageName; // Retain old image if none is provided
+                    }
 
-
-                    brand.ImageName = originalBrand.ImageName; // Keep the old image name
                     // Update the brand
                     _context.Update(brand);
                     await _context.SaveChangesAsync();
 
-                    // Create a log entry using logging service
-                    var details = $"Brand: {initialBrandName} Updated to {brand.Name}.";
+                    // Log the update
+                    var details = $"Brand: {initialBrandName} updated to {brand.Name}.";
                     var myUser = User.Identity.Name; // Assuming you have user authentication
-                    await _loggingService.LogActionAsync(details, myUser); // Log the action
+                    await _loggingService.LogActionAsync(details, myUser);
 
-                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Brand updated successfully."; // Success message
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!BrandExists(brand.Id))
                     {
-                        return NotFound();
+                        TempData["Failure"] = "Brand not found.";
+                        return RedirectToAction(nameof(Index));
                     }
                     else
                     {
+                        TempData["Failure"] = "Failed to update brand due to concurrency issue."; // Concurrency error
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    TempData["Failure"] = $"Failed to update brand. Error: {ex.Message}"; // Failure message
+                }
             }
+            else
+            {
+                TempData["Failure"] = "Failed to update brand. Please check the form for errors."; // Model state error
+            }
+
             return PartialView("_Edit", brand);
         }
 
@@ -187,7 +222,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return View(brand);
+            return PartialView("_Delete", brand);
         }
 
         // POST: Brands/Delete/5
@@ -198,21 +233,30 @@ namespace Scribe.Controllers
             var brand = await _context.Brands.FindAsync(id);
             if (brand != null)
             {
+                try
+                {
+                    // Log the deletion
+                    var details = $"Brand: {brand.Name} deleted.";
+                    var myUser = User.Identity.Name; // Assuming you have user authentication
+                    await _loggingService.LogActionAsync(details, myUser);
 
+                    DeleteImage(brand.ImageName); // Delete the image from the file system
+                    _context.Brands.Remove(brand);
+                    await _context.SaveChangesAsync();
 
-                // Create a log entry using logging service
-                var details = $"Brand: {brand.Name} Deleted.";
-                var myUser = User.Identity.Name; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
-
-                DeleteImage(brand.ImageName); // Delete the image from the file system
-                _context.Brands.Remove(brand);
-
-
-                await _context.SaveChangesAsync();
+                    TempData["Success"] = "Brand deleted successfully."; // Success message
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData["Failure"] = $"Failed to delete brand. Error: {ex.Message}"; // Failure message
+                }
+            }
+            else
+            {
+                TempData["Failure"] = "Brand not found.";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -258,6 +302,5 @@ namespace Scribe.Controllers
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             return validExtensions.Contains(extension);
         }
-
     }
 }

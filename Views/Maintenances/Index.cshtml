@@ -14,6 +14,12 @@
     <thead>
         <tr>
             <th>
+                Brand
+            </th>
+            <th>
+                Model
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.SerialNumber)
             </th>
             <th>
@@ -37,6 +43,12 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SerialNumber.Model.Brand.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SerialNumber.Model.Name)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.SerialNumber.Name)
             </td>

@@ -9,6 +9,8 @@ namespace Scribe.Models
         [DisplayName("Employee Name")]
         public int ADUsersId { get; set; }
         public ADUsers? ADUsers { get; set; }
-        public List<SerialNumberGroup>? SerialNumberGroups { get; set; }
+        //public List<SerialNumberGroup>? SerialNumberGroups { get; set; }
+        public int SerialNumberId { get; set; }
+        public SerialNumber? SerialNumber { get; set; }
     }
 }

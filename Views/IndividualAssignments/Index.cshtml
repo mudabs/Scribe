@@ -9,6 +9,8 @@
 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createModal" onclick="loadCreatePartial('IndividualAssignments')">
     Create New
 </button>
+<br />
+<br />
 <table class="table" id="userTable">
     <thead>
         <tr>
@@ -26,7 +28,7 @@
                     @Html.DisplayFor(modelItem => item.ADUsers.Name)
                 </td>
                 <td>
-                    <a asp-action="AllocateUser" asp-route-id="@item.Id">Allocation</a> |
+                    <a asp-action="AllocateUser" asp-route-id="@item.ADUsers.Id" class="btn btn-sm btn-outline-primary">Allocation</a> |
                     <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('IndividualAssignments',@item.Id)">
                         Edit
                     </button> |
@@ -38,3 +40,4 @@
         }
     </tbody>
 </table>
+

@@ -1,0 +1,22 @@
+﻿<div class="modal fade" id="confirmOverrideModal" tabindex="-1" aria-labelledby="confirmOverrideLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmOverrideLabel">Confirm Override</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>This device is currently allocated to another user. Do you want to override the allocation?</p>
+            </div>
+            <div class="modal-footer">
+                <form asp-action="CreateIndividualAllocation" method="post">
+                    <input type="hidden" name="aDUserId" value="@ViewData["aDUserId"]" />
+                    <input type="hidden" name="SerialNumberId" value="@ViewData["SerialNumberId"]" />
+                    <input type="hidden" name="overrideConfirmed" value="true" />
+                    <button type="submit" class="btn btn-primary">Accept</button>
+                    <a asp-action="AllocateUser" asp-route-id="@ViewData["aDUserId"]" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

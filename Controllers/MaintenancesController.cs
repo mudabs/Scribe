@@ -31,7 +31,7 @@ namespace Scribe.Controllers
         // GET: Maintenances
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Maintenances.Include(s => s.SerialNumber).Include(s => s.Condition);
+            var applicationDbContext = _context.Maintenances.Include(s => s.SerialNumber).Include(s => s.Condition).Include(s => s.SerialNumber.Model.Brand).Include(s => s.SerialNumber.Model);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -85,6 +85,11 @@ namespace Scribe.Controllers
                 _context.Update(sn);
 
                 if (serviceHistory.SystemUserId == "")
+                {
+                    serviceHistory.SystemUserId = User.Identity.Name;
+                }
+
+                if(serviceHistory.SystemUserId == null)
                 {
                     serviceHistory.SystemUserId = User.Identity.Name;
                 }
@@ -150,6 +155,13 @@ namespace Scribe.Controllers
                     {
                         serviceHistory.SystemUserId = User.Identity.Name;
                     }
+
+
+                    if (serviceHistory.SystemUserId == null)
+                    {
+                        serviceHistory.SystemUserId = User.Identity.Name;
+                    }
+
                     //Updating Device Condition
                     var sn = await _context.SerialNumbers.FindAsync(serviceHistory.SerialNumberId);
                     sn.ConditionId = serviceHistory.ConditionId;
@@ -157,6 +169,7 @@ namespace Scribe.Controllers
 
                     _context.Update(serviceHistory);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Maintenance Log Updated Successfully";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -214,6 +227,7 @@ namespace Scribe.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Maintenance Log Deleted Successfully";
             return RedirectToAction(nameof(Index));
         }
 
