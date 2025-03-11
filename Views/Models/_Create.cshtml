@@ -16,7 +16,8 @@
                         <select id="brand-search" asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId">
                             <option>---Choose Brand---</option>
                         </select>
-                        <a asp-action="Create" asp-controller="Brands" style="text-decoration:none">Brand not available?</a>
+                        <a asp-action="" asp-controller="Brands" style="text-decoration:none">Brand not available?</a>
+
                     </div>
                     <div class="form-group">
                         <label asp-for="Name" class="control-label"></label>
@@ -28,7 +29,7 @@
                         <select id="category-search" asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
                             <option>---Choose Category---</option>
                         </select>
-                        <a asp-action="Create" asp-controller="Categories" style="text-decoration:none">Category not available?</a>
+                        <a asp-action="Index" asp-controller="Categories" style="text-decoration:none">Category not available?</a>
                     </div>
                     <div class="form-group">
                         <label asp-for="Image" class="control-label"></label>
