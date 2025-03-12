@@ -136,6 +136,25 @@
 
 @section Scripts {
     <script>
+
+                 $('form').on('submit', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (result) {
+                    if (result) {
+                        $('#modalContainer').html(result);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+
         $("#printPDF").click(function () {
             // Get all rows in the table
             var rows = document.querySelectorAll('#tblExport tr');
@@ -211,5 +230,9 @@
                 }
             });
         });
+    </script>
+
+    <script>
+       
     </script>
 }

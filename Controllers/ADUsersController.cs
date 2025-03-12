@@ -338,15 +338,36 @@ namespace Scribe.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateIndividualAllocation(int ADUsersId, int SerialNumberId, string allocatedBy)
         {
-            
             try
             {
-                if(allocatedBy == null)
+                if (allocatedBy == null)
                 {
                     allocatedBy = User.Identity.Name;
                 }
-                await _allocationService.CreateAllocationAsync(SerialNumberId, ADUsersId, DateTime.Now, null, allocatedBy);
-                TempData["Success"] = "Allocation Log Added";
+                var result = await _allocationService.AllocationExists(SerialNumberId, ADUsersId, DateTime.Now, null, allocatedBy);
+                var doIExist = await _allocationService.MyAllocationExists(SerialNumberId, ADUsersId, DateTime.Now, null, allocatedBy);
+                
+                //Checking if I have already been allocated
+                if (doIExist)
+                {
+                    var model = await _context.SerialNumberGroup.FirstOrDefaultAsync(x => x.SerialNumberId == SerialNumberId);
+                    TempData["Failure"] = "Device is already allocated to user.";
+                    return RedirectToAction("AllocateUser", new { id = ADUsersId });
+                }
+
+                //Checking if device is already allocated to someone else
+                if (result)
+                {
+                    var model = await _context.SerialNumberGroup.Include(x=>x.ADUsers).Include(x=>x.SerialNumber).FirstOrDefaultAsync(x => x.SerialNumberId == SerialNumberId);
+                    TempData["Failure"] = "Device is already allocated to another user.";
+                    return RedirectToAction("AllocateUser", new { id = ADUsersId });
+                }
+                else
+                {
+                    await _allocationService.CreateAllocationAsync(SerialNumberId, ADUsersId, DateTime.Now, null, allocatedBy);
+                    TempData["Success"] = "Allocation Log Added";
+                }
+                
             }
             catch (Exception ex)
             {
@@ -378,7 +399,7 @@ namespace Scribe.Controllers
             {
                 try
                 {
-                    if(deallocatedBy == null)
+                    if (deallocatedBy == null)
                     {
                         deallocatedBy = User.Identity.Name;
                     }

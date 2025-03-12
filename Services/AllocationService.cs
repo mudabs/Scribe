@@ -13,6 +13,9 @@ namespace Scribe.Services
     public interface IAllocationService
     {
         Task CreateAllocationAsync(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
+        Task<bool> AllocationExists(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
+        Task<bool> MyAllocationExists(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
+
     }
     public class AllocationService : IAllocationService
     {
@@ -38,34 +41,61 @@ namespace Scribe.Services
 
             return "Anonymous"; // Handle unauthenticated users
         }
+        public async Task<bool> AllocationExists (int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy)
+        {
+            //Checking if the user is allocated this Device
+            var sng = await _context.SerialNumberGroup.FirstOrDefaultAsync(x => x.SerialNumberId == serialNumberId);
+            if (sng == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }   
+        public async Task<bool> MyAllocationExists (int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy)
+        {
+            //Checking if the user is allocated this Device
+            var sng = await _context.SerialNumberGroup.FirstOrDefaultAsync(x => x.SerialNumberId == serialNumberId && x.ADUsersId == adUsersId);
+            if (sng == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
         public async Task CreateAllocationAsync(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy)
         {
             //Checking existence of current allocation
             var sng = await _context.SerialNumberGroup.FirstOrDefaultAsync(x => x.SerialNumberId == serialNumberId && x.ADUsersId == adUsersId);
             if (sng == null)
             {
-                // Check if the SerialNumber is currently allocated another person
-                var existingAllocation = await _context.SerialNumberGroup
-                    .FirstOrDefaultAsync(sng => sng.SerialNumberId == serialNumberId);
+                //// Check if the SerialNumber is currently allocated another person
+                //var existingAllocation = await _context.SerialNumberGroup
+                //    .FirstOrDefaultAsync(sng => sng.SerialNumberId == serialNumberId);
 
-                if (existingAllocation != null)
-                {
-                    //will change logic to add notification
-                    _context.Remove(existingAllocation);
-                }
+                //if (existingAllocation != null)
+                //{
+                //    //will change logic to add notification
+                //    _context.Remove(existingAllocation);
+                //}
 
-                    // Creating an Allocation History
-                    AllocationHistory allocationHistory = new AllocationHistory()
+                // Creating an Allocation History
+                AllocationHistory allocationHistory = new AllocationHistory()
                 {
                     SerialNumberId = serialNumberId,
                     ADUsersId = adUsersId,
                     AllocationDate = allocationDate,
                     DeallocationDate = deallocationDate,
                     AllocatedBy = allocatedBy
-                    };
+                };
 
                 //Updating Serial Number User and Condition
-                var sn = await _context.SerialNumbers.Include(x=>x.ADUsers).Include(x=>x.Model).Include(x=>x.Model.Brand).Include(x=>x.Model.Category).FirstOrDefaultAsync(x=>x.Id == serialNumberId);
+                var sn = await _context.SerialNumbers.Include(x => x.ADUsers).Include(x => x.Model).Include(x => x.Model.Brand).Include(x => x.Model.Category).FirstOrDefaultAsync(x => x.Id == serialNumberId);
                 sn.ADUsersId = adUsersId;
                 //Find Condition with "In Use"
                 var condId = _context.Condition.FirstOrDefault(x => x.Name == "In Use").Id;
@@ -91,7 +121,6 @@ namespace Scribe.Services
                 var details = $"Serial Number '{sn.Name}' for '{sn.Model.Brand.Name}' '{sn.Model.Name}' '{sn.Model.Category.Name}' allocated to '{employee.Name}'.";
                 var myUser = GetCurrentUserName(); // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
-
             }
             else
             {
@@ -100,5 +129,6 @@ namespace Scribe.Services
 
 
         }
+
     }
 }
