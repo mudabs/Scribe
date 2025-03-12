@@ -467,7 +467,8 @@ namespace Scribe.Controllers
                 await _context.SaveChangesAsync();
 
                 var user = await _context.ADUsers.FirstOrDefaultAsync(x => x.Id == userGroup.UserId);
-                await _loggingService.LogActionAsync($"Employee: {user.Name} added to Group: {userGroup.Group.Name}.", User.Identity.Name);
+                var groupName = _context.Group.FindAsync(userGroup.GroupId);
+                await _loggingService.LogActionAsync($"Employee: {user.Name} added to Group: {groupName}.", User.Identity.Name);
 
                 TempData["Success"] = "New User added successfully!!!";
                 // Redirect to the AllocateGroup action with the group ID
@@ -502,7 +503,6 @@ namespace Scribe.Controllers
 
     public class GroupsViewModel
     {
-
         public int Id { get; set; }
         public string? Name { get; set; }
         public List<ADUsers>? Users { get; set; }

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Scribe.Models.Group>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Group Allocations";
 }
 
 <h1>Index</h1>
@@ -75,7 +75,7 @@
                     }
                 </td>
                 <td>
-                    <a class="btn btn-outline-primary" asp-action="AllocateGroup" asp-route-id="@item.Id">Allocate</a> |
+                    <a class="btn btn-sm btn-outline-primary" asp-action="AllocateGroup" asp-route-id="@item.Id">Allocate</a> |
                     <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Groups',@item.Id)">
                         Edit
                     </button> |

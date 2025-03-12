@@ -270,118 +270,118 @@ namespace Scribe.Controllers
         //    return ViewComponent("IndividualAssignment", new { id, model = viewModel });
         //}
 
-        ////Cascading Dropdown
-        //[HttpGet]
-        //public JsonResult GetModelsByBrand(int brandId)
-        //{
-        //    var models = _context.Models.Where(m => m.BrandId == brandId)
-        //                                 .Select(m => new { Id = m.Id, Name = m.Name })
-        //                                 .ToList();
-        //    return Json(models);
-        //}
-
-        //[HttpGet]
-        //public JsonResult GetSerialNumbersByModel(int modelId)
-        //{
-        //    var serialNumbers = _context.SerialNumbers.Where(s => s.ModelId == modelId)
-        //                                              .Select(s => new { Id = s.Id, Name = s.Name })
-        //                                              .ToList();
-        //    return Json(serialNumbers);
-        //}
-
-        [HttpPost]
-        public async Task<IActionResult> CreateIndividualAllocation(int aDUserId, int SerialNumberId, bool overrideConfirmed = false)
+        ////Cascading Dropdown to Allocate Group
+        [HttpGet]
+        public JsonResult GetModelsByBrand(int brandId)
         {
-            // Validate the input
-            if (aDUserId == 0 || SerialNumberId == 0)
-            {
-                ModelState.AddModelError(string.Empty, "All fields are required.");
-                TempData["Failure"] = "All fields are required.";
-                return RedirectToAction("AllocateUser", new { id = aDUserId });
-            }
-
-            // Check if the SerialNumber is already allocated to this user
-            var existingAllocationPair = await _context.IndividualAssignment
-                .FirstOrDefaultAsync(sng => sng.SerialNumberId == SerialNumberId && sng.ADUsersId == aDUserId);
-
-            if (existingAllocationPair != null)
-            {
-                TempData["Failure"] = "The device is already allocated to this user.";
-                return RedirectToAction("AllocateUser", new { id = aDUserId });
-            }
-
-            // Check if the SerialNumber is currently allocated to another person
-            var existingAllocation = await _context.SerialNumberGroup
-                .FirstOrDefaultAsync(sng => sng.SerialNumberId == SerialNumberId);
-
-            if (existingAllocation != null && !overrideConfirmed)
-            {
-                TempData["Warning"] = "This device is currently allocated to another user. Do you want to override the allocation?";
-                // Return a partial view for confirmation
-                return PartialView("_ConfirmOverrideModal", new { aDUserId, SerialNumberId });
-            }
-
-            if (existingAllocation != null && overrideConfirmed)
-            {
-                // Remove the existing allocation
-                _context.Remove(existingAllocation);
-
-                // Adding deallocation date
-                var myAllocationHistory = _context.AllocationHistory
-                    .OrderByDescending(a => a.AllocationDate)
-                    .FirstOrDefault(x => x.SerialNumberId == existingAllocation.SerialNumberId);
-
-                if (myAllocationHistory != null)
-                {
-                    myAllocationHistory.DeallocationDate = DateTime.Now;
-                    _context.AllocationHistory.Update(myAllocationHistory);
-                }
-
-                TempData["Success"] = "The device has been reallocated.";
-            }
-
-            // Create a new SerialNumberGroup object
-            var serialNumberGroup = new SerialNumberGroup
-            {
-                SerialNumberId = SerialNumberId,
-                GroupId = null
-            };
-
-            var myUserId = _context.IndividualAssignment
-                .Include(x => x.ADUsers)
-                .FirstOrDefault(X => X.Id == aDUserId);
-
-            if (myUserId == null)
-            {
-                TempData["Failure"] = "User not found.";
-                return RedirectToAction("AllocateUser", new { id = aDUserId });
-            }
-
-            // Updating the new user's serial number in the SerialNumbers model
-            var mySerNumber = _context.SerialNumbers.FirstOrDefault(x => x.Id == SerialNumberId);
-            if (mySerNumber != null)
-            {
-                mySerNumber.ADUsersId = myUserId.ADUsersId;
-                _context.Update(mySerNumber);
-            }
-
-            var allocationHistory = new AllocationHistory
-            {
-                SerialNumberId = SerialNumberId,
-                ADUsersId = myUserId.ADUsersId,
-                AllocationDate = DateTime.Now,
-                DeallocationDate = null,
-            };
-
-            // Save to the database
-            _context.SerialNumberGroup.Add(serialNumberGroup);
-            _context.AllocationHistory.Add(allocationHistory);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Device has been allocated.";
-            // Redirect or return success response
-            return RedirectToAction("AllocateUser", new { id = aDUserId });
+            var models = _context.Models.Where(m => m.BrandId == brandId)
+                                         .Select(m => new { Id = m.Id, Name = m.Name })
+                                         .ToList();
+            return Json(models);
         }
+
+        [HttpGet]
+        public JsonResult GetSerialNumbersByModel(int modelId)
+        {
+            var serialNumbers = _context.SerialNumbers.Where(s => s.ModelId == modelId)
+                                                      .Select(s => new { Id = s.Id, Name = s.Name })
+                                                      .ToList();
+            return Json(serialNumbers);
+        }
+
+        //[HttpPost]
+        //public async Task<IActionResult> CreateIndividualAllocation(int aDUserId, int SerialNumberId, bool overrideConfirmed = false)
+        //{
+        //    // Validate the input
+        //    if (aDUserId == 0 || SerialNumberId == 0)
+        //    {
+        //        ModelState.AddModelError(string.Empty, "All fields are required.");
+        //        TempData["Failure"] = "All fields are required.";
+        //        return RedirectToAction("AllocateUser", new { id = aDUserId });
+        //    }
+
+        //    // Check if the SerialNumber is already allocated to this user
+        //    var existingAllocationPair = await _context.IndividualAssignment
+        //        .FirstOrDefaultAsync(sng => sng.SerialNumberId == SerialNumberId && sng.ADUsersId == aDUserId);
+
+        //    if (existingAllocationPair != null)
+        //    {
+        //        TempData["Failure"] = "The device is already allocated to this user.";
+        //        return RedirectToAction("AllocateUser", new { id = aDUserId });
+        //    }
+
+        //    // Check if the SerialNumber is currently allocated to another person
+        //    var existingAllocation = await _context.SerialNumberGroup
+        //        .FirstOrDefaultAsync(sng => sng.SerialNumberId == SerialNumberId);
+
+        //    if (existingAllocation != null && !overrideConfirmed)
+        //    {
+        //        TempData["Warning"] = "This device is currently allocated to another user. Do you want to override the allocation?";
+        //        // Return a partial view for confirmation
+        //        return PartialView("_ConfirmOverrideModal", new { aDUserId, SerialNumberId });
+        //    }
+
+        //    if (existingAllocation != null && overrideConfirmed)
+        //    {
+        //        // Remove the existing allocation
+        //        _context.Remove(existingAllocation);
+
+        //        // Adding deallocation date
+        //        var myAllocationHistory = _context.AllocationHistory
+        //            .OrderByDescending(a => a.AllocationDate)
+        //            .FirstOrDefault(x => x.SerialNumberId == existingAllocation.SerialNumberId);
+
+        //        if (myAllocationHistory != null)
+        //        {
+        //            myAllocationHistory.DeallocationDate = DateTime.Now;
+        //            _context.AllocationHistory.Update(myAllocationHistory);
+        //        }
+
+        //        TempData["Success"] = "The device has been reallocated.";
+        //    }
+
+        //    // Create a new SerialNumberGroup object
+        //    var serialNumberGroup = new SerialNumberGroup
+        //    {
+        //        SerialNumberId = SerialNumberId,
+        //        GroupId = null
+        //    };
+
+        //    var myUserId = _context.IndividualAssignment
+        //        .Include(x => x.ADUsers)
+        //        .FirstOrDefault(X => X.Id == aDUserId);
+
+        //    if (myUserId == null)
+        //    {
+        //        TempData["Failure"] = "User not found.";
+        //        return RedirectToAction("AllocateUser", new { id = aDUserId });
+        //    }
+
+        //    // Updating the new user's serial number in the SerialNumbers model
+        //    var mySerNumber = _context.SerialNumbers.FirstOrDefault(x => x.Id == SerialNumberId);
+        //    if (mySerNumber != null)
+        //    {
+        //        mySerNumber.ADUsersId = myUserId.ADUsersId;
+        //        _context.Update(mySerNumber);
+        //    }
+
+        //    var allocationHistory = new AllocationHistory
+        //    {
+        //        SerialNumberId = SerialNumberId,
+        //        ADUsersId = myUserId.ADUsersId,
+        //        AllocationDate = DateTime.Now,
+        //        DeallocationDate = null,
+        //    };
+
+        //    // Save to the database
+        //    _context.SerialNumberGroup.Add(serialNumberGroup);
+        //    _context.AllocationHistory.Add(allocationHistory);
+        //    await _context.SaveChangesAsync();
+
+        //    TempData["Success"] = "Device has been allocated.";
+        //    // Redirect or return success response
+        //    return RedirectToAction("AllocateUser", new { id = aDUserId });
+        //}
 
         //[HttpPost]
         //public async Task<IActionResult> RemoveDevice(int individualAllocationId)
