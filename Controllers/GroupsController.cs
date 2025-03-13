@@ -413,9 +413,17 @@ namespace Scribe.Controllers
             bool exists = await _context.SerialNumberGroup
                 .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId && ug.GroupId == serialNumberGroup.GroupId);
 
-            if (exists)
+            bool existsInIndividual = await _context.SerialNumberGroup
+                .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId);
+
+            
+            if (existsInIndividual)
             {
-                TempData["Failure"] = "The Device already exists in the group !!!";
+                TempData["Failure"] = "The Device is already assigned a user !!!";
+                if (exists)
+                {
+                    TempData["Failure"] = "The Device already exists in the group !!!";
+                }
                 return RedirectToAction("AllocateGroup", new { id = serialNumberGroup.GroupId });
             }
 
@@ -488,14 +496,18 @@ namespace Scribe.Controllers
             return Json(models);
         }
 
+        
         [HttpGet]
         public JsonResult GetSerialNumbersByModel(int modelId)
         {
-            var serialNumbers = _context.SerialNumbers.Where(s => s.ModelId == modelId)
-                                                      .Select(s => new { Id = s.Id, Name = s.Name })
-                                                      .ToList();
+            var serialNumbers = _context.SerialNumbers
+                                        .Where(s => s.ModelId == modelId && !_context.SerialNumberGroup.Any(g => g.SerialNumberId == s.Id))
+                                        .Select(s => new { Id = s.Id, Name = s.Name })
+                                        .ToList();
+
             return Json(serialNumbers);
         }
+
 
 
     }

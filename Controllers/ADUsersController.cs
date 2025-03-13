@@ -185,39 +185,46 @@ namespace Scribe.Controllers
 
             return PartialView("_Delete", aDUsers);
         }
-
         // POST: ADUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var aDUsers = await _context.ADUsers.FindAsync(id);
-            if (aDUsers != null || aDUsers.Name != "No User" || id != 1)
+            if (aDUsers != null && aDUsers.Name != "No User" && id != 1)
             {
+                // Check if the ADUserId is present in the SerialNumberGroup table
+                bool isUserInSerialNumberGroup = await _context.SerialNumberGroup.AnyAsync(sng => sng.ADUsersId == id);
+                if (isUserInSerialNumberGroup)
+                {
+                    TempData["Failure"] = "User cannot be deleted because they are associated with a serial number.";
+                    return RedirectToAction("Index", "ADUsers");
+                }
+
                 // Create a log entry using logging service
-                var details = $"User '{aDUsers.Name}' deleted. ";
+                var details = $"User '{aDUsers.Name}' deleted.";
                 var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
 
                 _context.ADUsers.Remove(aDUsers);
+
+                var serialNumbers = _context.SerialNumbers.Where(sn => sn.ADUsersId == null).ToList();
+                foreach (var serialNumber in serialNumbers)
+                {
+                    serialNumber.ADUsersId = 1; // Set to 'No User' (ID 1)
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "User deleted successfully.";
             }
             else
             {
-                TempData["Failure"] = "User Cannot be Deleted";
+                TempData["Failure"] = "User cannot be deleted.";
             }
 
-            var serialNumbers = _context.SerialNumbers.Where(sn => sn.ADUsersId == null).ToList();
-            foreach (var serialNumber in serialNumbers)
-            {
-                serialNumber.ADUsersId = 1; // Set to 'No User' (ID 1)
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "User Deleted Successfully";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "ADUsers");
         }
-
         private bool ADUsersExists(int id)
         {
             return _context.ADUsers.Any(e => e.Id == id);
@@ -329,9 +336,11 @@ namespace Scribe.Controllers
         [HttpGet]
         public JsonResult GetSerialNumbersByModel(int modelId)
         {
-            var serialNumbers = _context.SerialNumbers.Where(s => s.ModelId == modelId)
-                                                      .Select(s => new { Id = s.Id, Name = s.Name })
-                                                      .ToList();
+            var serialNumbers = _context.SerialNumbers
+                                        .Where(s => s.ModelId == modelId && !_context.SerialNumberGroup.Any(g => g.SerialNumberId == s.Id))
+                                        .Select(s => new { Id = s.Id, Name = s.Name })
+                                        .ToList();
+
             return Json(serialNumbers);
         }
 
@@ -346,35 +355,38 @@ namespace Scribe.Controllers
                 }
                 var result = await _allocationService.AllocationExists(SerialNumberId, ADUsersId, DateTime.Now, null, allocatedBy);
                 var doIExist = await _allocationService.MyAllocationExists(SerialNumberId, ADUsersId, DateTime.Now, null, allocatedBy);
-                
-                //Checking if I have already been allocated
+
+                // Checking if I have already been allocated
                 if (doIExist)
                 {
                     var model = await _context.SerialNumberGroup.FirstOrDefaultAsync(x => x.SerialNumberId == SerialNumberId);
                     TempData["Failure"] = "Device is already allocated to user.";
-                    return RedirectToAction("AllocateUser", new { id = ADUsersId });
+                    return Json(new { success = false, message = "Device is already allocated to user." });
                 }
 
-                //Checking if device is already allocated to someone else
+                // Checking if device is already allocated to someone else
                 if (result)
                 {
-                    var model = await _context.SerialNumberGroup.Include(x=>x.ADUsers).Include(x=>x.SerialNumber).FirstOrDefaultAsync(x => x.SerialNumberId == SerialNumberId);
-                    TempData["Failure"] = "Device is already allocated to another user.";
-                    return RedirectToAction("AllocateUser", new { id = ADUsersId });
+                    var model = await _context.SerialNumberGroup.Include(x => x.ADUsers).Include(x => x.SerialNumber).FirstOrDefaultAsync(x => x.SerialNumberId == SerialNumberId);
+                    if(model.GroupId != null)
+                    {
+                        return PartialView("_ConfirmRemovalFromGroup", model);
+                    }
+                    return PartialView("_ConfirmRemoval", model);
                 }
                 else
                 {
                     await _allocationService.CreateAllocationAsync(SerialNumberId, ADUsersId, DateTime.Now, null, allocatedBy);
                     TempData["Success"] = "Allocation Log Added";
+                    return Json(new { success = true, message = "Allocation Log Added" });
                 }
-                
+
             }
             catch (Exception ex)
             {
                 TempData["Failure"] = ex.Message; // Handle the exception as needed
+                return Json(new { success = false, message = ex.Message });
             }
-
-            return RedirectToAction("AllocateUser", new { id = ADUsersId });
         }
 
         [HttpPost]

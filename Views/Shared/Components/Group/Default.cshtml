@@ -180,7 +180,7 @@
 
                 if (brandId) {
                     $.ajax({
-                        url: '@Url.Action("GetModelsByBrand", "IndividualAssignments")', // Adjust the controller name
+                        url: '@Url.Action("GetModelsByBrand", "Groups")', // Adjust the controller name
                         type: 'GET',
                         data: { brandId: brandId },
                         success: function (models) {
@@ -203,7 +203,7 @@
 
                 if (modelId) {
                     $.ajax({
-                        url: '@Url.Action("GetSerialNumbersByModel", "IndividualAssignments")', // Adjust the controller name
+                        url: '@Url.Action("GetSerialNumbersByModel", "Groups")', // Adjust the controller name
                         type: 'GET',
                         data: { modelId: modelId },
                         success: function (serialNumbers) {

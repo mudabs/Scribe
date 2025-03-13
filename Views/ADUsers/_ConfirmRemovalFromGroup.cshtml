@@ -1,0 +1,31 @@
+﻿@model Scribe.Models.SerialNumberGroup;
+
+@{
+}
+
+
+<!-- Modal -->
+<div class="modal fade" id="allocationAlertModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Warning!!!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span>The Device is currently allocated to a group: @Model.Group.Name. Deallocate from the current group first then proceed to allocate the device.</span>
+                <br />
+                <br />
+                <a asp-action="AllocateGroup" asp-controller="Groups" asp-route-id="@Model.GroupId" class="btn btn-sm btn-outline-primary">Go to @Model.Group.Name</a> |
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#allocationAlertModal').modal('show');
+    });
+</script>
