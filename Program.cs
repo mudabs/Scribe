@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
 using Scribe.Data;
 using Scribe.Infrastructure;
 using Scribe.Services;
+using System.Security.Claims;
+using System.DirectoryServices.AccountManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,23 +15,41 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Added Windows Authentication
-//builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-//    .AddNegotiate();
-
-//Use cookie-based authentication
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(options =>
-//    {
-//        options.LoginPath = "/Account/Login";
-//        options.LogoutPath = "/Account/Logout";
-//        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-//        options.SlidingExpiration = true;
-//    });
+// Use Windows Authentication and Cookie Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = NegotiateDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddNegotiate();
 
 builder.Services.AddAuthorization(options =>
 {
-    options.FallbackPolicy = options.DefaultPolicy;
+    options.AddPolicy("GroupPolicy", policy =>
+        policy.RequireAssertion(context =>
+        {
+            var user = context.User;
+            var domain = "zlt.co.zw";
+            var groupName = "zim-web-it";
+
+            using (var principalContext = new PrincipalContext(ContextType.Domain, domain))
+            using (var group = GroupPrincipal.FindByIdentity(principalContext, groupName))
+            {
+                if (group != null)
+                {
+                    foreach (var member in group.GetMembers())
+                    {
+                        if (member.SamAccountName.Equals(user.Identity.Name, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }));
+    options.FallbackPolicy = options.GetPolicy("GroupPolicy");
 });
 
 // Registering Services
@@ -45,7 +66,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IActiveDirectoryService>(provider =>
 {
     var context = provider.GetRequiredService<ApplicationDbContext>();
-    return new ActiveDirectoryService("zlt.co.zw", "DC=zlt.co.zw,DC=com", context);
+    return new ActiveDirectoryService("zlt.co.zw", "DC=zlt,DC=co,DC=zw", context);
 });
 
 var app = builder.Build();
@@ -66,23 +87,26 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication(); // Ensure this is included
+app.UseAuthentication();
 app.UseAuthorization();
 
-//Redirect unauthenticated users to the login page
-//app.Use(async (context, next) =>
-//{
-//    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Account/Login"))
-//    {
-//        context.Response.Redirect("/Account/Login");
-//        return;
-//    }
-//    await next();
-//});
+app.Use(async (context, next) =>
+{
+    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Account/Login"))
+    {
+        context.Response.Redirect("/Account/Login");
+        return;
+    }
+    await next();
+});
 
 app.MapControllerRoute(
      name: "default",
      pattern: "{controller=Home}/{action=Index}/{id?}"
+ );
+app.MapControllerRoute(
+     name: "login",
+     pattern: "{controller=Account}/{action=Login}}"
  );
 
 app.MapRazorPages();

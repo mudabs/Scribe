@@ -101,6 +101,7 @@ namespace Scribe.Services
                 var condId = _context.Condition.FirstOrDefault(x => x.Name == "In Use").Id;
                 sn.ConditionId = condId;
                 sn.AllocatedBy = allocatedBy;
+                sn.Allocation = DateTime.Now;
 
                 //Creating SerialNumber Group
                 SerialNumberGroup serialNumberGroup = new SerialNumberGroup

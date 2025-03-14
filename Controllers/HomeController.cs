@@ -15,7 +15,7 @@ using Scribe.Data;
 
 namespace Scribe.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "GroupPolicy")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

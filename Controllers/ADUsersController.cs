@@ -232,11 +232,14 @@ namespace Scribe.Controllers
 
         public void ImportADUsersToDatabase()
         {
+            string domain = "zlt.co.zw";
+            string ouPath = "OU=Domain Users,DC=zlt,DC=co,DC=zw";
+
             // Create a list to hold the users from Active Directory
             List<ADUsers> adUsers = new List<ADUsers>();
 
             // Instantiate Active Directory Server Connection
-            using (PrincipalContext adServer = new PrincipalContext(ContextType.Domain, null)) // default domain
+            using (PrincipalContext adServer = new PrincipalContext(ContextType.Domain, domain, ouPath))
             {
                 var userPrincipal = new UserPrincipal(adServer);
                 using (var search = new PrincipalSearcher(userPrincipal))
@@ -250,7 +253,7 @@ namespace Scribe.Controllers
 
                             // Check if the user already exists in the database using a case-insensitive comparison
                             bool userExists = _context.ADUsers
-                                .Any(u => u.Name.ToLower() == newUser.Name.ToLower()); // Use ToLower for case-insensitive comparison
+                                .Any(u => u.Name.ToLower() == newUser.Name.ToLower());
 
                             // Add the user to the list if they do not exist
                             if (!userExists)
@@ -267,11 +270,10 @@ namespace Scribe.Controllers
             {
                 _context.ADUsers.AddRange(adUsers);
                 _context.SaveChanges(); // Commit the changes to the database
-
             }
+
             TempData["Success"] = "Importing Users From DC Complete";
         }
-
 
         //Individual Allocations Logic
         //Allocating a device to a user
