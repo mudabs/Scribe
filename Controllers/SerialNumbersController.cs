@@ -10,9 +10,12 @@ using Scribe.Models;
 using Scribe.Services;
 using System.Security.Claims;
 using Scribe.Data;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Scribe.Controllers
 {
+    [Authorize(Policy = "GroupPolicy")]
     public class SerialNumbersController : Controller
     {
         private readonly ApplicationDbContext _context;

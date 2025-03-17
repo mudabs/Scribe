@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Scribe.Data;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace Scribe.Controllers
 {
+    [Authorize(Policy = "GroupPolicy")]
     public class ModelsController : Controller
     {
         private readonly ApplicationDbContext _context;

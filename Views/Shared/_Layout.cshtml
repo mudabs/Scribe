@@ -31,15 +31,11 @@
 
                         <ul class="navbar-nav flex-grow-1">
 
-                            <li class="nav-item">
+                            @* <li class="nav-item">
 
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
 
-                            </li>
-
-
-
-
+                            </li> *@
                         </ul>
 
                         @* <partial name="_LoginPartial" /> *@
@@ -53,7 +49,7 @@
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                         @* <li><a class ="dropdown-item" asp-page="/Pages/Account/Logout" asp-route-returnUrl="@Url.Page("/Index")">Logout</a></li> *@
                                         <form asp-controller="Account" asp-action="Logout" method="post">
-                                            <button type="submit" class="btn btn-outline-danger">Logout</button>
+                                            <button type="submit" class="dropdown-item">Logout</button>
                                         </form>
                                     </ul>
                                 </li>

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
 using Scribe.Data;
 using Scribe.Infrastructure;
@@ -15,14 +14,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Use Windows Authentication and Cookie Authentication
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = NegotiateDefaults.AuthenticationScheme;
-})
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-.AddNegotiate();
+// Use only Cookie Authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 
 builder.Services.AddAuthorization(options =>
 {
@@ -103,11 +97,11 @@ app.Use(async (context, next) =>
 app.MapControllerRoute(
      name: "default",
      pattern: "{controller=Home}/{action=Index}/{id?}"
- );
-app.MapControllerRoute(
-     name: "login",
-     pattern: "{controller=Account}/{action=Login}}"
- );
+);
+//app.MapControllerRoute(
+//     name: "login",
+//     pattern: "{controller=Account}/{action=Login}}"
+//);
 
 app.MapRazorPages();
 

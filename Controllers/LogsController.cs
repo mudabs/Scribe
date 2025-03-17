@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -31,7 +32,16 @@ namespace Scribe.Controllers
                 .ToListAsync();
             return View(logs);
         }
-
+        // GET: Logs
+        public async Task<IActionResult> MyActivity()
+        {
+            var userId = User.Identity.Name; // Get the currently logged-in user's ID
+            var logs = await _context.Log
+                .Where(log => log.User == userId) // Filter logs by the user's ID
+                .OrderByDescending(log => log.Date) // Replace 'Date' with your actual date property name
+                .ToListAsync();
+            return View(logs);
+        }
         // GET: Logs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
