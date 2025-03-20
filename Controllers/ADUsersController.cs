@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Scribe.Models;
 using System.DirectoryServices.AccountManagement;
-using Scribe.ViewComponents;
 using Scribe.Services;
-using Scribe.Data;
+using Scribe.Infrastructure;
 
 namespace Scribe.Controllers
 {

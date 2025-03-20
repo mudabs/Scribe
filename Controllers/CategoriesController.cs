@@ -14,7 +14,7 @@ using System.Drawing.Drawing2D;
 using Scribe.Data;
 
 
-namespace Inventory.Controllers
+namespace Scribe.Controllers
 {
     public class CategoriesController : Controller
     {

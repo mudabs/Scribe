@@ -4,72 +4,65 @@
     ViewData["Title"] = "Index";
 }
 
-<div class="row">
-    <div class="col">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <h1>All Devices (@ViewData["count"])</h1>
+            </div>
 
-       
-        <div class="row">
-            <h1>All Devices (@ViewData["count"])</h1>
-        </div>
-
-        <table class="table" id="userTable">
-            <thead>
-                <tr>
-                    <th>@Html.DisplayNameFor(model => model.Model.Brand)</th>
-                    <th>@Html.DisplayNameFor(model => model.Model)</th>
-                    <th>@Html.DisplayNameFor(model => model.Name)</th>
-                    <th>User</th>
-                    <th>@Html.DisplayNameFor(model => model.Condition)</th>
-                    <th>@Html.DisplayNameFor(model => model.Department)</th>
-                    <th>@Html.DisplayNameFor(model => model.Location)</th>
-                    <th>@Html.DisplayNameFor(model => model.Creation)</th>
-                    <th>@Html.DisplayNameFor(model => model.Allocation)</th>
-                    <th>Allocated By</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+            <table class="table table-responsive" id="userTable">
+                <thead>
                     <tr>
-                        <td class="small" data-field="brand">@Html.DisplayFor(modelItem => item.Model.Brand.Name)</td>
-                        <td class="small" data-field="model">@Html.DisplayFor(modelItem => item.Model.Name)</td>
-                        <td class="small" data-field="serial">@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td class="small" data-field="adusers">@Html.DisplayFor(modelItem => item.ADUsers.Name)</td>
-                        <td class="small" data-field="condition">@Html.DisplayFor(modelItem => item.Condition.Name)</td>
-                        <td class="small" data-field="department">@Html.DisplayFor(modelItem => item.Department.Name)</td>
-                        <td class="small" data-field="location">@Html.DisplayFor(modelItem => item.Location.Name)</td>
-                        <td class="small" data-field="creation">@Html.DisplayFor(modelItem => item.Creation)</td>
-                        <td class="small" data-field="allocation">@Html.DisplayFor(modelItem => item.Allocation)</td>
-                        <td class="small" data-field="allocation">
-                            @if (item.AllocatedBy == null)
-                            {
-                                <span>No User</span>
-                            }
-                            else
-                            {
-                                @Html.DisplayFor(modelItem => item.AllocatedBy)
-                            }
-                        </td>
-                        <td>
-                            <a asp-action="ViewHistory" class="btn btn-sm btn-outline-primary" asp-route-id="@item.Id">View</a> |
-                            @* <a asp-action="Edit" class="btn btn-sm btn-outline-warning" asp-route-id="@item.Id">Edit</a> | *@
-                            <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@item.Id)">
-                                Edit
-                            </button> | 
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('SerialNumbers',@item.Id)">
-                                Delete
-                            </button>
-                            @* <a asp-action="Details" class="btn btn-sm btn-outline-info" asp-route-id="@item.Id">Details</a> | *@
-                            @* <a asp-action="Delete" class="btn btn-sm btn-outline-danger" asp-route-id="@item.Id">Delete</a> *@
-                        </td>
+                        <th>@Html.DisplayNameFor(model => model.Model.Brand)</th>
+                        <th>@Html.DisplayNameFor(model => model.Model)</th>
+                        <th>@Html.DisplayNameFor(model => model.Name)</th>
+                        <th>User</th>
+                        <th>@Html.DisplayNameFor(model => model.Condition)</th>
+                        <th>@Html.DisplayNameFor(model => model.Department)</th>
+                        <th>@Html.DisplayNameFor(model => model.Location)</th>
+                        <th>@Html.DisplayNameFor(model => model.Creation)</th>
+                        <th>@Html.DisplayNameFor(model => model.Allocation)</th>
+                        <th>Allocated By</th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
-
-       
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="small" data-field="brand">@Html.DisplayFor(modelItem => item.Model.Brand.Name)</td>
+                            <td class="small" data-field="model">@Html.DisplayFor(modelItem => item.Model.Name)</td>
+                            <td class="small" data-field="serial">@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td class="small" data-field="adusers">@Html.DisplayFor(modelItem => item.ADUsers.Name)</td>
+                            <td class="small" data-field="condition">@Html.DisplayFor(modelItem => item.Condition.Name)</td>
+                            <td class="small" data-field="department">@Html.DisplayFor(modelItem => item.Department.Name)</td>
+                            <td class="small" data-field="location">@Html.DisplayFor(modelItem => item.Location.Name)</td>
+                            <td class="small" data-field="creation">@Html.DisplayFor(modelItem => item.Creation)</td>
+                            <td class="small" data-field="allocation">@Html.DisplayFor(modelItem => item.Allocation)</td>
+                            <td class="small" data-field="allocation">
+                                @if (item.AllocatedBy == null)
+                                {
+                                    <span>No User</span>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.AllocatedBy)
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="ViewHistory" class="btn btn-sm btn-outline-primary" asp-route-id="@item.Id">View</a> |
+                                <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@item.Id)">
+                                    Edit
+                                </button> |
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('SerialNumbers',@item.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
-

@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Scribe.Infrastructure;
 using Scribe.Models;
 using Scribe.Services;
-using Scribe.Data;
-using Scribe.ViewComponents;
 
 namespace Scribe.Controllers
 {
