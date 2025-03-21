@@ -5,6 +5,7 @@ using Scribe.Infrastructure;
 using Scribe.Services;
 using System.Security.Claims;
 using System.DirectoryServices.AccountManagement;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,10 +64,15 @@ builder.Services.AddScoped<IActiveDirectoryService>(provider =>
     return new ActiveDirectoryService("zlt.co.zw", "DC=zlt,DC=co,DC=zw", context);
 });
 
+// Configure Data Protection
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(@"C:\keys"))
+    .SetApplicationName("Scribe");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsProduction())
 {
     app.UseMigrationsEndPoint();
 }
@@ -98,10 +104,6 @@ app.MapControllerRoute(
      name: "default",
      pattern: "{controller=Home}/{action=Index}/{id?}"
 );
-//app.MapControllerRoute(
-//     name: "login",
-//     pattern: "{controller=Account}/{action=Login}}"
-//);
 
 app.MapRazorPages();
 
