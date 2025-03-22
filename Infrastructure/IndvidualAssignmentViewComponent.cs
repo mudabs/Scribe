@@ -1,11 +1,10 @@
 ﻿using Scribe.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Scribe.Infrastructure;
 using Scribe.Data;
 
 
-namespace Scribe.ViewComponents
+namespace Scribe.Infrastructure
 {
     public class IndividualAssignmentViewComponent : ViewComponent
     {

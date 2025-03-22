@@ -1,10 +1,9 @@
-﻿using Scribe.Infrastructure;
-using Scribe.Models;
+﻿using Scribe.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scribe.Data;
 
-namespace Scribe.ViewComponents
+namespace Scribe.Infrastructure
 {
     public class SerialNumberViewComponent : ViewComponent
     {

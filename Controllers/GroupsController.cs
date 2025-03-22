@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Scribe.Infrastructure;
 using Scribe.Models;
-using Scribe.ViewComponents;
 using Scribe.Services;
 using Scribe.Data;
 

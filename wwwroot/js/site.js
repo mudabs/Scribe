@@ -260,3 +260,27 @@ if ($("div.alert.notification").length) {
     }, 2000);
 }
 
+///////////////////////////////////////////////////////////////////////////////Loader
+
+//$(document).ready(function () {
+//    var loaderTimeout;
+
+//    $(document).ajaxStart(function () {
+//        loaderTimeout = setTimeout(function () {
+//            $("#loader").show();
+//        }, 500); // Show loader after 500ms
+//    }).ajaxStop(function () {
+//        clearTimeout(loaderTimeout);
+//        $("#loader").hide();
+//    });
+
+//    $("form").submit(function () {
+//        loaderTimeout = setTimeout(function () {
+//            $("#loader").show();
+//        }, 500); // Show loader after 500ms
+//    });
+
+//    $(window).on('load', function () {
+//        clearTimeout(loaderTimeout);
+//        $("#loader").hide();
+//    });

@@ -1,9 +1,5 @@
 ﻿using Scribe.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Scribe.Infrastructure;
-using Scribe.ViewComponents;
-using Scribe.Data;
 
 
 namespace Scribe.Infrastructure
