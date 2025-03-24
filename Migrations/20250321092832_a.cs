@@ -141,25 +141,6 @@ namespace Scribe.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IndividualAssignment",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ADUsersId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_IndividualAssignment", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_IndividualAssignment_ADUsers_ADUsersId",
-                        column: x => x.ADUsersId,
-                        principalTable: "ADUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Models",
                 columns: table => new
                 {
@@ -297,6 +278,32 @@ namespace Scribe.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "IndividualAssignment",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ADUsersId = table.Column<int>(type: "int", nullable: false),
+                    SerialNumberId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IndividualAssignment", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_IndividualAssignment_ADUsers_ADUsersId",
+                        column: x => x.ADUsersId,
+                        principalTable: "ADUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_IndividualAssignment_SerialNumbers_SerialNumberId",
+                        column: x => x.SerialNumberId,
+                        principalTable: "SerialNumbers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Maintenances",
                 columns: table => new
                 {
@@ -334,8 +341,7 @@ namespace Scribe.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SerialNumberId = table.Column<int>(type: "int", nullable: false),
                     GroupId = table.Column<int>(type: "int", nullable: true),
-                    ADUsersId = table.Column<int>(type: "int", nullable: true),
-                    IndividualAssignmentId = table.Column<int>(type: "int", nullable: true)
+                    ADUsersId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -349,11 +355,6 @@ namespace Scribe.Migrations
                         name: "FK_SerialNumberGroup_Group_GroupId",
                         column: x => x.GroupId,
                         principalTable: "Group",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_SerialNumberGroup_IndividualAssignment_IndividualAssignmentId",
-                        column: x => x.IndividualAssignmentId,
-                        principalTable: "IndividualAssignment",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_SerialNumberGroup_SerialNumbers_SerialNumberId",
@@ -410,6 +411,11 @@ namespace Scribe.Migrations
                 column: "ADUsersId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_IndividualAssignment_SerialNumberId",
+                table: "IndividualAssignment",
+                column: "SerialNumberId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Maintenances_ConditionId",
                 table: "Maintenances",
                 column: "ConditionId");
@@ -438,11 +444,6 @@ namespace Scribe.Migrations
                 name: "IX_SerialNumberGroup_GroupId",
                 table: "SerialNumberGroup",
                 column: "GroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SerialNumberGroup_IndividualAssignmentId",
-                table: "SerialNumberGroup",
-                column: "IndividualAssignmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SerialNumberGroup_SerialNumberId",
@@ -497,6 +498,9 @@ namespace Scribe.Migrations
                 name: "AllocationHistory");
 
             migrationBuilder.DropTable(
+                name: "IndividualAssignment");
+
+            migrationBuilder.DropTable(
                 name: "Log");
 
             migrationBuilder.DropTable(
@@ -510,9 +514,6 @@ namespace Scribe.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserGroup");
-
-            migrationBuilder.DropTable(
-                name: "IndividualAssignment");
 
             migrationBuilder.DropTable(
                 name: "SerialNumbers");

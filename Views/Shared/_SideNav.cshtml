@@ -58,10 +58,10 @@
 
         <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
 
-            <li><a class="dropdown-item" asp-controller="IndividualAssignments" asp-action="">Individual Allocations</a></li>
+            @* <li><a class="dropdown-item" asp-controller="IndividualAssignments" asp-action="">Individual Allocations</a></li> *@
+            <li><a class="dropdown-item" asp-controller="ADUsers" asp-action="Index">Individual Allocations</a></li>
             <li><a class="dropdown-item" asp-controller="Groups" asp-action="">Group Allocations</a></li>
             <li> <a class="dropdown-item" asp-controller="Departments" asp-action="Index" id="inventorySetupLink">Departments</a> </li>
-            <li><a class="dropdown-item" asp-controller="ADUsers" asp-action="Index">All AD Users</a></li>
         </ul>
 
     </li>
