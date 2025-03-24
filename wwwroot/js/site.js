@@ -284,3 +284,18 @@ if ($("div.alert.notification").length) {
 //        clearTimeout(loaderTimeout);
 //        $("#loader").hide();
 //    });
+
+
+/////////////////////////////////////////////////////////////////SignalR
+
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/notificationHub")
+    .build();
+
+connection.on("ReceiveNotification", function (message) {
+    document.getElementById("notificationCount").innerText = message;
+});
+
+connection.start().catch(function (err) {
+    console.error(err.toString());
+});
