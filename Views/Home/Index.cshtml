@@ -8,73 +8,97 @@
 
 <div class="container">
 
-        <h2>Brands</h2>
-        <br />
-        <div class="row">
-            @foreach (var brand in Model)
+    <h2>Brands</h2>
+    <br />
+    <div class="d-flex overflow-auto">
+        @foreach (var brand in Model)
+        {
+            <div class="card me-3" style="flex: 0 0 auto; width: 30%;">
+                <a asp-controller="Models" asp-action="ModelByBrand" asp-route-id="@brand.Id" class="text-decoration-none" style="color:black">
+                    <div class="card-body">
+                        <h5 class="card-title">@brand.Name</h5>
+                        <img src="/media/brands/@brand.ImageName" alt="Alternate Text" style="width:50%;" />
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <hr />
+    <h2>Devices</h2>
+    <!-- Categories Carousel -->
+    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            @for (int i = 0; i < categories.Count; i++)
             {
-                <div class="col-md-4 mb-3">
-                    <a asp-controller="Models" asp-action="ModelByBrand" asp-route-id="@brand.Id" class="text-decoration-none" style="color:black">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">@brand.Name</h5>
-                                <img src="/media/brands/@brand.ImageName" alt="Alternate Text" style=" height:100px;" />
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)">
+                    <div class="d-flex flex-column align-items-center">
+                        <img src="/media/icons/@categories[i].Icon" alt="Slide @(i + 1)" class="img-fluid d-block w-100" />
+                    </div>
+                </button>
             }
         </div>
 
-        <hr />
-        <h2>Devices</h2>
-        <!-- Categories Carousel -->
-        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-indicators">
-                @for (int i = 0; i < categories.Count; i++)
-                {
-                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)">
-                        <div class="d-flex flex-column align-items-center">
-                            <img src="/media/icons/@categories[i].Icon" alt="Slide @(i + 1)" class="img-fluid d-block w-100" />
-                        </div>
-                    </button>
-                }
-            </div>
+        <div class="carousel-inner">
+            @for (int i = 0; i < categories.Count; i++)
+            {
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    <div class="d-flex flex-column align-items-center justify-content-center" style="height: 100%;">
+                        <a asp-controller="Models" asp-action="ModelByCategory" asp-route-id="@categories[i].Id" class="text-decoration-none">
+                            <span class="mb-3">@categories[i].Name</span>
+                            <img src="/media/icons/@categories[i].Icon" class="d-block" style="height:50px; margin-bottom:32px;" alt="@categories[i].Name">
 
-            <div class="carousel-inner">
-                @for (int i = 0; i < categories.Count; i++)
-                {
-                    <div class="carousel-item @(i == 0 ? "active" : "")">
-                        <div class="d-flex flex-column align-items-center justify-content-center" style="height: 100%;">
-                            <a asp-controller="Models" asp-action="ModelByCategory" asp-route-id="@categories[i].Id" class="text-decoration-none">
-                                <span class="mb-3">@categories[i].Name</span>
-                                <img src="/media/icons/@categories[i].Icon" class="d-block" style="height:50px; margin-bottom:32px;" alt="@categories[i].Name">
-
-                            </a>
-                        </div>
+                        </a>
                     </div>
-                }
-            </div>
-
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+                </div>
+            }
         </div>
 
-
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
 
 
-<div style="margin-bottom:200px;">
 
 </div>
 
+
+
+<div style="margin-bottom:200px;">
+</div>
+
+<div>
+    <canvas id="conditionChart"></canvas>
+</div>
+
+<script>
+    var ctx = document.getElementById('conditionChart').getContext('2d');
+    var conditionData = @Html.Raw(Json.Serialize(ViewBag.ConditionCounts));
+    var conditionLabels = @Html.Raw(Json.Serialize(ViewBag.ConditionNames));
+
+    var conditionChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: conditionLabels,
+            datasets: [{
+                data: conditionData,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+
 <!-- Add Bootstrap 5 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+

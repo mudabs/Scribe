@@ -173,7 +173,7 @@ namespace Scribe.Controllers
 
                 if (model.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/devices");
+                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/models");
                     imageName = Guid.NewGuid().ToString() + "_" + model.ImageUpload.FileName;
                     string filePath = Path.Combine(uploadDir, imageName);
                     using (var fs = new FileStream(filePath, FileMode.Create))

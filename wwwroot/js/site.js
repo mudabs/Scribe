@@ -64,6 +64,11 @@ $(document).ready(function () {
     //Initialising Datatables on groups index page
     $('#groupTable').DataTable();
 
+    //Initialising Datatables on groups index page
+    $('#modelsTable').DataTable();
+    //Initialising Datatables on groups index page
+    $('#allModelsTable').DataTable();
+
 
 
     // Handle page size changes

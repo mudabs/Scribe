@@ -1,14 +1,5 @@
 ﻿@model Scribe.Models.Model
 
-@{
-    ViewData["Title"] = "CreateByBrand";
-}
-
-<h1>Create</h1>
-
-<h4>Model</h4>
-<hr />
-
 <!-- Modal -->
 <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -18,7 +9,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form asp-action="Create" enctype="multipart/form-data">
+                <form asp-action="CreateByCategory" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                     <div class="form-group">
@@ -59,7 +50,11 @@
     </div>
 </div>
 
-
+<script>
+    $("#ImageUpload").change(function () {
+        readURL(this);
+    });
+</script>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -71,11 +66,7 @@
         });
     </script>
 
-    <script>
-        $("#ImageUpload").change(function () {
-            readURL(this);
-        });
-    </script>
+   
 
     <script>
         //Cascading Dropdown

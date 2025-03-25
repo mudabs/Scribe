@@ -45,7 +45,8 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\media\brands\" />
-    <Folder Include="wwwroot\media\devices\" />
+    <Folder Include="wwwroot\media\models\" />
+    <Folder Include="wwwroot\media\icons\categories\" />
     <Folder Include="wwwroot\NewFolder\" />
   </ItemGroup>
 

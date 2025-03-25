@@ -330,6 +330,10 @@ namespace Scribe.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateServiceLog(int SerialNumberId, string ServiceDescription, DateTime ServiceDate, DateTime NextServiceDate, int ConditionId, string SystemUserId)
         {
+            if(SystemUserId == null)
+            {
+                SystemUserId = User.Identity.Name;
+            }
             var serviceHistory = new Maintenance
             {
                 SerialNumberId = SerialNumberId,

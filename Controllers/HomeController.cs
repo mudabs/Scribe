@@ -24,7 +24,7 @@ namespace Scribe.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILoggingService _loggingService;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, IBrandService brandService, ICategoryService categoryService,ILoggingService loggingService)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, IBrandService brandService, ICategoryService categoryService, ILoggingService loggingService)
         {
             _context = context;
             _logger = logger;
@@ -37,9 +37,23 @@ namespace Scribe.Controllers
         {
             var brands = await _brandService.GetAllBrandsAsync();
             var categories = await _categoryService.GetAllCategoriesAsync();
+
+            var conditionData = (from s in _context.SerialNumbers
+                                 group s by s.ConditionId into g
+                                 select new
+                                 {
+                                     ConditionName = g.First().Condition.Name,
+                                     Count = g.Count()
+                                 }).ToList();
+
             ViewBag.Categories = categories;
+            ViewBag.ConditionCounts = conditionData.Select(c => c.Count).ToList();
+            ViewBag.ConditionNames = conditionData.Select(c => c.ConditionName).ToList();
+
             return View(brands);
         }
+
+
         public async Task<IActionResult> Settings()
         {
             //string groupName = "zim-web-it";
@@ -47,7 +61,7 @@ namespace Scribe.Controllers
 
             //List<UserInfo> users = GetUsersInGroup(domain, groupName);
 
-            
+
             return View();
         }
 
@@ -80,7 +94,7 @@ namespace Scribe.Controllers
         //    return users;
         //}
 
-      
+
 
         public IActionResult Exports()
         {
@@ -112,7 +126,7 @@ namespace Scribe.Controllers
                 .Include(s => s.Location)
                 .AsQueryable(); // Enable further filtering
 
-            
+
 
 
             // Apply filters only if the corresponding parameter is not null or empty
@@ -161,6 +175,19 @@ namespace Scribe.Controllers
 
         }
 
+        [HttpGet] 
+        public IActionResult GetItemStatusData() { 
+            var data = _context.SerialNumbers
+                .GroupBy(s => s.ConditionId)
+                .Select(g => new 
+                { 
+                    ConditionID = g.Key, 
+                    Count = g.Count() 
+                })
+                .ToList(); 
+
+            return Json(data); 
+        }
 
         public IActionResult Privacy()
         {
@@ -181,9 +208,9 @@ namespace Scribe.Controllers
             var modelJson = HttpContext.Session.GetString("ReportModel");
             var model = modelJson == null ? null : JsonConvert.DeserializeObject<ReportModel>(modelJson);
 
-            return PartialView("_ReportPartial",model);
+            return PartialView("_ReportPartial", model);
         }
-                public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Access");
