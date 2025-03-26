@@ -165,13 +165,14 @@ namespace Scribe.Controllers
                     string iconName = originalCategory.Icon; // Preserve current icon if no new upload
                     if (category.IconUpload != null)
                     {
-                        string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/icons");
+                        string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/icons/categories");
                         iconName = Guid.NewGuid().ToString() + "_" + category.IconUpload.FileName;
                         string filePath = Path.Combine(uploadDir, iconName);
                         using (var fs = new FileStream(filePath, FileMode.Create))
                         {
                             await category.IconUpload.CopyToAsync(fs);
                         }
+                        DeleteImage(originalCategory.Icon); // Delete the old image
                     }
 
                     category.Icon = iconName;

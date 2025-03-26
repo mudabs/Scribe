@@ -1,7 +1,7 @@
 ﻿@using Scribe.Models
 @model IEnumerable<Brand>
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "";
     var categories = ViewBag.Categories as List<Category>;
 }
 
@@ -33,7 +33,7 @@
             {
                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)">
                     <div class="d-flex flex-column align-items-center">
-                        <img src="/media/icons/@categories[i].Icon" alt="Slide @(i + 1)" class="img-fluid d-block w-100" />
+                        <img src="/media/icons/categories/@categories[i].Icon" alt="Slide @(i + 1)" class="img-fluid d-block w-100" />
                     </div>
                 </button>
             }
@@ -46,7 +46,7 @@
                     <div class="d-flex flex-column align-items-center justify-content-center" style="height: 100%;">
                         <a asp-controller="Models" asp-action="ModelByCategory" asp-route-id="@categories[i].Id" class="text-decoration-none">
                             <span class="mb-3">@categories[i].Name</span>
-                            <img src="/media/icons/@categories[i].Icon" class="d-block" style="height:50px; margin-bottom:32px;" alt="@categories[i].Name">
+                            <img src="/media/icons/categories/@categories[i].Icon" class="d-block" style="height:50px; margin-bottom:32px;" alt="@categories[i].Name">
 
                         </a>
                     </div>

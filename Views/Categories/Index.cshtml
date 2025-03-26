@@ -2,10 +2,10 @@
 
 @{
     
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "";
 }
 
-<h1>Index</h1>
+
 
 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createModal" onclick="loadCreatePartial('Categories')">
     Create New
@@ -30,7 +30,7 @@
             </td>
             <td>
                     @if(item.Icon != null){
-                        <img src="/media/icons/@item.Icon" width="20px">
+                        <img src="/media/icons/categories/@item.Icon" width="20px">
                     }
             </td>
             <td>
