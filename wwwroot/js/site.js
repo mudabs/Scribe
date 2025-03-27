@@ -64,6 +64,9 @@ $(document).ready(function () {
     //Initialising Datatables on groups index page
     $('#groupTable').DataTable();
 
+    //Initialising Datatables on maintenance index page
+    $('#maintenanceTable').DataTable();
+
     //Initialising Datatables on groups index page
     $('#modelsTable').DataTable();
     //Initialising Datatables on groups index page
@@ -112,17 +115,34 @@ $(document).ready(function () {
 });
 
 //Select2///////////////////////////////////////////////////////////////////////////////////////////////
-
 $(document).ready(function () {
-    $('#brand-select').select2();
-    $('#user-search').select2();
-    $('#sysUser-search').select2();
-    $('#model-select').select2();
-    $('#serial-number-select').select2();
-    $('#condition-search').select2();
-    $('#department-search').select2();
-    $('#aduser-search').select2();
-    $('#category-search').select2();
+    $('#aduser-search').select2({
+        width: '100%'
+    });
+    $('#user-search').select2({
+        width: '100%'
+    });
+    $('#brand-search').select2({
+        width: '100%'
+    });
+    $('#model-select').select2({
+        width: '100%'
+    });
+    $('#condition-search').select2({
+        width: '100%'
+    });
+    $('#location-search').select2({
+        width: '100%'
+    });
+    $('#category-search').select2({
+        width: '100%'
+    });
+    $('#department-search').select2({
+        width: '100%'
+    });
+    $('#location-search').select2({
+        width: '100%'
+    });
 });
 
 

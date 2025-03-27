@@ -21,5 +21,8 @@ namespace Scribe.Models
         public string? AllocatedBy { get; set; }
         [DisplayName("Deallocated By")]
         public string? DeallocatedBy { get; set; }
+        [DisplayName("Group Name")]
+        public int? GroupId { get; set; }
+        public Group? Group { get; set; }
     }
 }

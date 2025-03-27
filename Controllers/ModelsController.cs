@@ -562,7 +562,7 @@ namespace Scribe.Controllers
                 LocationId = 1,
                 Creation = DateTime.Now,
                 Allocation = null,
-                AllocatedBy = "No User",
+                AllocatedBy = User.Identity.Name,
                 DeallocatedBy = null
             };
 

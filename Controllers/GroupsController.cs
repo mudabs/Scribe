@@ -103,25 +103,17 @@ namespace Scribe.Controllers
 
             if (ModelState.IsValid)
             {
-
-
                 _context.Add(@group);
-
-
-
                 // Create a log entry using logging service
                 var details = $"Group: {group.Name} Created.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
-
-
                 TempData["Success"] = "New Group added successfully!!!";
                 await _context.SaveChangesAsync();
                 return RedirectToAction("AllocateGroup", new { id = group.Id });
             }
             else
             {
-
                 TempData["Failure"] = "Failed to create Group!!!";
             }
             //return View(@group);
@@ -135,8 +127,6 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-
-
             var @group = await _context.Group.FindAsync(id);
             if (@group == null)
             {

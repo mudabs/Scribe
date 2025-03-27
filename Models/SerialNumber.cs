@@ -30,8 +30,10 @@ namespace Scribe.Models
         [ForeignKey("LocationId")]
 
         public Location? Location { get; set; }
+        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime? Creation { get; set; }
+        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [DisplayName("Allocation Date")]
         public DateTime? Allocation { get; set; }

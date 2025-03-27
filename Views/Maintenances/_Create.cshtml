@@ -47,13 +47,13 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="ConditionId" class="control-label"></label>
-                        <select asp-for="ConditionId" class="form-control" asp-items="ViewBag.ConditionId">
+                        <select id="condition-search" asp-for="ConditionId" class="form-control" asp-items="ViewBag.ConditionId">
                             <option value="">Choose Condition</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label asp-for="SystemUserId" class="control-label"></label>
-                        <select asp-for="SystemUserId" asp-items="@ViewData["Users"] as SelectList" class="form-control">
+                        <select id="user-search" asp-for="SystemUserId" asp-items="@ViewData["Users"] as SelectList" class="form-control">
                             <option value="">-- Select a User --</option>
                         </select>
                     </div>
@@ -137,7 +137,53 @@
 }
 
 
+<style>
+    .select2-container {
+        z-index: 9999;
+    }
+</style>
+
 <script>
+
+        $(document).ready(function () {
+        $('#aduser-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#user-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#brand-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#model-select').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#condition-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#location-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#category-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#department-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#location-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+    });
+
     $(document).ready(function () {
         $('#brand-select').on('change', function () {
             const brandId = $(this).val();

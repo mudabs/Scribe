@@ -11,6 +11,7 @@ using Scribe.Services;
 using System.Security.Claims;
 using Scribe.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.CodeAnalysis.Elfie.Extensions;
 
 
 namespace Scribe.Controllers
@@ -118,6 +119,9 @@ namespace Scribe.Controllers
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name", serialNumber.LocationId);
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name");
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", serialNumber.ModelId);
+            var model = await _context.Models.FindAsync(serialNumber.ModelId);
+            var brand = await _context.Brands.FindAsync(model.BrandId);
+            ViewData["Brand"] = brand.Name.ToString();
             ViewData["Users"] = new SelectList(_context.SystemUsers, "SamAccountName", "SamAccountName");
 
             //return View(serialNumber);

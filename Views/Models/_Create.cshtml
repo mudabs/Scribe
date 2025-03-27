@@ -53,13 +53,26 @@
     </div>
 </div>
 
+<style>
+    .select2-container {
+        z-index: 9999;
+    }
+</style>
 
-@* <script>
-    $(document).ready(function () {
-        $('#brand-search').select2();
-        $('#category-search').select2();
+<script>
+       $(document).ready(function () {
+
+        $('#brand-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+        $('#category-search').select2({
+            width: '100%',
+            dropdownParent: $('#createModal')
+        });
+
     });
-</script> *@
+</script>
 <script>
     $("#ImageUpload").change(function () {
         readURL(this);
