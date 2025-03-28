@@ -9,7 +9,7 @@ namespace Scribe.Models
         public int SerialNumberId { get; set; }
         public SerialNumber? SerialNumber { get; set; } // Navigation property
         [DisplayName("Em[ployee Name")]
-        public int ADUsersId { get; set; }
+        public int? ADUsersId { get; set; }
         public ADUsers? ADUsers { get; set; } // Navigation property
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [DisplayName("Allocation Date")]
