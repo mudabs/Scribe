@@ -63,14 +63,24 @@ $(document).ready(function () {
 
     //Initialising Datatables on groups index page
     $('#groupTable').DataTable();
-
     //Initialising Datatables on maintenance index page
     $('#maintenanceTable').DataTable();
-
-    //Initialising Datatables on groups index page
+    //Initialising Datatables on models index page
     $('#modelsTable').DataTable();
-    //Initialising Datatables on groups index page
+    //Initialising Datatables on models index page
     $('#allModelsTable').DataTable();
+    //Initialising Datatables on brands index page
+    $('#brandsTable').DataTable();
+    //Initialising Datatables on locations index page
+    $('#locationsTable').DataTable();
+    //Initialising Datatables on conditions index page
+    $('#conditionsTable').DataTable();
+    //Initialising Datatables on myLogs index page
+    $('#myLogsTable').DataTable();
+    //Initialising Datatables on departments index page
+    $('#departmentsTable').DataTable();
+    //Initialising Datatables on categories index page
+    $('#categoriesTable').DataTable();
 
 
 

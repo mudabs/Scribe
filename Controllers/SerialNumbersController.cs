@@ -12,6 +12,10 @@ using System.Security.Claims;
 using Scribe.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.CodeAnalysis.Elfie.Extensions;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using System.Globalization;
+using System.Data;
+using ExcelDataReader;
 
 
 namespace Scribe.Controllers
@@ -404,5 +408,7 @@ namespace Scribe.Controllers
             }
             return RedirectToAction("ViewHistory", new { id = SerialNumberId }); // Redirect as needed
         }
+
+       
     }
 }
