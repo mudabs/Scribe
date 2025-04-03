@@ -13,7 +13,6 @@ namespace Scribe.Models
         [DisplayName("Model")]
         public int? ModelId { get; set; }
         public Model? Model { get; set; }
-        public string? User { get; set; }
         [DisplayName("Employee Name")]
         public int? ADUsersId { get; set; }
         public ADUsers? ADUsers { get; set; }
@@ -42,5 +41,10 @@ namespace Scribe.Models
         [DisplayName("Deallocated By")]
         public string? DeallocatedBy { get; set; }
         public List<SerialNumber>? SerialNumbers { get; set; }
+        [DisplayName("Group")]
+        public int? GroupId { get; set; }
+        [ForeignKey("GroupId")]
+        public Group? Group { get; set; }
+        public bool CurrentlyAllocated { get; set; } = false;
     }
 }

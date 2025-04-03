@@ -555,7 +555,6 @@ namespace Scribe.Controllers
             {
                 ModelId = modelId,
                 Name = name,
-                User = "No User",
                 ADUsersId = 1,
                 ConditionId = 1, // Assuming 1 is a valid ConditionId
                 DepartmentId = 1, // Assuming 1 is a valid DepartmentId
@@ -623,7 +622,6 @@ namespace Scribe.Controllers
 
             // Update properties
             serialNumber.Name = model.Name;
-            serialNumber.User = model.User;
             serialNumber.ConditionId = model.ConditionId;
             serialNumber.DepartmentId = model.DepartmentId;
             serialNumber.LocationId = model.LocationId;

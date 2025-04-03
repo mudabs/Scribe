@@ -37,7 +37,7 @@ namespace Scribe.Controllers
         // GET: SerialNumbers
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.SerialNumbers.Include(s => s.Condition).Include(s => s.Department).Include(s => s.Location).Include(s => s.Model).Include(s => s.Model.Brand).Include(s => s.ADUsers);
+            var applicationDbContext = _context.SerialNumbers.Include(s => s.Condition).Include(s => s.Department).Include(s => s.Location).Include(s => s.Model).Include(s => s.Model.Brand).Include(s => s.ADUsers).Include(s => s.Group);
             var count = _context.SerialNumbers.Count();
             ViewData["count"] = count;
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
@@ -123,7 +123,7 @@ namespace Scribe.Controllers
             var brand = await _context.Brands.FindAsync(model.BrandId);
             ViewData["Brand"] = brand.Name.ToString();
             ViewData["Users"] = new SelectList(_context.SystemUsers, "SamAccountName", "SamAccountName");
-
+            
             //return View(serialNumber);
             return PartialView("_Edit", serialNumber);
         }
@@ -257,8 +257,14 @@ namespace Scribe.Controllers
             var serialNumber = await _context.SerialNumbers.FindAsync(id);
             if (serialNumber != null)
             {
+                if (serialNumber.CurrentlyAllocated)
+                {
+                    TempData["Failure"] = "Device cannot be deleted as it is currently assigned.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 _context.SerialNumbers.Remove(serialNumber);
-                TempData["Success"] = "Device Deleted Sucessfully!!";
+                TempData["Success"] = "Device Deleted Successfully!!";
             }
 
             await _context.SaveChangesAsync();
@@ -298,7 +304,7 @@ namespace Scribe.Controllers
         public async Task<IActionResult> ViewHistory(int id)
         {
             var users = await _context.ADUsers.ToListAsync();
-            var modelName = _context.SerialNumbers.Include(s => s.Model).Include(s => s.Model.Category).Include(s => s.Model.Brand).Include(s => s.ADUsers).First(s => s.Id == id);
+            var modelName = _context.SerialNumbers.Include(s => s.Model).Include(s => s.Model.Category).Include(s => s.Model.Brand).Include(s => s.ADUsers).Include(s => s.Group).First(s => s.Id == id);
             var type = modelName.Model.Brand.Name + " " + modelName.Model.Name + " " + modelName.Model.Category.Name;
             ViewData["ADUsersId"] = users;
             ViewData["ModelName"] = type.ToString();
@@ -322,6 +328,7 @@ namespace Scribe.Controllers
                 AllocationHistory = _context.AllocationHistory
                     .Where(ah => ah.SerialNumberId == id)
                     .Include(ah => ah.ADUsers) // Eager load ADUser
+                    .Include(ah => ah.Group) // Eager load ADUser
                     .OrderByDescending(ah => ah.AllocationDate) // Order by date if needed
                     .ToList()
             };

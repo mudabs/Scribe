@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Scribe.Data;
 
@@ -11,9 +12,11 @@ using Scribe.Data;
 namespace Scribe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250401134714_c")]
+    partial class c
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -397,9 +400,6 @@ namespace Scribe.Migrations
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("GroupId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("LocationId")
                         .HasColumnType("int");
 
@@ -413,6 +413,9 @@ namespace Scribe.Migrations
                     b.Property<int?>("SerialNumberId")
                         .HasColumnType("int");
 
+                    b.Property<string>("User")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ADUsersId");
@@ -420,8 +423,6 @@ namespace Scribe.Migrations
                     b.HasIndex("ConditionId");
 
                     b.HasIndex("DepartmentId");
-
-                    b.HasIndex("GroupId");
 
                     b.HasIndex("LocationId");
 
@@ -602,10 +603,6 @@ namespace Scribe.Migrations
                         .WithMany()
                         .HasForeignKey("DepartmentId");
 
-                    b.HasOne("Scribe.Models.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId");
-
                     b.HasOne("Scribe.Models.Location", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId");
@@ -623,8 +620,6 @@ namespace Scribe.Migrations
                     b.Navigation("Condition");
 
                     b.Navigation("Department");
-
-                    b.Navigation("Group");
 
                     b.Navigation("Location");
 

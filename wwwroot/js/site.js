@@ -85,7 +85,7 @@ $(document).ready(function () {
         var columnIndex = $(this).data('column');
         table.column(columnIndex).visible(this.checked);
     });
-    // Initialize #userTable with filtering and column visibility toggle
+    // Initialize #logsTable with filtering and column visibility toggle
     var table = $('#logsTable').DataTable(dataTableOptions);
     $('.column-toggle').change(function () {
         var columnIndex = $(this).data('column');
@@ -98,6 +98,18 @@ $(document).ready(function () {
 
     // Initialize #allUsersTable with export options (excluding last column)
     $('#allUsersTable').DataTable($.extend({}, dataTableOptions, {
+        columnDefs: [
+            {
+                targets: ':last-child',
+                exportOptions: {
+                    display: false
+                }
+            }
+        ]
+    }));
+
+    // Initialize #allDevicesTable with export options (excluding last column)
+    $('#allDevicesTable').DataTable($.extend({}, dataTableOptions, {
         columnDefs: [
             {
                 targets: ':last-child',

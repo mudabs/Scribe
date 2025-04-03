@@ -59,7 +59,21 @@
                                 <input type="text" name="Name" value="@serialNumber.Name" class="form-control edit-input" style="display:none;" />
                             </td>
                             <td class="serial-condition">
-                                <span class="display-value">@serialNumber.ADUsers?.Name</span>
+                                <span class="display-value">
+
+                                    @if (serialNumber.ADUsers != null)
+                                    {
+                                        @serialNumber.ADUsers.Name
+                                    }
+                                    else if (serialNumber.Group != null)
+                                    {
+                                        @serialNumber.Group.Name <img src="/media/icons/static/g.svg">
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw("N/A")
+                                    }
+                                </span>
                                 <select name="ADUsersId" class="form-control edit-input" style="display:none;">
                                     @foreach (var adUsers in ViewBag.ADUsersId)
                                     {
