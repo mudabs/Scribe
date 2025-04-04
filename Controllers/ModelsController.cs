@@ -173,7 +173,7 @@ namespace Scribe.Controllers
 
                 if (model.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/devices");
+                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/models");
                     imageName = Guid.NewGuid().ToString() + "_" + model.ImageUpload.FileName;
                     string filePath = Path.Combine(uploadDir, imageName);
                     using (var fs = new FileStream(filePath, FileMode.Create))
@@ -555,14 +555,13 @@ namespace Scribe.Controllers
             {
                 ModelId = modelId,
                 Name = name,
-                User = "No User",
                 ADUsersId = 1,
                 ConditionId = 1, // Assuming 1 is a valid ConditionId
                 DepartmentId = 1, // Assuming 1 is a valid DepartmentId
                 LocationId = 1,
                 Creation = DateTime.Now,
                 Allocation = null,
-                AllocatedBy = "No User",
+                AllocatedBy = User.Identity.Name,
                 DeallocatedBy = null
             };
 
@@ -623,7 +622,6 @@ namespace Scribe.Controllers
 
             // Update properties
             serialNumber.Name = model.Name;
-            serialNumber.User = model.User;
             serialNumber.ConditionId = model.ConditionId;
             serialNumber.DepartmentId = model.DepartmentId;
             serialNumber.LocationId = model.LocationId;

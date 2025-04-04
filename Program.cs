@@ -48,6 +48,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 // Registering Services
+builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IBrandService, BrandService>();
@@ -72,7 +73,7 @@ builder.Services.AddDataProtection()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
 }
@@ -98,6 +99,11 @@ app.Use(async (context, next) =>
         return;
     }
     await next();
+});
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<NotificationHub>("/notificationHub");
 });
 
 app.MapControllerRoute(

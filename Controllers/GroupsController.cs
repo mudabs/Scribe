@@ -103,25 +103,17 @@ namespace Scribe.Controllers
 
             if (ModelState.IsValid)
             {
-
-
                 _context.Add(@group);
-
-
-
                 // Create a log entry using logging service
                 var details = $"Group: {group.Name} Created.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
-
-
                 TempData["Success"] = "New Group added successfully!!!";
                 await _context.SaveChangesAsync();
                 return RedirectToAction("AllocateGroup", new { id = group.Id });
             }
             else
             {
-
                 TempData["Failure"] = "Failed to create Group!!!";
             }
             //return View(@group);
@@ -135,8 +127,6 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-
-
             var @group = await _context.Group.FindAsync(id);
             if (@group == null)
             {
@@ -225,7 +215,13 @@ namespace Scribe.Controllers
             var @group = await _context.Group.FindAsync(id);
             if (@group != null)
             {
-
+                // Check if there are any SerialNumberGroups with the same GroupId
+                var serialNumberGroupExists = await _context.SerialNumberGroup.AnyAsync(sng => sng.GroupId == id);
+                if (serialNumberGroupExists)
+                {
+                    TempData["Failure"] = "Cannot delete group as there are associated SerialNumberGroups.";
+                    return RedirectToAction(nameof(Index));
+                }
 
                 // Create a log entry using logging service
                 var details = $"Group: {group.Name} Deleted.";
@@ -234,7 +230,7 @@ namespace Scribe.Controllers
 
                 _context.Group.Remove(@group);
 
-                TempData["Failure"] = "Group Deleted successfully!!!";
+                TempData["Success"] = "Group Deleted successfully!!!";
             }
 
             await _context.SaveChangesAsync();
@@ -254,7 +250,39 @@ namespace Scribe.Controllers
                 var details = $"Device: {group.SerialNumber.Name} Removed from Group.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var allocationHistory = new AllocationHistory();
+                try
+                {
+                    allocationHistory = await _context.AllocationHistory
+                        .FirstOrDefaultAsync(ah => ah.GroupId == groupId && ah.DeallocationDate == null);
+                    if(allocationHistory != null)
+                    {
+                        allocationHistory.DeallocationDate = DateTime.Now;
+                        allocationHistory.DeallocatedBy = User.Identity.Name;
+                    }
 
+                }
+                catch (NullReferenceException ex)
+                {
+                    // Handle the exception (e.g., log it)
+                    TempData["Failure"] = ("Null reference exception occurred while fetching allocation history.", ex);
+                }
+
+                
+                ///////PENDING
+                //Updating Serial Number User and Condition
+                var sn = await _context.SerialNumbers.Include(x => x.ADUsers).Include(x => x.Model).Include(x => x.Model.Brand).Include(x => x.Model.Category).Include(x => x.Condition).FirstOrDefaultAsync(x => x.Id == group.SerialNumberId);
+                
+                //Find Condition with "In Use"
+                var condId = _context.Condition.FirstOrDefault(x => x.Name == "Awaiting User").Id;
+                sn.ConditionId = condId;
+                sn.DeallocatedBy = User.Identity.Name;
+                sn.CurrentlyAllocated = false;
+                sn.GroupId = null;
+
+
+                _context.SerialNumbers.Update(sn);
+                _context.AllocationHistory.Update(allocationHistory);
                 _context.SerialNumberGroup.Remove(@group);
                 TempData["Success"] = "Device removed successfully!!!";
             }
@@ -408,23 +436,39 @@ namespace Scribe.Controllers
             ViewData["UserId"] = _adService.GetGroupMembersSelectList("zim-web-it");
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
 
-            // Check for existing UserGroup with the same UserId and GroupId
-            bool exists = await _context.SerialNumberGroup
+            // Check if there is the SerialNumber already exists in the Group
+            bool existsInGroup = await _context.SerialNumberGroup
                 .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId && ug.GroupId == serialNumberGroup.GroupId);
 
-            bool existsInIndividual = await _context.SerialNumberGroup
-                .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId);
+
+            // Check if the SerialNumber already exists in another Group
+            bool existsInAnotherGroup = await _context.SerialNumberGroup
+                .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId && serialNumberGroup.GroupId != null);
+            
+            // Check if the SerialNumber is already allocated to an Individual
+            bool allocatedToIndividual = await _context.SerialNumberGroup
+                .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId && serialNumberGroup.ADUsersId != null);
 
             
-            if (existsInIndividual)
+            if (existsInAnotherGroup)
             {
-                TempData["Failure"] = "The Device is already assigned a user !!!";
-                if (exists)
-                {
-                    TempData["Failure"] = "The Device already exists in the group !!!";
-                }
+                TempData["Failure"] = "The Device is already assigned to another group !!!";
                 return RedirectToAction("AllocateGroup", new { id = serialNumberGroup.GroupId });
+
             }
+            if (existsInGroup)
+            {
+                TempData["Failure"] = "The Device already exists in the group !!!";
+                return RedirectToAction("AllocateGroup", new { id = serialNumberGroup.GroupId });
+
+            }
+            if (allocatedToIndividual)
+            {
+                TempData["Failure"] = "The Device is already allocated to a user !!!";
+                return RedirectToAction("AllocateGroup", new { id = serialNumberGroup.GroupId });
+
+            }
+
 
             serialNumberGroup.ADUsersId = null;
             var sn = _context.SerialNumbers.Include(x=>x.Model).Include(x=>x.Model.Brand).Include(x=>x.Model.Category).FirstOrDefault(X=>X.Id == serialNumberGroup.SerialNumberId);
@@ -433,8 +477,30 @@ namespace Scribe.Controllers
             {
                 await _loggingService.LogActionAsync($"Device: {sn.Model.Brand.Name} {sn.Model.Name} {sn.Name} added to Group: {serialNumberGroup.GroupId}.",User.Identity.Name);
 
+                // Creating an Allocation History
+                AllocationHistory allocationHistory = new AllocationHistory()
+                {
+                    SerialNumberId = serialNumberGroup.SerialNumberId,
+                    ADUsersId = null,
+                    AllocationDate = DateTime.Now,
+                    DeallocationDate = null,
+                    AllocatedBy = User.Identity.Name,
+                    GroupId = serialNumberGroup.GroupId
+                };
+                
+
+                //Updating Serial Number User and Condition
+                sn.ADUsersId = null;
+                //Find Condition with "In Use"
+                var condId = _context.Condition.FirstOrDefault(x => x.Name == "In Use").Id;
+                sn.ConditionId = condId;
+                sn.AllocatedBy = User.Identity.Name;
+                sn.Allocation = DateTime.Now;
+                sn.CurrentlyAllocated = true;
+                sn.GroupId = serialNumberGroup.GroupId;
 
                 _context.SerialNumberGroup.Add(serialNumberGroup);
+                await _context.AllocationHistory.AddAsync(allocationHistory);
                 await _context.SaveChangesAsync();
 
 
@@ -495,19 +561,28 @@ namespace Scribe.Controllers
             return Json(models);
         }
 
-        
+
+        //[HttpGet]
+        //public JsonResult GetSerialNumbersByModel(int modelId)
+        //{
+        //    var serialNumbers = _context.SerialNumbers
+        //                                .Where(s => s.ModelId == modelId && !_context.SerialNumberGroup.Any(g => g.SerialNumberId == s.Id))
+        //                                .Select(s => new { Id = s.Id, Name = s.Name })
+        //                                .ToList();
+
+        //    return Json(serialNumbers);
+        //}
+
         [HttpGet]
         public JsonResult GetSerialNumbersByModel(int modelId)
         {
             var serialNumbers = _context.SerialNumbers
-                                        .Where(s => s.ModelId == modelId && !_context.SerialNumberGroup.Any(g => g.SerialNumberId == s.Id))
+                                        .Where(s => s.ModelId == modelId && !_context.SerialNumberGroup.Any(g => g.SerialNumberId == s.Id && g.ADUsersId != null))
                                         .Select(s => new { Id = s.Id, Name = s.Name })
                                         .ToList();
 
             return Json(serialNumbers);
         }
-
-
 
     }
 

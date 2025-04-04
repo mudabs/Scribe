@@ -10,10 +10,9 @@
     <div class="row">
         <div class="col">
             <h3>@Model.Model.Brand.Name @Model.Model.Name</h3>
-            <img src="/media/devices/@Model.Model.Image" width="100px" /><br /><br />
+            <img src="/media/models/@Model.Model.Image" width="100px" /><br /><br />
 
             <div style="height:100px;"></div>
-
 
             <form asp-action="CreateSerialNumber" method="post">
                 <input type="hidden" asp-for="Model.Id" name="ModelId" />
@@ -30,7 +29,7 @@
                 <h4>
                     Existing Serial Numbers (@Model.NumberOfDevices)
                     <span class="ml-auto">
-                        <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0"><img src="~/images/icons/funnel.svg" /></button>
+                        <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0"><img src="~/media/icons/static/funnel.svg" /></button>
                     </span>
                     <a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary">Back to Models</a>
                 </h4>
@@ -59,7 +58,21 @@
                                 <input type="text" name="Name" value="@serialNumber.Name" class="form-control edit-input" style="display:none;" />
                             </td>
                             <td class="serial-condition">
-                                <span class="display-value">@serialNumber.ADUsers?.Name</span>
+                                <span class="display-value">
+
+                                    @if (serialNumber.ADUsers != null)
+                                    {
+                                        @serialNumber.ADUsers.Name
+                                    }
+                                    else if (serialNumber.Group != null)
+                                    {
+                                        @serialNumber.Group.Name <img src="/media/icons/static/g.svg">
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw("N/A")
+                                    }
+                                </span>
                                 <select name="ADUsersId" class="form-control edit-input" style="display:none;">
                                     @foreach (var adUsers in ViewBag.ADUsersId)
                                     {

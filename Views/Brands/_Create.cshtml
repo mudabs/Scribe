@@ -6,7 +6,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createLocationModalLabel">Create Location</h5>
+                <h5 class="modal-title" id="createLocationModalLabel">Create Brand</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -35,3 +35,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $("#ImageUpload").change(function () {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imgpreview').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    });
+</script>

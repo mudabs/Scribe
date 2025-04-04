@@ -32,6 +32,7 @@ namespace Scribe.Infrastructure
                .Include(sn => sn.Department) // Include Department related data
                .Include(sn => sn.Location) // Include Location related data
                .Include(sn => sn.ADUsers) // Include AD Users related data
+               .Include(sn => sn.Group) // Include AD Users related data
                .Where(sn => sn.ModelId == modelId)
                .ToListAsync();
 

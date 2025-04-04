@@ -15,8 +15,7 @@ namespace Scribe.Services
         Task CreateAllocationAsync(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
         Task<bool> AllocationExists(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
         Task<bool> MyAllocationExists(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
-
-    }
+          }
     public class AllocationService : IAllocationService
     {
         private readonly ApplicationDbContext _context;
@@ -102,6 +101,8 @@ namespace Scribe.Services
                 sn.ConditionId = condId;
                 sn.AllocatedBy = allocatedBy;
                 sn.Allocation = DateTime.Now;
+                sn.CurrentlyAllocated = true;
+                sn.GroupId = null;
 
                 //Creating SerialNumber Group
                 SerialNumberGroup serialNumberGroup = new SerialNumberGroup
@@ -130,6 +131,5 @@ namespace Scribe.Services
 
 
         }
-
     }
 }

@@ -161,7 +161,21 @@
                     @foreach (var item in Model.AllocationHistory)
                     {
                         <tr>
-                            <td>@item.ADUsers?.Name</td> @* Use null-conditional operator *@
+                            <td> @* Use null-conditional operator *@
+                            @if (item.ADUsers != null)
+                            {
+                                @item.ADUsers.Name
+                            }
+                            else if (item.Group != null)
+                            {
+                                @item.Group.Name
+                                    <img src="/media/icons/static/g.svg">
+                            }
+                            else
+                            {
+                                @Html.Raw("N/A")
+                            }
+                            </td>
                             <td>@item.AllocationDate</td>
                             <td>@item.AllocatedBy</td>
                             <td>@item.DeallocationDate</td>

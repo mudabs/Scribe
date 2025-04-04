@@ -19,12 +19,12 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="BrandId" class="control-label"></label>
-                        <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId"></select>
+                        <select asp-for="BrandId" id="brand-search" class="form-control" asp-items="ViewBag.BrandId"></select>
                         <span asp-validation-for="BrandId" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="CategoryId" class="control-label"></label>
-                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                        <select asp-for="CategoryId" id="category-search" class="form-control" asp-items="ViewBag.CategoryId"></select>
                         <span asp-validation-for="CategoryId" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -45,6 +45,22 @@
     </div>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+<style>
+    .select2-container {
+        z-index: 9999;
+    }
+</style>
+
+<script>
+        $(document).ready(function () {
+        $('#brand-search').select2({
+                width: '100%',
+                dropdownParent: $('#editModal')
+        });
+        $('#category-search').select2({
+                width: '100%',
+                dropdownParent: $('#editModal')
+        });
+    });
+
+</script>

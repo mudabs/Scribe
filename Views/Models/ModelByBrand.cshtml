@@ -1,0 +1,169 @@
+﻿@model IEnumerable<Scribe.Models.Model>
+
+@{
+    ViewData["Title"] = "ModelByBrand";
+}
+
+<h1>@ViewBag.BrandName</h1>
+
+<p>
+    @* <a asp-action="CreateByBrand" asp-route-brandId="@ViewBag.ThisBrandId" class="btn btn-success">Create New</a> *@
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createModal" onclick="loadCreateByBPartial('Models',@ViewBag.ThisBrandId)">
+        Create Model
+    </button>
+</p>
+
+
+
+<div class="row">
+    <div class="col">
+        <table class="table table-hover table-striped" id="modelsTable">
+
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Brand)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Category)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Image)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Brand.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Category.Name)
+                        </td>
+                        <td>
+                            <img src="/media/models/@item.Image" width="100px" />
+                        </td>
+                        <td>
+                            <a asp-action="AllocateSerialNumber" asp-route-id="@item.Id" class="btn btn-outline-primary">Serial Numbers</a> |
+                            <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Models',@item.Id)">
+                                Edit
+                            </button> |
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('Models',@item.Id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+
+
+    <div id="filterPanel" class="col-md-3" style="display: none;">
+        <h2>Filters</h2>
+        <div class="form-group">
+            <label for="nameFilter">Name</label>
+            <input type="text" id="nameFilter" class="form-control" placeholder="Filter by Name">
+        </div>
+        <div class="form-group">
+            <label for="brandFilter">Brand</label>
+            @* <select id="brandFilter" class="form-control">
+                <option value="">All Brands</option>
+                @foreach (var brand in ViewBag.BrandId)
+                {
+                    <option value="@brand.Text">@brand.Text</option>
+                }
+            </select> *@
+            @Html.DropDownList("BrandId", ViewBag.BrandId as SelectList, "Select a Brand", new { @class = "form-control" })
+        </div>
+        <div class="form-group">
+            <label for="categoryFilter">Category</label>
+            <select id="categoryFilter" class="form-control">
+                <option value="">All Categories</option>
+                @foreach (var category in ViewBag.CategoryId)
+                {
+                    <option value="@category.Text">@category.Text</option>
+                }
+            </select>
+        </div>
+    </div>
+
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Filter Panel Toggle
+            $('#toggleFilterButton').click(function () {
+                $('#filterPanel').toggle();
+                $(this).find('i').toggleClass('fa-filter fa-times');
+            });
+
+            // Search Functionality
+            $('#searchInput').on('keyup', function () {
+                var searchTerm = $(this).val().toLowerCase();
+                $('#dataTableData tbody tr').each(function () {
+                    var name = $(this).find('td:first-child').text().toLowerCase();
+                    var brand = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    var category = $(this).find('td:nth-child(3)').text().toLowerCase();
+                    if (name.includes(searchTerm) || brand.includes(searchTerm) || category.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Filter by Name
+            $('#nameFilter').on('keyup', function () {
+                var nameFilter = $(this).val().toLowerCase();
+                $('#dataTableData tbody tr').each(function () {
+                    var name = $(this).find('td:first-child').text().toLowerCase();
+                    if (name.includes(nameFilter)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Filter by Brand
+            $('#brandFilter').on('change', function () {
+                var brandFilter = $(this).val().toLowerCase();
+                $('#dataTableData tbody tr').each(function () {
+                    var brand = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    if (brandFilter === '' || brand.includes(brandFilter)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Filter by Category
+            $('#categoryFilter').on('change', function () {
+                var categoryFilter = $(this).val().toLowerCase();
+                $('#dataTableData tbody tr').each(function () {
+                    var category = $(this).find('td:nth-child(3)').text().toLowerCase();
+                    if (categoryFilter === '' || category.includes(categoryFilter)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
+    </script>
+}

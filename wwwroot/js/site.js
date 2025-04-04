@@ -63,6 +63,24 @@ $(document).ready(function () {
 
     //Initialising Datatables on groups index page
     $('#groupTable').DataTable();
+    //Initialising Datatables on maintenance index page
+    $('#maintenanceTable').DataTable();
+    //Initialising Datatables on models index page
+    $('#modelsTable').DataTable();
+    //Initialising Datatables on models index page
+    $('#allModelsTable').DataTable();
+    //Initialising Datatables on brands index page
+    $('#brandsTable').DataTable();
+    //Initialising Datatables on locations index page
+    $('#locationsTable').DataTable();
+    //Initialising Datatables on conditions index page
+    $('#conditionsTable').DataTable();
+    //Initialising Datatables on myLogs index page
+    $('#myLogsTable').DataTable();
+    //Initialising Datatables on departments index page
+    $('#departmentsTable').DataTable();
+    //Initialising Datatables on categories index page
+    $('#categoriesTable').DataTable();
 
 
 
@@ -77,7 +95,7 @@ $(document).ready(function () {
         var columnIndex = $(this).data('column');
         table.column(columnIndex).visible(this.checked);
     });
-    // Initialize #userTable with filtering and column visibility toggle
+    // Initialize #logsTable with filtering and column visibility toggle
     var table = $('#logsTable').DataTable(dataTableOptions);
     $('.column-toggle').change(function () {
         var columnIndex = $(this).data('column');
@@ -100,6 +118,18 @@ $(document).ready(function () {
         ]
     }));
 
+    // Initialize #allDevicesTable with export options (excluding last column)
+    $('#allDevicesTable').DataTable($.extend({}, dataTableOptions, {
+        columnDefs: [
+            {
+                targets: ':last-child',
+                exportOptions: {
+                    display: false
+                }
+            }
+        ]
+    }));
+
     // Handle page size changes
     $('#pageSize').change(function () {
         table.page.len($(this).val()).draw();
@@ -107,17 +137,34 @@ $(document).ready(function () {
 });
 
 //Select2///////////////////////////////////////////////////////////////////////////////////////////////
-
 $(document).ready(function () {
-    $('#brand-select').select2();
-    $('#user-search').select2();
-    $('#sysUser-search').select2();
-    $('#model-select').select2();
-    $('#serial-number-select').select2();
-    $('#condition-search').select2();
-    $('#department-search').select2();
-    $('#aduser-search').select2();
-    $('#category-search').select2();
+    $('#aduser-search').select2({
+        width: '100%'
+    });
+    $('#user-search').select2({
+        width: '100%'
+    });
+    $('#brand-search').select2({
+        width: '100%'
+    });
+    $('#model-select').select2({
+        width: '100%'
+    });
+    $('#condition-search').select2({
+        width: '100%'
+    });
+    $('#location-search').select2({
+        width: '100%'
+    });
+    $('#category-search').select2({
+        width: '100%'
+    });
+    $('#department-search').select2({
+        width: '100%'
+    });
+    $('#location-search').select2({
+        width: '100%'
+    });
 });
 
 
@@ -284,3 +331,18 @@ if ($("div.alert.notification").length) {
 //        clearTimeout(loaderTimeout);
 //        $("#loader").hide();
 //    });
+
+
+/////////////////////////////////////////////////////////////////SignalR
+
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/notificationHub")
+    .build();
+
+connection.on("ReceiveNotification", function (message) {
+    document.getElementById("notificationCount").innerText = message;
+});
+
+connection.start().catch(function (err) {
+    console.error(err.toString());
+});

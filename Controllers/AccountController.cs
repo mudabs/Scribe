@@ -37,17 +37,23 @@ namespace Scribe.Controllers
                 if (IsUserInGroup(username))
                 {
                     var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, username),
-                    new Claim(ClaimTypes.Role, "zim-web-it")
-                };
+            {
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Role, "zim-web-it")
+            };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                     TempData["Success"] = "Welcome " + username;
                     var details = "User " + username + " logged in.";
-                    _loggingService.LogActionAsync(details, username); // Log the action
+                    await _loggingService.LogActionAsync(details, username); // Log the action
+
+                    // Set cache control headers to prevent caching
+                    Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                    Response.Headers["Pragma"] = "no-cache";
+                    Response.Headers["Expires"] = "0";
+
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -69,7 +75,14 @@ namespace Scribe.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             var details = "User " + User.Identity.Name + " logged out.";
-            _loggingService.LogActionAsync(details, User.Identity.Name); // Log the action
+            await _loggingService.LogActionAsync(details, User.Identity.Name); // Log the action
+            TempData["Success"] = "Logged Out";
+
+            // Set cache control headers to prevent caching
+            Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
             return RedirectToAction("Login", "Account");
         }
 

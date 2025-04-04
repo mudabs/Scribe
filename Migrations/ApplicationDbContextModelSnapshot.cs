@@ -54,7 +54,7 @@ namespace Scribe.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ADUsersId")
+                    b.Property<int?>("ADUsersId")
                         .HasColumnType("int");
 
                     b.Property<string>("AllocatedBy")
@@ -69,12 +69,17 @@ namespace Scribe.Migrations
                     b.Property<DateTime?>("DeallocationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("GroupId")
+                        .HasColumnType("int");
+
                     b.Property<int>("SerialNumberId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ADUsersId");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("SerialNumberId");
 
@@ -231,9 +236,14 @@ namespace Scribe.Migrations
                     b.Property<int>("ADUsersId")
                         .HasColumnType("int");
 
+                    b.Property<int>("SerialNumberId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ADUsersId");
+
+                    b.HasIndex("SerialNumberId");
 
                     b.ToTable("IndividualAssignment");
                 });
@@ -378,10 +388,16 @@ namespace Scribe.Migrations
                     b.Property<DateTime?>("Creation")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("CurrentlyAllocated")
+                        .HasColumnType("bit");
+
                     b.Property<string>("DeallocatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<int?>("LocationId")
@@ -397,9 +413,6 @@ namespace Scribe.Migrations
                     b.Property<int?>("SerialNumberId")
                         .HasColumnType("int");
 
-                    b.Property<string>("User")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ADUsersId");
@@ -407,6 +420,8 @@ namespace Scribe.Migrations
                     b.HasIndex("ConditionId");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("LocationId");
 
@@ -431,9 +446,6 @@ namespace Scribe.Migrations
                     b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("IndividualAssignmentId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SerialNumberId")
                         .HasColumnType("int");
 
@@ -442,8 +454,6 @@ namespace Scribe.Migrations
                     b.HasIndex("ADUsersId");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("IndividualAssignmentId");
 
                     b.HasIndex("SerialNumberId");
 
@@ -505,6 +515,29 @@ namespace Scribe.Migrations
                 {
                     b.HasOne("Scribe.Models.ADUsers", "ADUsers")
                         .WithMany()
+                        .HasForeignKey("ADUsersId");
+
+                    b.HasOne("Scribe.Models.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId");
+
+                    b.HasOne("Scribe.Models.SerialNumber", "SerialNumber")
+                        .WithMany()
+                        .HasForeignKey("SerialNumberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ADUsers");
+
+                    b.Navigation("Group");
+
+                    b.Navigation("SerialNumber");
+                });
+
+            modelBuilder.Entity("Scribe.Models.IndividualAssignment", b =>
+                {
+                    b.HasOne("Scribe.Models.ADUsers", "ADUsers")
+                        .WithMany()
                         .HasForeignKey("ADUsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -518,17 +551,6 @@ namespace Scribe.Migrations
                     b.Navigation("ADUsers");
 
                     b.Navigation("SerialNumber");
-                });
-
-            modelBuilder.Entity("Scribe.Models.IndividualAssignment", b =>
-                {
-                    b.HasOne("Scribe.Models.ADUsers", "ADUsers")
-                        .WithMany()
-                        .HasForeignKey("ADUsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ADUsers");
                 });
 
             modelBuilder.Entity("Scribe.Models.Maintenance", b =>
@@ -580,6 +602,10 @@ namespace Scribe.Migrations
                         .WithMany()
                         .HasForeignKey("DepartmentId");
 
+                    b.HasOne("Scribe.Models.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId");
+
                     b.HasOne("Scribe.Models.Location", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId");
@@ -598,6 +624,8 @@ namespace Scribe.Migrations
 
                     b.Navigation("Department");
 
+                    b.Navigation("Group");
+
                     b.Navigation("Location");
 
                     b.Navigation("Model");
@@ -612,10 +640,6 @@ namespace Scribe.Migrations
                     b.HasOne("Scribe.Models.Group", "Group")
                         .WithMany("SerialNumberGroups")
                         .HasForeignKey("GroupId");
-
-                    b.HasOne("Scribe.Models.IndividualAssignment", null)
-                        .WithMany("SerialNumberGroups")
-                        .HasForeignKey("IndividualAssignmentId");
 
                     b.HasOne("Scribe.Models.SerialNumber", "SerialNumber")
                         .WithMany()
@@ -659,11 +683,6 @@ namespace Scribe.Migrations
                     b.Navigation("SerialNumberGroups");
 
                     b.Navigation("UserGroups");
-                });
-
-            modelBuilder.Entity("Scribe.Models.IndividualAssignment", b =>
-                {
-                    b.Navigation("SerialNumberGroups");
                 });
 
             modelBuilder.Entity("Scribe.Models.SerialNumber", b =>

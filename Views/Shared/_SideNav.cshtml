@@ -15,7 +15,7 @@
         <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")"
            asp-controller="Home" asp-action="Assets" id="assetsDropdown" role="button"
            data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="/images/icons/laptop-alt-2-svgrepo-com (2).svg" style="width:20px;" /> Assets
+            <img src="/media/icons/static/laptop-alt-2-svgrepo-com.svg" style="width:20px;" /> Assets
         </a>
         <ul class="dropdown-menu" aria-labelledby="assetsDropdown">
             <li><a class="dropdown-item" asp-controller="SerialNumbers" asp-action="">All Assets</a></li>
@@ -39,7 +39,7 @@
         <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")"
            id="reportsDropdown" role="button"
            data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="/images/icons/report-barchart-svgrepo-com.svg" style="width:20px;" /> System Logs
+            <img src="/media/icons/static/report-barchart-svgrepo-com.svg" style="width:20px;" /> System Logs
         </a>
 
         <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
@@ -53,24 +53,28 @@
         <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")"
            id="reportsDropdown" role="button"
            data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="/images/icons/users-svgrepo-com.svg" style="width:20px;" /> Allocations
+            <img src="/media/icons/static/users-svgrepo-com.svg" style="width:20px;" /> Allocations
         </a>
 
         <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
 
-            <li><a class="dropdown-item" asp-controller="IndividualAssignments" asp-action="">Individual Allocations</a></li>
+            @* <li><a class="dropdown-item" asp-controller="IndividualAssignments" asp-action="">Individual Allocations</a></li> *@
+            <li><a class="dropdown-item" asp-controller="ADUsers" asp-action="Index">Individual Allocations</a></li>
             <li><a class="dropdown-item" asp-controller="Groups" asp-action="">Group Allocations</a></li>
             <li> <a class="dropdown-item" asp-controller="Departments" asp-action="Index" id="inventorySetupLink">Departments</a> </li>
-            <li><a class="dropdown-item" asp-controller="ADUsers" asp-action="Index">All AD Users</a></li>
         </ul>
 
     </li>
     <li class="list-group-item">
-        <a class="nav-link text-dark" asp-controller="Maintenances" asp-action="Index"> <img src="/images/icons/tools-svgrepo-com.svg" style="width:20px;" /> Maintenance</a>
+        <a class="nav-link text-dark" asp-controller="Maintenances" asp-action="Index"> <img src="/media/icons/static/tools-svgrepo-com.svg" style="width:20px;" /> Maintenance</a>
     </li> 
-    <li class="list-group-item">
-        <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index"> <img src="/images/icons/help-circle-svgrepo-com.svg" style="width:20px;" /> Help</a>
+  @*   <li class="list-group-item">
+        <a class="nav-link text-dark @(currentAction == "Index" && currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index"> <img src="/media/icons/static/help-circle-svgrepo-com.svg" style="width:20px;" /> Help</a>
     </li>
+    <li class="list-group-item">
+        
+        <div id="notificationCount"> <img src="/media/icons/static/bell.svg" style="width:20px;" /> 0</div>
+    </li> *@
 
 
 </ul>
