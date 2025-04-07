@@ -1,0 +1,36 @@
+﻿@model HashSet<string>
+@{
+    var modelId = ViewData["modelId"];
+}
+
+<h4>Preview Serial Numbers</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Serial Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var serial in Model)
+        {
+            <tr>
+                <td>@serial</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button id="uploadButton" class="btn btn-success">Upload to Database</button>
+
+<script>
+    $("#uploadButton").click(function () {
+        $.post("/SerialNumbers/SaveSerialNumbers", { serialNumbers: @Html.Raw(Json.Serialize(Model)), modelId: '@modelId' })
+            .done(function (response) {
+                alert(response);
+                location.reload();
+            })
+            .fail(function (xhr) {
+                alert(xhr.responseText);
+            });
+    });
+</script>

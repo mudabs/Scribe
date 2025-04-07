@@ -16,7 +16,6 @@ namespace Scribe.Controllers
         private readonly ILoggingService _loggingService;
         private readonly IActiveDirectoryService _adService;
 
-
         public ADUsersController(ApplicationDbContext context, IAllocationService allocationService, IDeallocationService deallocationService, ILoggingService loggingService, IActiveDirectoryService adService)
         {
             _context = context;
@@ -29,33 +28,35 @@ namespace Scribe.Controllers
         // GET: ADUsers
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(await _context.ADUsers.ToListAsync());
         }
-
-        //public async Task<IActionResult> Dets()
-        //{
-        //    // Fetch all users and their assigned devices
-        //    var usersWithDevices = _context.ADUsers
-        //        .Select(u => new UserDevicesViewModel
-        //        {
-        //            User = u,
-        //            Devices = _context.SerialNumbers.Include(s => s.Model.Brand).Where(s => s.ADUsersId == u.Id).ToList()
-        //        })
-        //        .ToList();
-
-        //    return View(usersWithDevices);
-        //}
 
         // GET: ADUsers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "ADUsers", new { id }), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var aDUsers = await _context.ADUsers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var aDUsers = await _context.ADUsers.FirstOrDefaultAsync(m => m.Id == id);
             if (aDUsers == null)
             {
                 return NotFound();
@@ -67,9 +68,19 @@ namespace Scribe.Controllers
         // GET: ADUsers/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "ADUsers"), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
-        // GET: ADUsers/Create
+
+        // GET: ADUsers/RefreshDC
         public IActionResult RefreshDC()
         {
             ImportADUsersToDatabase();
@@ -79,6 +90,8 @@ namespace Scribe.Controllers
             _loggingService.LogActionAsync(details, myUser); // Log the action
             return RedirectToAction(nameof(Index));
         }
+
+        // GET: ADUsers/RefreshUsersDC
         public IActionResult RefreshUsersDC()
         {
             _adService.StoreUsersInGroup();
@@ -90,12 +103,19 @@ namespace Scribe.Controllers
         }
 
         // POST: ADUsers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] ADUsers aDUsers)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "ADUsers"), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (ModelState.IsValid)
             {
                 _context.Add(aDUsers);
@@ -113,6 +133,15 @@ namespace Scribe.Controllers
         // GET: ADUsers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "ADUsers", new { id }), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -127,12 +156,19 @@ namespace Scribe.Controllers
         }
 
         // POST: ADUsers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] ADUsers aDUsers)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "ADUsers", new { id }), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id != aDUsers.Id)
             {
                 return NotFound();
@@ -169,13 +205,21 @@ namespace Scribe.Controllers
         // GET: ADUsers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "ADUsers", new { id }), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var aDUsers = await _context.ADUsers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var aDUsers = await _context.ADUsers.FirstOrDefaultAsync(m => m.Id == id);
             if (aDUsers == null || id == 1)
             {
                 TempData["Failure"] = "The User Cannot be Deleted";
@@ -184,6 +228,9 @@ namespace Scribe.Controllers
 
             return PartialView("_Delete", aDUsers);
         }
+
+
+
         // POST: ADUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -274,10 +321,19 @@ namespace Scribe.Controllers
             TempData["Success"] = "Importing Users From DC Complete";
         }
 
-        //Individual Allocations Logic
-        //Allocating a device to a user
+        // Individual Allocations Logic
+        // Allocating a device to a user
         public async Task<IActionResult> AllocateUser(int id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Allocate User", Url = Url.Action("AllocateUser", "ADUsers", new { id }), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             // Prepare data for the view
             var users = await _context.ADUsers.ToListAsync();
             var brands = await _context.Brands.ToListAsync();
@@ -297,7 +353,6 @@ namespace Scribe.Controllers
             var viewModel = new IndividualAssignmentViewModel
             {
                 ADUsersId = id,
-
             };
 
             var serialNumberIds = await _context.SerialNumberGroup
@@ -314,7 +369,6 @@ namespace Scribe.Controllers
                 .Include(s => s.SerialNumber.Model.Brand)
                 .Include(s => s.SerialNumber.Model.Category)
                 .ToListAsync();
-
 
             // Pass the group model to ViewData
             ViewData["User"] = user;
@@ -348,6 +402,15 @@ namespace Scribe.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateIndividualAllocation(int ADUsersId, int SerialNumberId, string allocatedBy)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+            new BreadcrumbItem { Title = "Allocate User", Url = Url.Action("AllocateUser", "ADUsers", new { id = ADUsersId }), IsActive = true }
+        };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             try
             {
                 if (allocatedBy == null)
@@ -369,7 +432,7 @@ namespace Scribe.Controllers
                 if (result)
                 {
                     var model = await _context.SerialNumberGroup.Include(x => x.ADUsers).Include(x => x.SerialNumber).FirstOrDefaultAsync(x => x.SerialNumberId == SerialNumberId);
-                    if(model.GroupId != null)
+                    if (model.GroupId != null)
                     {
                         return PartialView("_ConfirmRemovalFromGroup", model);
                     }
@@ -390,9 +453,20 @@ namespace Scribe.Controllers
             }
         }
 
+
         [HttpPost]
         public async Task<IActionResult> RemoveDevice(int ADUsersId, int SerialNumberId, string deallocatedBy)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+                {
+                    new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                    new BreadcrumbItem { Title = "AD Users", Url = Url.Action("Index", "ADUsers"), IsActive = false },
+                    new BreadcrumbItem { Title = "Allocate User", Url = Url.Action("AllocateUser", "ADUsers", new { id = ADUsersId }), IsActive = true }
+                };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+
             // Validate the input
             if (ADUsersId == 0)
             {

@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "SerialNumber";
+    var modelId = ViewData["modelId"];
     Layout = "_Layout";
 }
 
@@ -32,8 +33,22 @@
                         <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0"><img src="~/media/icons/static/funnel.svg" /></button>
                     </span>
                     <a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary">Back to Models</a>
+                   
                 </h4>
             </div>
+
+                <h2>Upload Serial Numbers</h2>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" id="fileInput" name="file" class="form-control" />
+                    <input type="hidden" id="modelId" value="@Model.Model.Id"></input>
+                    <button type="submit" class="btn btn-primary mt-2">Upload</button>
+                </form>
+            
+           
+
+            <div id="previewContainer"></div>
+
+            
 
             <table class="table table-hover table-striped" id="serials">
                 <thead>
@@ -183,6 +198,29 @@
 </div>
 
 @section Scripts {
+    <script>
+        $("#uploadForm").submit(function (e) {
+        e.preventDefault();
+        var formData = new FormData();
+        formData.append("file", $("#fileInput")[0].files[0]);
+        formData.append("modelId", $("#modelId").val());
+
+        $.ajax({
+        url: "/SerialNumbers/UploadFile",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+        $("#previewContainer").html(response);
+        },
+        error: function (xhr) {
+        alert(xhr.responseText);
+        }
+        });
+        });
+    </script>
+
     <script>
         $(document).ready(function () {
             var table = $('#serialsTable').DataTable({

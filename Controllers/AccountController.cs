@@ -8,6 +8,7 @@ using Scribe.Services;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Humanizer;
 using System.Security;
+using Scribe.Models;
 
 namespace Scribe.Controllers
 {
@@ -26,6 +27,14 @@ namespace Scribe.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Login", Url = Url.Action("Login", "Account"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View();
         }
 
@@ -37,19 +46,18 @@ namespace Scribe.Controllers
                 if (IsUserInGroup(username))
                 {
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, username),
-                new Claim(ClaimTypes.Role, "zim-web-it")
-            };
+                    {
+                        new Claim(ClaimTypes.Name, username),
+                        new Claim(ClaimTypes.Role, "zim-web-it")
+                    };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                     TempData["Success"] = "Welcome " + username;
                     var details = "User " + username + " logged in.";
-                    await _loggingService.LogActionAsync(details, username); // Log the action
+                    await _loggingService.LogActionAsync(details, username);
 
-                    // Set cache control headers to prevent caching
                     Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
                     Response.Headers["Pragma"] = "no-cache";
                     Response.Headers["Expires"] = "0";
@@ -67,6 +75,14 @@ namespace Scribe.Controllers
                 ModelState.AddModelError("", validationMessage);
             }
 
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Login", Url = Url.Action("Login", "Account"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View();
         }
 
@@ -75,13 +91,20 @@ namespace Scribe.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             var details = "User " + User.Identity.Name + " logged out.";
-            await _loggingService.LogActionAsync(details, User.Identity.Name); // Log the action
+            await _loggingService.LogActionAsync(details, User.Identity.Name);
             TempData["Success"] = "Logged Out";
 
-            // Set cache control headers to prevent caching
             Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
             Response.Headers["Pragma"] = "no-cache";
             Response.Headers["Expires"] = "0";
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Logout", Url = Url.Action("Logout", "Account"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
 
             return RedirectToAction("Login", "Account");
         }

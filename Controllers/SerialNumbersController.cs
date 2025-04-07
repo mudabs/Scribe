@@ -16,6 +16,9 @@ using Microsoft.CodeAnalysis.Elfie.Serialization;
 using System.Globalization;
 using System.Data;
 using ExcelDataReader;
+using System.ComponentModel;
+using OfficeOpenXml;
+using System.Text;
 
 
 namespace Scribe.Controllers
@@ -50,6 +53,14 @@ namespace Scribe.Controllers
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name");
 
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -72,6 +83,15 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = serialNumber.Name, Url = Url.Action("Details", "SerialNumbers", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(serialNumber);
         }
 
@@ -83,6 +103,16 @@ namespace Scribe.Controllers
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name");
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name");
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name");
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "SerialNumbers"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View();
         }
 
@@ -102,6 +132,16 @@ namespace Scribe.Controllers
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name", serialNumber.LocationId);
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name");
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", serialNumber.ModelId);
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "SerialNumbers"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(serialNumber);
         }
 
@@ -127,8 +167,16 @@ namespace Scribe.Controllers
             var brand = await _context.Brands.FindAsync(model.BrandId);
             ViewData["Brand"] = brand.Name.ToString();
             ViewData["Users"] = new SelectList(_context.SystemUsers, "SamAccountName", "SamAccountName");
-            
-            //return View(serialNumber);
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = serialNumber.Name, Url = Url.Action("Edit", "SerialNumbers", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Edit", serialNumber);
         }
 
@@ -146,27 +194,21 @@ namespace Scribe.Controllers
             {
                 try
                 {
-                    // Retrieve the original entity from the database
                     var originalSerialNumber = await _context.SerialNumbers.FindAsync(id);
                     if (originalSerialNumber == null)
                     {
                         return NotFound();
                     }
 
-                    // Check if ADUsersId has changed
                     if (originalSerialNumber.ADUsersId != serialNumber.ADUsersId)
                     {
-                        // Reassign if already assigned
-                        // Check if the SerialNumber is currently allocated another person
                         var existingAllocation = await _context.SerialNumberGroup
                             .FirstOrDefaultAsync(sng => sng.SerialNumberId == id);
 
                         if (existingAllocation != null)
                         {
-                            //will change logic to add notification
                             _context.Remove(existingAllocation);
 
-                            //Adding Deallocation Date
                             var myAllocationHistory = _context.AllocationHistory.OrderByDescending(a => a.AllocationDate).First(x => x.SerialNumberId == existingAllocation.SerialNumberId);
 
                             if (myAllocationHistory != null)
@@ -177,8 +219,7 @@ namespace Scribe.Controllers
                         }
                         var individualId = _context.IndividualAssignment.FirstOrDefault(x => x.ADUsersId == serialNumber.ADUsersId);
                         var serialNumberGroup = new SerialNumberGroup();
-                        
-                        //If device hasn't been allocated yet
+
                         if (individualId != null)
                         {
                             if (individualId.ADUsersId != 1)
@@ -187,7 +228,6 @@ namespace Scribe.Controllers
                                 serialNumberGroup.ADUsersId = individualId.ADUsersId;
                             }
                         }
-
 
                         var allocationHistory = new AllocationHistory
                         {
@@ -219,12 +259,20 @@ namespace Scribe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Populating ViewData for the dropdowns
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name", serialNumber.ConditionId);
             ViewData["DepartmentId"] = new SelectList(_context.Department, "Id", "Name", serialNumber.DepartmentId);
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name", serialNumber.LocationId);
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name", serialNumber.ADUsersId);
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", serialNumber.ModelId);
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = serialNumber.Name, Url = Url.Action("Edit", "SerialNumbers", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
 
             return View(serialNumber);
         }
@@ -249,9 +297,17 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = serialNumber.Name, Url = Url.Action("Delete", "SerialNumbers", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Delete", serialNumber);
         }
-
 
         // POST: SerialNumbers/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -275,7 +331,6 @@ namespace Scribe.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
         private bool SerialNumberExists(int id)
         {
             return _context.SerialNumbers.Any(e => e.Id == id);
@@ -285,7 +340,6 @@ namespace Scribe.Controllers
         [HttpPost]
         public async Task<IActionResult> Deallocate(int allocationId, string deallocatedBy)
         {
-            // Find the allocation history entry by ID
             var allocationHistory = await _context.AllocationHistory.FindAsync(allocationId);
             try
             {
@@ -293,7 +347,6 @@ namespace Scribe.Controllers
                 {
                     deallocatedBy = User.Identity.Name;
                 }
-                // USING THE SERVICE
                 await _deallocationService.DeallocateAsync(allocationId, deallocatedBy);
                 TempData["Success"] = "Device deallocated successfully.";
             }
@@ -301,7 +354,7 @@ namespace Scribe.Controllers
             {
                 TempData["Failure"] = ex.Message;
             }
-            return RedirectToAction("ViewHistory", new { id = allocationHistory.SerialNumberId }); // Redirect as needed
+            return RedirectToAction("ViewHistory", new { id = allocationHistory.SerialNumberId });
         }
 
         // GET: ViewHistory
@@ -315,11 +368,9 @@ namespace Scribe.Controllers
             ViewData["SerialNumber"] = modelName.Name.ToString();
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
 
-            //Retrieving the condition to be displayed on the page
             ViewData["Condition"] = _context.Condition.Where(x => x.Id == modelName.ConditionId).Select(x => x.Name).FirstOrDefault();
             ViewData["ConditionColorCode"] = _context.Condition.Where(x => x.Id == modelName.ConditionId).Select(x => x.ColorCode).FirstOrDefault();
 
-            // Get users from the AD group "ZIM-WEB-IT"
             ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
 
             var viewModel = new HistoryViewModel
@@ -327,17 +378,27 @@ namespace Scribe.Controllers
                 SerialNumberId = id,
                 Maintenance = _context.Maintenances
                     .Where(sh => sh.SerialNumberId == id)
-                    .OrderByDescending(sh => sh.ServiceDate) // Order by date if needed
+                    .OrderByDescending(sh => sh.ServiceDate)
                     .ToList(),
                 AllocationHistory = _context.AllocationHistory
                     .Where(ah => ah.SerialNumberId == id)
-                    .Include(ah => ah.ADUsers) // Eager load ADUser
-                    .Include(ah => ah.Group) // Eager load ADUser
-                    .OrderByDescending(ah => ah.AllocationDate) // Order by date if needed
+                    .Include(ah => ah.ADUsers)
+                    .Include(ah => ah.Group)
+                    .OrderByDescending(ah => ah.AllocationDate)
                     .ToList()
             };
 
-            ViewBag.SelectedConditionId = modelName.ConditionId; // Pass the selected condition
+            ViewBag.SelectedConditionId = modelName.ConditionId;
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = modelName.Name, Url = Url.Action("ViewHistory", "SerialNumbers", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return ViewComponent("History", new { id, model = viewModel });
         }
 
@@ -345,7 +406,7 @@ namespace Scribe.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateServiceLog(int SerialNumberId, string ServiceDescription, DateTime ServiceDate, DateTime NextServiceDate, int ConditionId, string SystemUserId)
         {
-            if(SystemUserId == null)
+            if (SystemUserId == null)
             {
                 SystemUserId = User.Identity.Name;
             }
@@ -366,27 +427,46 @@ namespace Scribe.Controllers
             _context.Maintenances.Add(serviceHistory);
             await _context.SaveChangesAsync();
             TempData["Success"] = "Service Log Added";
-            return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId }); // Or wherever you want to redirect
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = sn.Name, Url = Url.Action("ViewHistory", "SerialNumbers", new { id = SerialNumberId }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId });
         }
 
         // POST: RemoveService
         [HttpPost]
         public async Task<IActionResult> RemoveService(int serviceId)
         {
-            // Find the service history entry by ID
             var serviceHistory = await _context.Maintenances.FindAsync(serviceId);
 
             if (serviceHistory == null)
             {
                 TempData["Failure"] = "Service Log not found.";
-                return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId }); // Redirect to the appropriate view
+                return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId });
             }
 
             _context.Maintenances.Remove(serviceHistory);
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Service Log removed successfully.";
-            return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId }); // Redirect to the appropriate view
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                                new BreadcrumbItem { Title = serviceHistory.SerialNumber.Name, Url = Url.Action("ViewHistory", "SerialNumbers", new { id = serviceHistory.SerialNumberId }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return RedirectToAction("ViewHistory", new { id = serviceHistory.SerialNumberId });
         }
 
         // POST: CreateAllocation
@@ -404,11 +484,136 @@ namespace Scribe.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Failure"] = ex.Message; // Handle the exception as needed
+                TempData["Failure"] = ex.Message;
             }
-            return RedirectToAction("ViewHistory", new { id = SerialNumberId }); // Redirect as needed
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = "View History", Url = Url.Action("ViewHistory", "SerialNumbers", new { id = SerialNumberId }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return RedirectToAction("ViewHistory", new { id = SerialNumberId });
         }
 
-       
+        // POST: UploadFile
+        [HttpPost]
+        public async Task<IActionResult> UploadFile(IFormFile file, int modelId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("Please select a file.");
+
+            var validExtensions = new[] { ".csv", ".xls", ".xlsx" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+
+            if (!validExtensions.Contains(fileExtension))
+                return BadRequest("Invalid file format. Only CSV or Excel files are allowed.");
+
+            var serialNumbers = new HashSet<string>();
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                stream.Position = 0;
+
+                if (fileExtension == ".csv")
+                {
+                    using (var reader = new StreamReader(stream, Encoding.UTF8))
+                    {
+                        string header = reader.ReadLine();
+                        if (header == null || header.Split(',').Length > 1)
+                            return BadRequest("File must contain only one column.");
+
+                        while (!reader.EndOfStream)
+                        {
+                            var line = reader.ReadLine()?.Trim();
+                            if (!string.IsNullOrEmpty(line))
+                                serialNumbers.Add(line);
+                        }
+                    }
+                }
+                else
+                {
+                    System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    {
+                        var dataset = reader.AsDataSet();
+                        if (dataset.Tables.Count != 1)
+                            return BadRequest("The file must contain only one sheet.");
+
+                        var table = dataset.Tables[0];
+                        if (table.Columns.Count != 1)
+                            return BadRequest("File must contain only one column.");
+
+                        for (int row = 1; row < table.Rows.Count; row++)
+                        {
+                            var value = table.Rows[row][0]?.ToString().Trim();
+                            if (!string.IsNullOrEmpty(value))
+                                serialNumbers.Add(value);
+                        }
+                    }
+                }
+            }
+
+            if (serialNumbers.Count == 0)
+                return BadRequest("No valid serial numbers found in the file.");
+
+            ViewData["modelId"] = modelId;
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = "Upload File", Url = Url.Action("UploadFile", "SerialNumbers"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return PartialView("_PreviewSerialNumbers", serialNumbers);
+        }
+
+        // POST: SaveSerialNumbers
+        [HttpPost]
+        public async Task<IActionResult> SaveSerialNumbers(List<string> serialNumbers, int modelId)
+        {
+            if (serialNumbers == null || !serialNumbers.Any())
+                return BadRequest("No serial numbers to save.");
+
+            var existingSerials = _context.SerialNumbers.Select(s => s.Name).ToHashSet();
+            var newSerials = serialNumbers.Where(s => !existingSerials.Contains(s))
+                .Select(s => new SerialNumber
+                {
+                    ModelId = modelId,
+                    Name = s,
+                    ADUsersId = 1,
+                    ConditionId = 1,
+                    DepartmentId = 1,
+                    LocationId = 1,
+                    Creation = DateTime.Now,
+                    Allocation = null,
+                    AllocatedBy = User.Identity.Name,
+                    DeallocatedBy = null
+                }).ToList();
+
+            if (newSerials.Count == 0)
+                return BadRequest("All serial numbers already exist.");
+
+            await _context.SerialNumbers.AddRangeAsync(newSerials);
+            await _context.SaveChangesAsync();
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = "Save Serial Numbers", Url = Url.Action("SaveSerialNumbers", "SerialNumbers"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return Ok("Serial numbers uploaded successfully.");
+        }
     }
 }
