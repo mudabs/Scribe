@@ -18,7 +18,7 @@ namespace Scribe.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILoggingService _loggingService;
 
-        public LocationsController(ApplicationDbContext context,ILoggingService loggingService)
+        public LocationsController(ApplicationDbContext context, ILoggingService loggingService)
         {
             _context = context;
             _loggingService = loggingService;
@@ -27,6 +27,13 @@ namespace Scribe.Controllers
         // GET: Locations
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Locations", Url = Url.Action("Index", "Locations"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(await _context.Locations.ToListAsync());
         }
 
@@ -45,18 +52,32 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Locations", Url = Url.Action("Index", "Locations"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Locations", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(location);
         }
 
         // GET: Locations/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Locations", Url = Url.Action("Index", "Locations"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Locations"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
         // POST: Locations/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description")] Location location)
@@ -65,18 +86,15 @@ namespace Scribe.Controllers
             {
                 _context.Add(location);
 
-
                 // Create a log entry using logging service
                 var details = $"Location: {location.Name} created.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
 
-
                 TempData["Success"] = "Location Created Successfully!!";
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            //return View(location);
             return PartialView("_Create");
         }
 
@@ -94,12 +112,18 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Locations", Url = Url.Action("Index", "Locations"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Locations", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Edit", location);
         }
 
         // POST: Locations/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Location location)
@@ -115,12 +139,10 @@ namespace Scribe.Controllers
                 {
                     _context.Update(location);
 
-
                     // Create a log entry using logging service
                     var details = $"Brand: {location.Name} updated.";
                     var myUser = User.Identity.Name; // Assuming you have user authentication
                     await _loggingService.LogActionAsync(details, myUser); // Log the action
-
 
                     TempData["Success"] = "Location Updated Successfully!!";
                     await _context.SaveChangesAsync();
@@ -156,6 +178,14 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Locations", Url = Url.Action("Index", "Locations"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Locations", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Delete", location);
         }
 
@@ -167,12 +197,10 @@ namespace Scribe.Controllers
             var location = await _context.Locations.FindAsync(id);
             if (location != null)
             {
-
                 // Create a log entry using logging service
                 var details = $"Brand: {location.Name} deleted.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
-
 
                 _context.Locations.Remove(location);
 

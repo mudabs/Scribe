@@ -28,6 +28,14 @@ namespace Scribe.Controllers
         // GET: Groups
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Groups", Url = Url.Action("Index", "Groups"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var group = await _context.Group
                 .Include(s => s.SerialNumberGroups)
                 .ThenInclude(s => s.SerialNumber)
@@ -62,6 +70,15 @@ namespace Scribe.Controllers
         // GET: Groups/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Groups", Url = Url.Action("Index", "Groups"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Groups", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -80,17 +97,23 @@ namespace Scribe.Controllers
         // GET: Groups/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Groups", Url = Url.Action("Index", "Groups"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Groups"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
         // POST: Groups/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Group @group)
         {
-            // Check for existing group with the same name
             bool groupExists = await _context.Group
                 .AnyAsync(g => g.Name == @group.Name);
 
@@ -100,14 +123,12 @@ namespace Scribe.Controllers
                 return RedirectToAction("Create");
             }
 
-
             if (ModelState.IsValid)
             {
                 _context.Add(@group);
-                // Create a log entry using logging service
                 var details = $"Group: {group.Name} Created.";
-                var myUser = User.Identity.Name; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = User.Identity.Name;
+                await _loggingService.LogActionAsync(details, myUser);
                 TempData["Success"] = "New Group added successfully!!!";
                 await _context.SaveChangesAsync();
                 return RedirectToAction("AllocateGroup", new { id = group.Id });
@@ -116,13 +137,21 @@ namespace Scribe.Controllers
             {
                 TempData["Failure"] = "Failed to create Group!!!";
             }
-            //return View(@group);
             return RedirectToAction("AllocateGroup", new { id = group.Id });
         }
 
         // GET: Groups/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Groups", Url = Url.Action("Index", "Groups"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Groups", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -132,12 +161,10 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return PartialView("_Edit",group);
+            return PartialView("_Edit", group);
         }
 
         // POST: Groups/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Group @group)
@@ -147,7 +174,6 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            // Check for existing group with the same name
             bool groupExists = await _context.Group
                 .AnyAsync(g => g.Name == @group.Name);
 
@@ -164,12 +190,9 @@ namespace Scribe.Controllers
                     _context.Update(@group);
                     await _context.SaveChangesAsync();
 
-
-
-                    // Create a log entry using logging service
                     var details = $"Group: {group.Name} Edited.";
-                    var myUser = User.Identity.Name; // Assuming you have user authentication
-                    await _loggingService.LogActionAsync(details, myUser); // Log the action
+                    var myUser = User.Identity.Name;
+                    await _loggingService.LogActionAsync(details, myUser);
 
                     TempData["Success"] = "Group Modified successfully!!!";
                 }
@@ -192,6 +215,15 @@ namespace Scribe.Controllers
         // GET: Groups/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Groups", Url = Url.Action("Index", "Groups"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Groups", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -204,7 +236,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return PartialView("_Delete",group);
+            return PartialView("_Delete", group);
         }
 
         // POST: Groups/Delete/5
@@ -215,7 +247,6 @@ namespace Scribe.Controllers
             var @group = await _context.Group.FindAsync(id);
             if (@group != null)
             {
-                // Check if there are any SerialNumberGroups with the same GroupId
                 var serialNumberGroupExists = await _context.SerialNumberGroup.AnyAsync(sng => sng.GroupId == id);
                 if (serialNumberGroupExists)
                 {
@@ -223,10 +254,9 @@ namespace Scribe.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Create a log entry using logging service
                 var details = $"Group: {group.Name} Deleted.";
-                var myUser = User.Identity.Name; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = User.Identity.Name;
+                await _loggingService.LogActionAsync(details, myUser);
 
                 _context.Group.Remove(@group);
 
@@ -242,7 +272,7 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveDevice(int id)
         {
-            var @group = await _context.SerialNumberGroup.Include(x=>x.SerialNumber.Model).Include(x=>x.SerialNumber.Model.Brand).Include(x=>x.SerialNumber.Model.Category).FirstOrDefaultAsync(x=>x.Id == id);
+            var @group = await _context.SerialNumberGroup.Include(x => x.SerialNumber.Model).Include(x => x.SerialNumber.Model.Brand).Include(x => x.SerialNumber.Model.Category).FirstOrDefaultAsync(x => x.Id == id);
             var groupId = @group?.GroupId;
             if (@group != null)
             {
@@ -255,7 +285,7 @@ namespace Scribe.Controllers
                 {
                     allocationHistory = await _context.AllocationHistory
                         .FirstOrDefaultAsync(ah => ah.GroupId == groupId && ah.DeallocationDate == null);
-                    if(allocationHistory != null)
+                    if (allocationHistory != null)
                     {
                         allocationHistory.DeallocationDate = DateTime.Now;
                         allocationHistory.DeallocatedBy = User.Identity.Name;
@@ -268,11 +298,11 @@ namespace Scribe.Controllers
                     TempData["Failure"] = ("Null reference exception occurred while fetching allocation history.", ex);
                 }
 
-                
+
                 ///////PENDING
                 //Updating Serial Number User and Condition
                 var sn = await _context.SerialNumbers.Include(x => x.ADUsers).Include(x => x.Model).Include(x => x.Model.Brand).Include(x => x.Model.Category).Include(x => x.Condition).FirstOrDefaultAsync(x => x.Id == group.SerialNumberId);
-                
+
                 //Find Condition with "In Use"
                 var condId = _context.Condition.FirstOrDefault(x => x.Name == "Awaiting User").Id;
                 sn.ConditionId = condId;
@@ -298,7 +328,7 @@ namespace Scribe.Controllers
         {
             var user = await _context.UserGroup.FindAsync(id);
             var groupId = user?.GroupId;
-            var groupName = _context.Group.FirstOrDefault(x=>x.Id == groupId);
+            var groupName = _context.Group.FirstOrDefault(x => x.Id == groupId);
             if (user != null)
             {
                 // Create a log entry using logging service
@@ -321,6 +351,13 @@ namespace Scribe.Controllers
 
         public async Task<IActionResult> AllocateGroup(int id)
         {
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Groups", Url = Url.Action("Index", "Groups"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("AllocateGroup", "Groups", new { id }), IsActive = true }
+            };
             // Prepare data for the view
             var users = await _context.ADUsers.ToListAsync();
             var brands = await _context.Brands.ToListAsync();
@@ -444,12 +481,12 @@ namespace Scribe.Controllers
             // Check if the SerialNumber already exists in another Group
             bool existsInAnotherGroup = await _context.SerialNumberGroup
                 .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId && serialNumberGroup.GroupId != null);
-            
+
             // Check if the SerialNumber is already allocated to an Individual
             bool allocatedToIndividual = await _context.SerialNumberGroup
                 .AnyAsync(ug => ug.SerialNumberId == serialNumberGroup.SerialNumberId && serialNumberGroup.ADUsersId != null);
 
-            
+
             if (existsInAnotherGroup)
             {
                 TempData["Failure"] = "The Device is already assigned to another group !!!";
@@ -471,11 +508,11 @@ namespace Scribe.Controllers
 
 
             serialNumberGroup.ADUsersId = null;
-            var sn = _context.SerialNumbers.Include(x=>x.Model).Include(x=>x.Model.Brand).Include(x=>x.Model.Category).FirstOrDefault(X=>X.Id == serialNumberGroup.SerialNumberId);
+            var sn = _context.SerialNumbers.Include(x => x.Model).Include(x => x.Model.Brand).Include(x => x.Model.Category).FirstOrDefault(X => X.Id == serialNumberGroup.SerialNumberId);
 
             if (ModelState.IsValid)
             {
-                await _loggingService.LogActionAsync($"Device: {sn.Model.Brand.Name} {sn.Model.Name} {sn.Name} added to Group: {serialNumberGroup.GroupId}.",User.Identity.Name);
+                await _loggingService.LogActionAsync($"Device: {sn.Model.Brand.Name} {sn.Model.Name} {sn.Name} added to Group: {serialNumberGroup.GroupId}.", User.Identity.Name);
 
                 // Creating an Allocation History
                 AllocationHistory allocationHistory = new AllocationHistory()
@@ -487,7 +524,7 @@ namespace Scribe.Controllers
                     AllocatedBy = User.Identity.Name,
                     GroupId = serialNumberGroup.GroupId
                 };
-                
+
 
                 //Updating Serial Number User and Condition
                 sn.ADUsersId = null;

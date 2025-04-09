@@ -17,7 +17,7 @@ namespace Scribe.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILoggingService _loggingService;
 
-        public DepartmentsController(ApplicationDbContext context,ILoggingService loggingService)
+        public DepartmentsController(ApplicationDbContext context, ILoggingService loggingService)
         {
             _context = context;
             _loggingService = loggingService;
@@ -26,12 +26,29 @@ namespace Scribe.Controllers
         // GET: Departments
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Departments", Url = Url.Action("Index", "Departments"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(await _context.Department.ToListAsync());
         }
 
         // GET: Departments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Departments", Url = Url.Action("Index", "Departments"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Departments", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -50,20 +67,25 @@ namespace Scribe.Controllers
         // GET: Departments/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Departments", Url = Url.Action("Index", "Departments"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Departments"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
         // POST: Departments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Department department)
         {
             if (ModelState.IsValid)
             {
-
-
                 // Create a log entry using logging service
                 var details = $"Department: {department.Name} Created.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication
@@ -79,6 +101,15 @@ namespace Scribe.Controllers
         // GET: Departments/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Departments", Url = Url.Action("Index", "Departments"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Departments", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -93,8 +124,6 @@ namespace Scribe.Controllers
         }
 
         // POST: Departments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Department department)
@@ -108,8 +137,6 @@ namespace Scribe.Controllers
             {
                 try
                 {
-
-
                     // Create a log entry using logging service
                     var details = $"Department: {department.Name} Edited.";
                     var myUser = User.Identity.Name; // Assuming you have user authentication
@@ -137,6 +164,15 @@ namespace Scribe.Controllers
         // GET: Departments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Departments", Url = Url.Action("Index", "Departments"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Departments", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -149,7 +185,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return PartialView("_Delete",department);
+            return PartialView("_Delete", department);
         }
 
         // POST: Departments/Delete/5
@@ -160,8 +196,6 @@ namespace Scribe.Controllers
             var department = await _context.Department.FindAsync(id);
             if (department != null)
             {
-
-
                 // Create a log entry using logging service
                 var details = $"Department: {department.Name} Deleted.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication

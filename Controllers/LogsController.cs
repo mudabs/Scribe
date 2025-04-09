@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using ExcelDataReader.Log;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Scribe.Data;
 using Scribe.Infrastructure;
 using Scribe.Models;
 using Scribe.Services;
+using Log = Scribe.Models.Log;
 
 namespace Scribe.Controllers
 {
@@ -27,21 +29,38 @@ namespace Scribe.Controllers
         // GET: Logs
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Logs", Url = Url.Action("Index", "Logs"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var logs = await _context.Log
                 .OrderByDescending(log => log.Date) // Replace 'Date' with your actual date property name
                 .ToListAsync();
             return View(logs);
         }
-        // GET: Logs
+
+        // GET: Logs/MyActivity
         public async Task<IActionResult> MyActivity()
         {
             var userId = User.Identity.Name; // Get the currently logged-in user's ID
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Logs", Url = Url.Action("Index", "Logs"), IsActive = false },
+                new BreadcrumbItem { Title = "My Activity", Url = Url.Action("MyActivity", "Logs"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var logs = await _context.Log
                 .Where(log => log.User == userId) // Filter logs by the user's ID
                 .OrderByDescending(log => log.Date) // Replace 'Date' with your actual date property name
                 .ToListAsync();
             return View(logs);
         }
+
         // GET: Logs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -57,21 +76,35 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Logs", Url = Url.Action("Index", "Logs"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Logs", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(log);
         }
 
         // GET: Logs/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Logs", Url = Url.Action("Index", "Logs"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Logs"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
         // POST: Logs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Details,User,Date")] Log log)
+        public async Task<IActionResult> Create(Log log)
         {
             if (ModelState.IsValid)
             {
@@ -95,43 +128,51 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return PartialView("_Edit",log);
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Logs", Url = Url.Action("Index", "Logs"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Logs", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return PartialView("_Edit", log);
+            
         }
 
-        // POST: Logs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Details,User,Date")] Log log)
-        {
-            if (id != log.Id)
+            // POST: Logs/Edit/5
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Edit(int id, [Bind("Id,Details,User,Date")] Log log)
             {
-                return NotFound();
-            }
+                if (id != log.Id)
+                {
+                    return NotFound();
+                }
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (ModelState.IsValid)
                 {
-                    _context.Update(log);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LogExists(log.Id))
+                    try
                     {
-                        return NotFound();
+                        _context.Update(log);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!LogExists(log.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
+                return View(log);
             }
-            return View(log);
-        }
 
         // GET: Logs/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -148,7 +189,15 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return PartialView("Delete",log);
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Logs", Url = Url.Action("Index", "Logs"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Logs", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return PartialView("Delete", log);
         }
 
         // POST: Logs/Delete/5

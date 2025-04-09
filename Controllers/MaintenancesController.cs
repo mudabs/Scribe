@@ -31,6 +31,13 @@ namespace Scribe.Controllers
         // GET: Maintenances
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Maintenance", Url = Url.Action("Index", "Maintenances"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var applicationDbContext = _context.Maintenances.Include(s => s.SerialNumber).Include(s => s.Condition).Include(s => s.SerialNumber.Model.Brand).Include(s => s.SerialNumber.Model);
             return View(await applicationDbContext.ToListAsync());
         }
@@ -38,6 +45,15 @@ namespace Scribe.Controllers
         // GET: Maintenances/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Maintenance", Url = Url.Action("Index", "Maintenances"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Maintenances"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
             if (id == null)
             {
                 return NotFound();
@@ -57,6 +73,16 @@ namespace Scribe.Controllers
         // GET: Maintenances/Create
         public IActionResult Create()
         {
+
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Maintenance", Url = Url.Action("Index", "Maintenances"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Maintenances"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name");
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
@@ -113,6 +139,15 @@ namespace Scribe.Controllers
         // GET: Maintenances/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Maintenance", Url = Url.Action("Index", "Maintenances"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Maintenances"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
             if (id == null)
             {
                 return NotFound();
@@ -199,6 +234,16 @@ namespace Scribe.Controllers
         // GET: Maintenances/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Maintenance", Url = Url.Action("Index", "Maintenances"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Maintenances"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
