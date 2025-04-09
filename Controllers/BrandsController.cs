@@ -29,30 +29,55 @@ namespace Scribe.Controllers
         // GET: Brands
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(await _context.Brands.ToListAsync());
         }
 
         // GET: Brands/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Brands", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var brand = await _context.Brands
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var brand = await _context.Brands.FirstOrDefaultAsync(m => m.Id == id);
             if (brand == null)
             {
                 return NotFound();
             }
 
-             return RedirectToAction(nameof(Index));
+            return View(brand);
         }
 
         // GET: Brands/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Brands"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
@@ -61,15 +86,23 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Brand brand, IFormFile imageFile)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Brands"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (ModelState.IsValid)
             {
                 // Check if a brand with the same name already exists (case insensitive)
                 if (_context.Brands.Any(b => b.Name.ToLower() == brand.Name.ToLower()))
                 {
                     TempData["Failure"] = $"A brand with the name '{brand.Name}' already exists. Please choose a different name.";
-                     return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
                 }
-
 
                 try
                 {
@@ -101,12 +134,21 @@ namespace Scribe.Controllers
                 TempData["Failure"] = "Failed to create brand. Please check the form for errors."; // Model state error
             }
 
-             return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Brands/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Brands", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -125,6 +167,15 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Brand brand)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Brands", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id != brand.Id)
             {
                 TempData["Failure"] = "Invalid brand ID.";
@@ -210,13 +261,21 @@ namespace Scribe.Controllers
         // GET: Brands/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = false},
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Brands", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var brand = await _context.Brands
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var brand = await _context.Brands.FirstOrDefaultAsync(m => m.Id == id);
             if (brand == null)
             {
                 return NotFound();
@@ -230,6 +289,15 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Brands", Url = Url.Action("Index", "Brands"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Brands", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var brand = await _context.Brands.FindAsync(id);
             if (brand != null)
             {

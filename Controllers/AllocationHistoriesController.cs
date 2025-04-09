@@ -17,8 +17,7 @@ namespace Scribe.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILoggingService _loggingService;
 
-
-        public AllocationHistoriesController(ApplicationDbContext context,ILoggingService loggingService)
+        public AllocationHistoriesController(ApplicationDbContext context, ILoggingService loggingService)
         {
             _context = context;
             _loggingService = loggingService;
@@ -27,6 +26,14 @@ namespace Scribe.Controllers
         // GET: AllocationHistories
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var applicationDbContext = _context.AllocationHistory.Include(a => a.ADUsers).Include(a => a.SerialNumber);
             return View(await applicationDbContext.ToListAsync());
         }
@@ -34,6 +41,15 @@ namespace Scribe.Controllers
         // GET: AllocationHistories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "AllocationHistories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -54,18 +70,34 @@ namespace Scribe.Controllers
         // GET: AllocationHistories/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "AllocationHistories"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id");
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name");
-           return PartialView("_Create");
+            return PartialView("_Create");
         }
 
         // POST: AllocationHistories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,SerialNumberId,ADUsersId,AllocationDate,DeallocationDate")] AllocationHistory allocationHistory)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "AllocationHistories"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (ModelState.IsValid)
             {
                 _context.Add(allocationHistory);
@@ -80,6 +112,15 @@ namespace Scribe.Controllers
         // GET: AllocationHistories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "AllocationHistories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -92,16 +133,23 @@ namespace Scribe.Controllers
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", allocationHistory.ADUsersId);
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", allocationHistory.SerialNumberId);
-            return PartialView("_Edit",allocationHistory); 
+            return PartialView("_Edit", allocationHistory);
         }
 
         // POST: AllocationHistories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,SerialNumberId,ADUsersId,AllocationDate,DeallocationDate")] AllocationHistory allocationHistory)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "AllocationHistories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id != allocationHistory.Id)
             {
                 return NotFound();
@@ -129,12 +177,21 @@ namespace Scribe.Controllers
             }
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Id", allocationHistory.ADUsersId);
             ViewData["SerialNumberId"] = new SelectList(_context.SerialNumbers, "Id", "Name", allocationHistory.SerialNumberId);
-            return PartialView("_Edit",allocationHistory);
+            return PartialView("_Edit", allocationHistory);
         }
 
         // GET: AllocationHistories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "AllocationHistories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 return NotFound();
@@ -149,7 +206,7 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            return PartialView("_Delete",allocationHistory);
+            return PartialView("_Delete", allocationHistory);
         }
 
         // POST: AllocationHistories/Delete/5
@@ -157,6 +214,15 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Allocation Histories", Url = Url.Action("Index", "AllocationHistories"), IsActive = false},
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "AllocationHistories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var allocationHistory = await _context.AllocationHistory.FindAsync(id);
             if (allocationHistory != null)
             {

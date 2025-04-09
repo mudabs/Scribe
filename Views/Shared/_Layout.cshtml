@@ -72,13 +72,14 @@
                     <div class="pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">@ViewData["Title"]</h1>
                     </div>
+
+                    @* Render the breadcrumbs partial view *@
+                    var breadcrumbs = ViewData["Breadcrumbs"] as List<BreadcrumbItem>;
+                    
+                    @await Html.PartialAsync("_Breadcrumbs", breadcrumbs)
+
                 }
 
-                @* Render the breadcrumbs partial view *@
-                @{
-                    var breadcrumbs = ViewData["Breadcrumbs"] as List<BreadcrumbItem>;
-                }
-                @await Html.PartialAsync("_Breadcrumbs", breadcrumbs)
 
                 @RenderBody()
             </main>
@@ -122,7 +123,6 @@
 
 <div id=" loading-overlay">
     <div class="spinner">
-
     </div>
 </div>
 

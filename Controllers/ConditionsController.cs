@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +22,29 @@ namespace Scribe.Controllers
         // GET: Conditions
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Conditions", Url = Url.Action("Index", "Conditions"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(await _context.Condition.ToListAsync());
         }
 
         // GET: Conditions/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Conditions", Url = Url.Action("Index", "Conditions"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Conditions", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 TempData["Failure"] = "Condition ID is required.";
@@ -49,6 +65,15 @@ namespace Scribe.Controllers
         // GET: Conditions/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Conditions", Url = Url.Action("Index", "Conditions"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Conditions"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
@@ -101,6 +126,15 @@ namespace Scribe.Controllers
         // GET: Conditions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Conditions", Url = Url.Action("Index", "Conditions"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Conditions", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 TempData["Failure"] = "Condition ID is required.";
@@ -191,6 +225,15 @@ namespace Scribe.Controllers
         // GET: Conditions/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Conditions", Url = Url.Action("Index", "Conditions"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Conditions", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null)
             {
                 TempData["Failure"] = "Condition ID is required.";

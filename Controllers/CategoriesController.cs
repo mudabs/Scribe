@@ -13,7 +13,6 @@ using Scribe.Services;
 using System.Drawing.Drawing2D;
 using Scribe.Data;
 
-
 namespace Scribe.Controllers
 {
     public class CategoriesController : Controller
@@ -32,19 +31,35 @@ namespace Scribe.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Categories", Url = Url.Action("Index", "Categories"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(await _context.Categories.ToListAsync());
         }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Categories", Url = Url.Action("Index", "Categories"), IsActive = false },
+                new BreadcrumbItem { Title = "Details", Url = Url.Action("Details", "Categories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null || _context.Categories == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var category = await _context.Categories.FirstOrDefaultAsync(m => m.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -56,21 +71,36 @@ namespace Scribe.Controllers
         // GET: Categories/Create
         public IActionResult Create()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Categories", Url = Url.Action("Index", "Categories"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Categories"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
         // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Categories", Url = Url.Action("Index", "Categories"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Categories"), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (ModelState.IsValid)
             {
                 // Check for existing Category with the same Name
-                bool exists = await _context.Categories
-                    .AnyAsync(m => m.Name == category.Name);
+                bool exists = await _context.Categories.AnyAsync(m => m.Name == category.Name);
 
                 if (exists)
                 {
@@ -96,14 +126,10 @@ namespace Scribe.Controllers
                 _context.Add(category);
                 await _context.SaveChangesAsync();
 
-
                 // Create a log entry using logging service
                 var details = $"Category: {category.Name} Created.";
                 var myUser = User.Identity.Name; // Assuming you have user authentication
                 await _loggingService.LogActionAsync(details, myUser); // Log the action
-
-
-                await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -114,6 +140,15 @@ namespace Scribe.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Categories", Url = Url.Action("Index", "Categories"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Categories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id == null || _context.Categories == null)
             {
                 return NotFound();
@@ -124,16 +159,23 @@ namespace Scribe.Controllers
             {
                 return NotFound();
             }
-            return PartialView("_Edit",category);
+            return PartialView("_Edit", category);
         }
 
         // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Category category)
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Categories", Url = Url.Action("Index", "Categories"), IsActive = false },
+                new BreadcrumbItem { Title = "Edit", Url = Url.Action("Edit", "Categories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             if (id != category.Id)
             {
                 return NotFound();
@@ -141,7 +183,6 @@ namespace Scribe.Controllers
 
             if (ModelState.IsValid)
             {
-
                 try
                 {
                     // Retrieve the original category
@@ -152,10 +193,8 @@ namespace Scribe.Controllers
                     }
 
                     // Check for existing Category with the same Name
-                    bool exists2 = await _context.Categories
-                        .AnyAsync(m => m.Name == category.Name);
+                    bool exists2 = await _context.Categories.AnyAsync(m => m.Name == category.Name);
 
-                   
                     if (exists2)
                     {
                         TempData["Failure"] = "A category with the same Name already exists.";
@@ -185,7 +224,7 @@ namespace Scribe.Controllers
                     var myUser = User.Identity.Name; // Assuming you have user authentication
                     await _loggingService.LogActionAsync(details, myUser); // Log the action
 
-                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -198,72 +237,8 @@ namespace Scribe.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return PartialView("_Edit",category);
-        }
-
-
-        // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Categories == null)
-            {
-                return NotFound();
-            }
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return PartialView("_Delete",category);
-        }
-
-        // POST: Categories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Categories == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Categories' is null.");
-            }
-
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-
-                // Create a log entry using logging service
-                var details = $"Category: {category.Name} Deleted.";
-                var myUser = User.Identity.Name; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
-
-                DeleteImage(category.Icon);
-                _context.Categories.Remove(category);
-                TempData["Success"] = "Category Deleted Successfully!!";
-                await _context.SaveChangesAsync();
-
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-
-        public IActionResult Filtering()
-        {
-            List<SelectListItem> icons = new()
-            {
-                new SelectListItem { Value = "<i class=\'bi bi-laptop'></i>", Text = "<i class='bi bi-laptop'>laptop</i>" },
-                new SelectListItem { Value = "<i class='bi bi-pc'></i>", Text = "<i class='bi bi-pc'>pc</i>" },
-
-            };
-
-            ViewBag.Icons = icons;
-            return View();
+            return PartialView("_Edit", category);
         }
 
         private bool CategoryExists(int id)
@@ -275,12 +250,58 @@ namespace Scribe.Controllers
         {
             if (!string.IsNullOrEmpty(imageName))
             {
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "media/icons", imageName);
+                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "media/icons/categories", imageName);
                 if (System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
                 }
             }
+        }
+        // POST: Categories/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index","Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Categories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            if (_context.Categories == null)
+            {
+                return Problem("Entity set 'ApplicationDbContext.Categories' is null.");
+            }
+
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
+            {
+                // Create a log entry using logging service
+                var details = $"Category: {category.Name} Deleted.";
+                var myUser = User.Identity.Name; // Assuming you have user authentication
+                await _loggingService.LogActionAsync(details, myUser); // Log the action
+
+                DeleteImage(category.Icon);
+                _context.Categories.Remove(category);
+                TempData["Success"] = "Category Deleted Successfully!!";
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Filtering()
+        {
+            List<SelectListItem> icons = new()
+            {
+                new SelectListItem { Value = "<i class='bi bi-laptop'></i>", Text = "<i class='bi bi-laptop'>laptop</i>" },
+                new SelectListItem { Value = "<i class='bi bi-pc'></i>", Text = "<i class='bi bi-pc'>pc</i>" },
+            };
+
+            ViewBag.Icons = icons;
+            return View();
         }
     }
 }
