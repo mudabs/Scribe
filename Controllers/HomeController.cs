@@ -50,55 +50,31 @@ namespace Scribe.Controllers
             ViewBag.ConditionCounts = conditionData.Select(c => c.Count).ToList();
             ViewBag.ConditionNames = conditionData.Select(c => c.ConditionName).ToList();
 
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(brands);
         }
 
-
         public async Task<IActionResult> Settings()
         {
-            //string groupName = "zim-web-it";
-            //string domain = "zlt.co.zw";
-
-            //List<UserInfo> users = GetUsersInGroup(domain, groupName);
-
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Settings", Url = Url.Action("Settings", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
 
             return View();
         }
 
-        //public static List<UserInfo> GetUsersInGroup(string domain, string groupName)
-        //{
-        //    var users = new List<UserInfo>();
-
-        //    using (var context = new PrincipalContext(ContextType.Domain, domain))
-        //    using (var group = GroupPrincipal.FindByIdentity(context, groupName))
-        //    {
-        //        if (group != null)
-        //        {
-        //            foreach (var principal in group.GetMembers())
-        //            {
-        //                DirectoryEntry de = principal.GetUnderlyingObject() as DirectoryEntry;
-        //                if (de != null)
-        //                {
-        //                    users.Add(new UserInfo
-        //                    {
-        //                        FirstName = de.Properties["givenName"].Value?.ToString(),
-        //                        LastName = de.Properties["sn"].Value?.ToString(),
-        //                        SamAccountName = de.Properties["samAccountName"].Value?.ToString(),
-        //                        UserPrincipalName = de.Properties["userPrincipalName"].Value?.ToString()
-        //                    });
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return users;
-        //}
-
-
-
         public IActionResult Exports()
         {
-
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
             ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name");
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
@@ -106,17 +82,22 @@ namespace Scribe.Controllers
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
             ViewData["GroupId"] = new SelectList(_context.Group, "Id", "Name");
 
-
-            // Retrieve the model from Session
             var modelJson = HttpContext.Session.GetString("ReportModel");
             var model = modelJson == null ? null : JsonConvert.DeserializeObject<ReportModel>(modelJson);
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Exports", Url = Url.Action("Exports", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
 
             return View(model);
         }
 
         public IActionResult Export(int[] brands, int[] categories, int[] locations, int[] conditions, DateTime date, int usergroups)
         {
-            // Begin with the base query
             var query = _context.SerialNumbers
                 .Include(s => s.Model)
                     .ThenInclude(m => m.Brand)
@@ -124,12 +105,8 @@ namespace Scribe.Controllers
                     .ThenInclude(m => m.Category)
                 .Include(s => s.Condition)
                 .Include(s => s.Location)
-                .AsQueryable(); // Enable further filtering
+                .AsQueryable();
 
-
-
-
-            // Apply filters only if the corresponding parameter is not null or empty
             if (brands != null && brands.Length > 0)
             {
                 query = query.Where(s => brands.Contains(s.Model.Brand.Id));
@@ -150,72 +127,97 @@ namespace Scribe.Controllers
                 query = query.Where(s => conditions.Contains(s.Condition.Id));
             }
 
-            //if (date.HasValue)
-            //{
-            //    query = query.Where(s => s.DateAdded.Date == date.Value.Date); // Compare only the date part
-            //}
-
-            //if (!string.IsNullOrEmpty(usergroups))
-            //{
-            //    query = query.Where(s => s.UserGroup == usergroups);
-            //}
-
-            // Fetch the filtered data
             var model = new ReportModel
             {
-                Items = query.ToList() // Execute the query and load the results
+                Items = query.ToList()
             };
 
-            // Store the model in Session as JSON
             HttpContext.Session.SetString("ReportModel", JsonConvert.SerializeObject(model));
-            string key = "ReportModel";
 
-            //return RedirectToAction("Extract", "Home", key);
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Exports", Url = Url.Action("Exports", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Export", Url = Url.Action("Export", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return RedirectToAction("Exports");
-
         }
 
-        [HttpGet] 
-        public IActionResult GetItemStatusData() { 
+        [HttpGet]
+        public IActionResult GetItemStatusData()
+        {
             var data = _context.SerialNumbers
                 .GroupBy(s => s.ConditionId)
-                .Select(g => new 
-                { 
-                    ConditionID = g.Key, 
-                    Count = g.Count() 
+                .Select(g => new
+                {
+                    ConditionID = g.Key,
+                    Count = g.Count()
                 })
-                .ToList(); 
+                .ToList();
 
-            return Json(data); 
+            return Json(data);
         }
 
         public IActionResult Privacy()
         {
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Privacy", Url = Url.Action("Privacy", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Error", Url = Url.Action("Error", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-
-
         public IActionResult Extract()
         {
-            // Retrieve the model from Session
             var modelJson = HttpContext.Session.GetString("ReportModel");
             var model = modelJson == null ? null : JsonConvert.DeserializeObject<ReportModel>(modelJson);
 
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Extract", Url = Url.Action("Extract", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_ReportPartial", model);
         }
+
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+            new BreadcrumbItem { Title = "Logout", Url = Url.Action("Logout", "Home"), IsActive = true }
+        };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return RedirectToAction("Login", "Access");
         }
-
     }
 
     public class ReportModel

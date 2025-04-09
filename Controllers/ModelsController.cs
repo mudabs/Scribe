@@ -17,7 +17,7 @@ namespace Scribe.Controllers
         private readonly ILoggingService _loggingService;
         private readonly IActiveDirectoryService _adService;
 
-        public ModelsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, ILoggingService loggingService,IActiveDirectoryService adService)
+        public ModelsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, ILoggingService loggingService, IActiveDirectoryService adService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
@@ -30,25 +30,28 @@ namespace Scribe.Controllers
         {
             var applicationDbContext = _context.Models.Include(m => m.Brand).Include(m => m.Category);
 
-            // Populate ViewBag.Brands
-            ViewBag.BrandId = _context.Brands // Assuming you have a DbContext named _context
+            ViewBag.BrandId = _context.Brands
                 .Select(b => new SelectListItem
                 {
-                    Value = b.Id.ToString(), // Assuming Id is the primary key of your Brand model
+                    Value = b.Id.ToString(),
                     Text = b.Name
                 })
                 .ToList();
 
-            // Populate ViewBag.Categories
-            ViewBag.CategoryId = _context.Categories // Assuming you have a Categories table
+            ViewBag.CategoryId = _context.Categories
                 .Select(c => new SelectListItem
                 {
-                    Value = c.Id.ToString(), // Assuming Id is the primary key of your Category model
+                    Value = c.Id.ToString(),
                     Text = c.Name
                 })
                 .ToList();
 
-
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
 
             return View(await applicationDbContext.ToListAsync());
         }
@@ -64,26 +67,31 @@ namespace Scribe.Controllers
 
             ViewBag.ThisBrandId = id;
 
-            // Populate ViewBag.Brands
-            ViewBag.BrandId = _context.Brands // Assuming you have a DbContext named _context
+            ViewBag.BrandId = _context.Brands
                  .Select(b => new SelectListItem
                  {
-                     Value = b.Id.ToString(), // Assuming Id is the primary key of your Brand model
+                     Value = b.Id.ToString(),
                      Text = b.Name
                  })
                  .ToList();
 
-            // Populate ViewBag.Categories
-            ViewBag.CategoryId = _context.Categories // Assuming you have a Categories table
+            ViewBag.CategoryId = _context.Categories
                 .Select(c => new SelectListItem
                 {
-                    Value = c.Id.ToString(), // Assuming Id is the primary key of your Category model
+                    Value = c.Id.ToString(),
                     Text = c.Name
                 })
                 .ToList();
 
-            // Pass the brand name to the view
             ViewBag.BrandName = brand.Name;
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = brand.Name, Url = Url.Action("ModelByBrand", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
 
             return View(await applicationDbContext.ToListAsync());
         }
@@ -97,27 +105,32 @@ namespace Scribe.Controllers
                 .Include(m => m.Category)
                 .Where(m => m.CategoryId == id);
 
-            // Populate ViewBag.Brands
-            ViewBag.BrandId = _context.Brands // Assuming you have a DbContext named _context
+            ViewBag.BrandId = _context.Brands
                 .Select(b => new SelectListItem
                 {
-                    Value = b.Id.ToString(), // Assuming Id is the primary key of your Brand model
+                    Value = b.Id.ToString(),
                     Text = b.Name
                 })
                 .ToList();
 
-            // Populate ViewBag.Categories
-            ViewBag.CategoryId = _context.Categories // Assuming you have a Categories table
+            ViewBag.CategoryId = _context.Categories
                 .Select(c => new SelectListItem
                 {
-                    Value = c.Id.ToString(), // Assuming Id is the primary key of your Category model
+                    Value = c.Id.ToString(),
                     Text = c.Name
                 })
                 .ToList();
 
-            // Pass the brand name to the view
             ViewBag.CategoryName = category.Name;
             ViewBag.ThisCategoryId = id;
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = category.Name, Url = Url.Action("ModelByCategory", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
 
             return View(await applicationDbContext.ToListAsync());
         }
@@ -139,6 +152,14 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = model.Name, Url = Url.Action("Details", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(model);
         }
 
@@ -147,17 +168,23 @@ namespace Scribe.Controllers
         {
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("Create", "Models"), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Create");
         }
 
         // POST: Models/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Model model)
         {
-            // Check for existing Model with the same BrandId, Name, and CategoryId
             bool exists = await _context.Models
                 .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
 
@@ -186,15 +213,11 @@ namespace Scribe.Controllers
                 _context.Add(model);
                 await _context.SaveChangesAsync();
 
-                // Create a log entry
                 var details = $"Model {model.Name} created with Image {imageName}.";
-                var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
+                var myUser = User.Identity.Name ?? "Anonymous";
                 await _loggingService.LogActionAsync(details, myUser);
 
-                // Add the log entry to the database
-                await _context.SaveChangesAsync();
                 TempData["Success"] = "The Model has been created Successfully!";
-
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
@@ -206,42 +229,42 @@ namespace Scribe.Controllers
         public IActionResult CreateByBrand(int id)
         {
             int brandId = id;
-            // Fetch the brand with the specified ID
             var brand = _context.Brands.Find(brandId);
 
-            // Check if the brand exists
             if (brand == null)
             {
-                return NotFound(); // Handle case where the brand does not exist
+                return NotFound();
             }
 
-            // Create the view model
             var model = new Model
             {
-                BrandId = brandId // Set the BrandId for the model
+                BrandId = brandId
             };
 
-            // Pass the brand name to the view
             ViewData["BrandName"] = brand.Name;
-
-            // Populate categories as before
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
 
-            // Return the view
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = brand.Name, Url = Url.Action("ModelByBrand", "Models", new { id }), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("CreateByBrand", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_CreateByBrand", model);
         }
 
-        // POST: Models/CreateCreateByBrand/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // POST: Models/CreateByBrand/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateByBrand(Model model)
         {
             if (ModelState.IsValid)
             {
-                // Check for existing Model with the same BrandId, Name, and CategoryId
                 bool exists = await _context.Models
-                    .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
+                     .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
 
                 if (exists)
                 {
@@ -266,61 +289,57 @@ namespace Scribe.Controllers
                 _context.Add(model);
                 await _context.SaveChangesAsync();
 
-                // Create a log entry using logging service
                 var details = $"Model '{model.Name}' created with Image '{imageName}'.";
-                var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = User.Identity.Name ?? "Anonymous";
+                await _loggingService.LogActionAsync(details, myUser);
 
                 TempData["Success"] = "The Model has been created Successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
-            // If we got this far, something failed, redisplay form
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
             return PartialView("_CreateByBrand", model);
         }
 
-
         // GET: Models/CreateByCategory/5
         public IActionResult CreateByCategory(int id)
         {
             int categoryId = id;
-            // Fetch the brand with the specified ID
             var category = _context.Categories.Find(categoryId);
 
-            // Check if the brand exists
             if (category == null)
             {
-                return NotFound(); // Handle case where the brand does not exist
+                return NotFound();
             }
 
-            // Create the view model
             var model = new Model
             {
-                CategoryId = categoryId // Set the BrandId for the model
+                CategoryId = categoryId
             };
 
-            // Pass the brand name to the view
             ViewData["CategoryName"] = category.Name;
-
-            // Populate categories as before
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
 
-            // Return the view
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = category.Name, Url = Url.Action("ModelByCategory", "Models", new { id }), IsActive = false },
+                new BreadcrumbItem { Title = "Create", Url = Url.Action("CreateByCategory", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_CreateByCategory", model);
         }
 
         // POST: Models/CreateByCategory/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateByCategory(Model model)
         {
             if (ModelState.IsValid)
             {
-
-                // Check for existing Model with the same BrandId, Name, and CategoryId
                 bool exists = await _context.Models
                     .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
 
@@ -346,19 +365,16 @@ namespace Scribe.Controllers
 
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "The Model has been created Successfully!";
 
-                // Create a log entry using logging service
                 var details = $"Model '{model.Name}' created with Image '{imageName}'.";
-                var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = User.Identity.Name ?? "Anonymous";
+                await _loggingService.LogActionAsync(details, myUser);
 
+                TempData["Success"] = "The Model has been created Successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
-            // If the model state is invalid, repopulate the dropdown lists
-            ViewData["CategoryName"] = _context.Categories.Find(model.CategoryId)?.Name; // Fetch the brand name again
+            ViewData["CategoryName"] = _context.Categories.Find(model.CategoryId)?.Name;
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
             return PartialView("_CreateByCategory", model);
         }
@@ -379,13 +395,19 @@ namespace Scribe.Controllers
             }
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
-            //return View(model);
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = model.Name, Url = Url.Action("Edit", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Edit", model);
         }
 
         // POST: Models/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Model model)
@@ -399,7 +421,6 @@ namespace Scribe.Controllers
             {
                 try
                 {
-                    // Retrieve the original model
                     var originalModel = await _context.Models.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
                     if (originalModel == null)
                     {
@@ -425,16 +446,14 @@ namespace Scribe.Controllers
                     _context.Update(model);
                     await _context.SaveChangesAsync();
 
-                    // Create a log entry
                     var log = new Log
                     {
                         Details = $"Model updated from Name: {originalModel.Name}, Image: {oldImage} to Name: {model.Name}, Image: {imageName}.",
-                        User = User.Identity.Name ?? "Anonymous", // Assuming you have user authentication
+                        User = User.Identity.Name ?? "Anonymous",
                         Date = DateTime.Now
                     };
 
                     TempData["Success"] = "The Model has been edited Successfully!";
-                    // Add the log entry to the database
                     _context.Add(log);
                     await _context.SaveChangesAsync();
                 }
@@ -453,6 +472,15 @@ namespace Scribe.Controllers
             }
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
+
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = model.Name, Url = Url.Action("Edit", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return View(model);
         }
 
@@ -473,7 +501,14 @@ namespace Scribe.Controllers
                 return NotFound();
             }
 
-            //return View(model);
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                new BreadcrumbItem { Title = model.Name, Url = Url.Action("Delete", "Models", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return PartialView("_Delete", model);
         }
 
@@ -485,8 +520,6 @@ namespace Scribe.Controllers
             var model = await _context.Models.FindAsync(id);
             if (model != null)
             {
-
-                // Get the count of SerialNumbers linked to the model
                 int linkedSerialNumbersCount = await _context.SerialNumbers.CountAsync(sn => sn.ModelId == id);
                 if (linkedSerialNumbersCount > 0)
                 {
@@ -499,9 +532,8 @@ namespace Scribe.Controllers
                 await _context.SaveChangesAsync();
 
                 var details = $"Model {model.Name} with Image {model.Image} deleted.";
-                var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
-
+                var myUser = User.Identity.Name ?? "Anonymous";
+                await _loggingService.LogActionAsync(details, myUser);
 
                 TempData["Success"] = "The Model has been deleted Successfully!";
                 await _context.SaveChangesAsync();
@@ -515,25 +547,28 @@ namespace Scribe.Controllers
             return _context.Models.Any(e => e.Id == id);
         }
 
-        //////////////////////////MODIFICATIONS
-
         // Action to render the view component
         public IActionResult AllocateSerialNumber(int id)
         {
-            // Get the count of serial numbers for the given model
             var count = _context.SerialNumbers.Count(sn => sn.ModelId == id);
-
 
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(_context.Department, "Id", "Name");
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name");
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name");
+            ViewData["modelId"] = id;
 
-            var currentUserId = User?.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
-            // Get users from the AD group "ZIM-WEB-IT"
+            var currentUserId = User?.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
 
-            // Pass the count to the ViewComponent
+            var breadcrumbs = new List<BreadcrumbItem>
+                {
+                    new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                    new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                    new BreadcrumbItem { Title = "Allocate Serial Number", Url = Url.Action("AllocateSerialNumber", "Models", new { id }), IsActive = true }
+                };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return ViewComponent("SerialNumber", new { modelId = id, count = count });
         }
 
@@ -541,7 +576,6 @@ namespace Scribe.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateSerialNumber(int modelId, string name)
         {
-            // Check for existing SerialNumber with the same ModelId and Name
             bool exists = await _context.SerialNumbers
                 .AnyAsync(sn => sn.ModelId == modelId && sn.Name == name);
 
@@ -556,8 +590,8 @@ namespace Scribe.Controllers
                 ModelId = modelId,
                 Name = name,
                 ADUsersId = 1,
-                ConditionId = 1, // Assuming 1 is a valid ConditionId
-                DepartmentId = 1, // Assuming 1 is a valid DepartmentId
+                ConditionId = 1,
+                DepartmentId = 1,
                 LocationId = 1,
                 Creation = DateTime.Now,
                 Allocation = null,
@@ -567,7 +601,6 @@ namespace Scribe.Controllers
 
             if (ModelState.IsValid)
             {
-
                 _context.Add(serialNumber);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "New Serial Number added successfully!!!";
@@ -576,10 +609,9 @@ namespace Scribe.Controllers
                 var brand = await _context.Brands.FindAsync(model.BrandId);
                 var category = await _context.Categories.FindAsync(model.CategoryId);
 
-                // Create a log entry using logging service
                 var details = $"Serial Number '{serialNumber.Name}' for '{brand.Name}' '{model.Name}' '{category.Name}' added.";
-                var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = User.Identity.Name ?? "Anonymous";
+                await _loggingService.LogActionAsync(details, myUser);
             }
             else
             {
@@ -589,36 +621,29 @@ namespace Scribe.Controllers
             return RedirectToAction("AllocateSerialNumber", new { id = modelId });
         }
 
-
+        // POST: Models/EditSerialNumber
         [HttpPost]
         public IActionResult EditSerialNumber(SerialNumber model, string name)
         {
             int? modelId = 0;
-            //if (ModelState.IsValid)
-            //{
-            //var serialNumber = _context.SerialNumbers.FirstOrDefault(sn => sn.Id == model.Id);
-
 
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(_context.Department, "Id", "Name");
             ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name");
             ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name");
 
-
-
             var serialNumber = _context.SerialNumbers
-                                   .Include(sn => sn.Model)
-                                   .Include(sn => sn.Condition) // Include Condition
-                                   .Include(sn => sn.Department) // Include Department
-                                   .Include(sn => sn.Location) // Include Department
-                                   .Include(sn => sn.ADUsers) // Include ADUsers
-                                   .FirstOrDefault(sn => sn.Id == model.Id);
+                .Include(sn => sn.Model)
+                .Include(sn => sn.Condition)
+                .Include(sn => sn.Department)
+                .Include(sn => sn.Location)
+                .Include(sn => sn.ADUsers)
+                .FirstOrDefault(sn => sn.Id == model.Id);
             if (serialNumber == null)
             {
                 return NotFound();
             }
             modelId = serialNumber.ModelId;
-
 
             // Update properties
             serialNumber.Name = model.Name;
@@ -629,23 +654,27 @@ namespace Scribe.Controllers
             serialNumber.Allocation = model.Allocation;
             serialNumber.ADUsersId = model.ADUsersId;
 
-
             _context.Update(serialNumber);
             _context.SaveChanges();
 
             TempData["Success"] = "Serial Number Edited successfully!!!";
 
-            // Create a log entry using logging service
             var details = $"Serial Number '{serialNumber.Name}' for '{serialNumber.Model.Brand.Name}' '{serialNumber.Model.Name}' '{serialNumber.Model.Category.Name}' properties updated.";
-            var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
-            _loggingService.LogActionAsync(details, myUser); // Log the action
+            var myUser = User.Identity.Name ?? "Anonymous";
+            _loggingService.LogActionAsync(details, myUser);
 
-            //return RedirectToAction("Index"); // Redirect to the main view
-            return RedirectToAction("AllocateSerialNumber", new { id = modelId }); // Redirect to the same action
-            
+            var breadcrumbs = new List<BreadcrumbItem>
+                {
+                    new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                    new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                    new BreadcrumbItem { Title = "Edit Serial Number", Url = Url.Action("EditSerialNumber", "Models", new { id = model.Id }), IsActive = true }
+                };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return RedirectToAction("AllocateSerialNumber", new { id = modelId });
         }
 
-
+        // POST: Models/DeleteSerialNumber
         [HttpPost]
         public async Task<IActionResult> DeleteSerialNumber(int id, int modelId)
         {
@@ -658,66 +687,33 @@ namespace Scribe.Controllers
                     return RedirectToAction("AllocateSerialNumber", new { id = modelId });
                 }
 
-                // Create a log entry using logging service
                 var model = await _context.Models.FindAsync(serialNumber.ModelId);
                 var brand = await _context.Brands.FindAsync(model.BrandId);
                 var category = await _context.Categories.FindAsync(model.CategoryId);
 
                 var details = $"Serial Number '{serialNumber.Name}' for '{brand.Name}' '{model.Name}' '{category.Name}' Deleted.";
-                var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = User.Identity.Name ?? "Anonymous";
+                await _loggingService.LogActionAsync(details, myUser);
 
                 _context.SerialNumbers.Remove(serialNumber);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Serial Number Deleted successfully!!!";
-
-
             }
             else
             {
                 TempData["Failure"] = "Failed to delete Serial Number!!!";
             }
 
+            var breadcrumbs = new List<BreadcrumbItem>
+                {
+                    new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                    new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
+                    new BreadcrumbItem { Title = "Delete Serial Number", Url = Url.Action("DeleteSerialNumber", "Models", new { id }), IsActive = true }
+                };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             return RedirectToAction("AllocateSerialNumber", new { id = modelId });
         }
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> DeleteMultipleSerialNumbers(List<int> Ids, int ModelId)
-        //{
-        //    if (Ids == null || Ids.Count == 0)
-        //    {
-        //        TempData["Failure"] = "No serial numbers selected for deletion.!!!";
-        //        return BadRequest("No serial numbers selected for deletion.");
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        //var serialNumber = await _context.SerialNumbers.FindAsync(id);
-        //        //if (serialNumber == null)
-        //        //{
-        //        //    return NotFound();
-        //        //}
-
-        //        //_context.SerialNumbers.Remove(serialNumber);
-        //        //await _context.SaveChangesAsync();
-        //        //TempData["Success"] = "Serial Number Deleted successfully!!!";
-        //        try
-        //        {
-        //            var serialNumbers = _context.SerialNumbers.Where(sn => Ids.Contains(sn.Id));
-        //            _context.SerialNumbers.RemoveRange(serialNumbers);
-        //            await _context.SaveChangesAsync();
-        //            return RedirectToAction("AllocateSerialNumber", new { id = ModelId });
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            // Log the exception (ex) as necessary
-        //            return StatusCode(500, "An error occurred while deleting serial numbers.");
-        //        }
-        //    }
-        //    return RedirectToAction("AllocateSerialNumber", new { id = ModelId });
-
-        //}
 
         private void DeleteImage(string imageName)
         {
@@ -730,9 +726,6 @@ namespace Scribe.Controllers
                 }
             }
         }
-
     }
 }
-
-
 

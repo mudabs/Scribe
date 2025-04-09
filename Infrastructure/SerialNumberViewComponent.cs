@@ -33,6 +33,7 @@ namespace Scribe.Infrastructure
                .Include(sn => sn.Location) // Include Location related data
                .Include(sn => sn.ADUsers) // Include AD Users related data
                .Include(sn => sn.Group) // Include AD Users related data
+               .Include(sn => sn.Model) // Include Model related data
                .Where(sn => sn.ModelId == modelId)
                .ToListAsync();
 
@@ -43,6 +44,7 @@ namespace Scribe.Infrastructure
                 NumberOfDevices = serialNumbers.Count()
             };
 
+            ViewData["modelId"] = modelId;
             return View(viewModel);
         }
     }
