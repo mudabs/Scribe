@@ -48,7 +48,6 @@ builder.Services.AddAuthorization(options =>
 });
 
 // Registering Services
-builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IBrandService, BrandService>();
@@ -101,10 +100,6 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHub<NotificationHub>("/notificationHub");
-});
 
 app.MapControllerRoute(
      name: "default",

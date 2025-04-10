@@ -243,6 +243,23 @@ function loadDeletePartial(controllerName, id) {
         }
     });
 }
+function loadDeleteAlloPartial(controllerName, id) {
+    $.ajax({
+        url: '/' + controllerName + '/DeleteFromAllocation',
+        type: 'GET',
+        data: { id: id },
+        success: function (result) {
+            $('#modalContainer').html(result);
+            $('#deleteModal').modal('show');
+            console.log("success");
+        },
+        error: function (xhr, status, error) {
+
+            console.log("failure");
+            console.error('Error loading partial view:', error);
+        }
+    });
+}
 
 //Modal Popup////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -332,17 +349,3 @@ if ($("div.alert.notification").length) {
 //        $("#loader").hide();
 //    });
 
-
-/////////////////////////////////////////////////////////////////SignalR
-
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/notificationHub")
-    .build();
-
-connection.on("ReceiveNotification", function (message) {
-    document.getElementById("notificationCount").innerText = message;
-});
-
-connection.start().catch(function (err) {
-    console.error(err.toString());
-});

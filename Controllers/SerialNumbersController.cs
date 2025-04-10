@@ -309,6 +309,38 @@ namespace Scribe.Controllers
             return PartialView("_Delete", serialNumber);
         }
 
+        // GET: SerialNumbers/DeleteFromAllocation/5
+        public async Task<IActionResult> DeleteFromAllocation(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var serialNumber = await _context.SerialNumbers
+                .Include(s => s.Condition)
+                .Include(s => s.Department)
+                .Include(s => s.Location)
+                .Include(s => s.ADUsers)
+                .Include(s => s.Model)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (serialNumber == null)
+            {
+                return NotFound();
+            }
+
+            // Set up breadcrumbs
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = serialNumber.Name, Url = Url.Action("Delete", "SerialNumbers", new { id }), IsActive = true }
+            };
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            return PartialView("_DeleteFromAllocation", serialNumber);
+        }
+
         // POST: SerialNumbers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -329,6 +361,31 @@ namespace Scribe.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: SerialNumbers/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmedAllocation(int id)
+        {
+            var serialNumber = await _context.SerialNumbers.FindAsync(id);
+            var modelId = serialNumber.ModelId;
+            if (serialNumber != null)
+            {
+                if (serialNumber.CurrentlyAllocated)
+                {
+                    TempData["Failure"] = "Device cannot be deleted as it is currently assigned.";
+                    return RedirectToAction("AllocateSerialNumber", "Model", new { id = modelId });
+                    
+                }
+
+                _context.SerialNumbers.Remove(serialNumber);
+                TempData["Success"] = "Device Deleted Successfully!!";
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("AllocateSerialNumber", "Model", new { id = modelId });
+
         }
 
         private bool SerialNumberExists(int id)
