@@ -33,22 +33,33 @@
                         <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0"><img src="~/media/icons/static/funnel.svg" /></button>
                     </span>
                     <a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary">Back to Models</a>
-                   
+                    <button id="toggleButton" class="btn btn-info">Upload</button>
                 </h4>
             </div>
 
-                <h2>Upload Serial Numbers</h2>
-                <form id="uploadForm" enctype="multipart/form-data">
+
+
+
+            <div id="uploadForm" style="display:none;">
+                <hr />
+                <h4>Upload Serial Numbers</h4>
+                <form enctype="multipart/form-data">
                     <input type="file" id="fileInput" name="file" class="form-control" />
                     <input type="hidden" id="modelId" value="@Model.Model.Id"></input>
                     <button type="submit" class="btn btn-primary mt-2">Upload</button>
                 </form>
-            
-           
+
+                <hr />
+            </div>
+
+
+
+
+
 
             <div id="previewContainer"></div>
 
-            
+
 
             <table class="table table-hover table-striped" id="serials">
                 <thead>
@@ -98,7 +109,7 @@
                                 </select>
                             </td>
                             <td class="serial-condition">
-                                <span class="display-value" >@serialNumber.Condition?.Name</span>
+                                <span class="display-value">@serialNumber.Condition?.Name</span>
                                 <select name="ConditionId" class="form-control edit-input" style="display:none;">
                                     @foreach (var condition in ViewBag.ConditionId)
                                     {
@@ -163,7 +174,7 @@
                                     Edit
                                 </button> |
                                 <a class="btn btn-outline-primary btn-sm" asp-controller="SerialNumbers" asp-action="ViewHistory" asp-route-id="@serialNumber.Id">View History</a> |
-                              @*   <form asp-action="DeleteSerialNumber" method="post" class="delete-form" style="display:inline;">
+                                @*   <form asp-action="DeleteSerialNumber" method="post" class="delete-form" style="display:inline;">
                                     <input type="hidden" name="Id" value="@serialNumber.Id" />
                                     <input type="hidden" name="ModelId" value="@Model.Model.Id" />
                                     <input type="submit" value="Delete" class="btn btn-outline-danger btn-sm delete-button" style="margin-left: 5px;" />
@@ -181,7 +192,7 @@
 
 
         </div>
- </div>
+    </div>
 </div>
 
 <!-- Custom Modal -->
@@ -394,4 +405,15 @@
             z-index: 1000;
         }
     </style>
+
+    <script>
+        document.getElementById('toggleButton').addEventListener('click', function() {
+            var form = document.getElementById('uploadForm');
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        });
+    </script>
 }

@@ -358,6 +358,7 @@ namespace Scribe.Controllers
                 new BreadcrumbItem { Title = "Groups", Url = Url.Action("Index", "Groups"), IsActive = false },
                 new BreadcrumbItem { Title = "Delete", Url = Url.Action("AllocateGroup", "Groups", new { id }), IsActive = true }
             };
+            ViewData["Breadcrumbs"] = breadcrumbs;
             // Prepare data for the view
             var users = await _context.ADUsers.ToListAsync();
             var brands = await _context.Brands.ToListAsync();

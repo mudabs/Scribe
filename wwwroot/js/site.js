@@ -251,7 +251,7 @@ function loadDeleteAlloPartial(controllerName, id) {
         success: function (result) {
             $('#modalContainer').html(result);
             $('#deleteModal').modal('show');
-            console.log("success");
+            console.log(controllerName);
         },
         error: function (xhr, status, error) {
 

@@ -72,3 +72,10 @@ body {
     padding: 0 0.5rem;
     color: #6c757d;
 }
+
+
+.btn-sm {
+    padding: 2px 5px;
+    font-size: 10px;
+    height: 20px;
+}

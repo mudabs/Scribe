@@ -364,7 +364,6 @@ namespace Scribe.Controllers
         }
 
         // POST: SerialNumbers/Delete/5
-        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmedAllocation(int id)
         {
@@ -375,7 +374,7 @@ namespace Scribe.Controllers
                 if (serialNumber.CurrentlyAllocated)
                 {
                     TempData["Failure"] = "Device cannot be deleted as it is currently assigned.";
-                    return RedirectToAction("AllocateSerialNumber", "Model", new { id = modelId });
+                    return RedirectToAction("AllocateSerialNumber", "Models", new { id = modelId });
                     
                 }
 
@@ -384,7 +383,7 @@ namespace Scribe.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("AllocateSerialNumber", "Model", new { id = modelId });
+            return RedirectToAction("AllocateSerialNumber", "Models", new { id = modelId });
 
         }
 
