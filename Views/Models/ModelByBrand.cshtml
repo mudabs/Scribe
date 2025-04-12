@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Scribe.Models.Model>
 
 @{
-    ViewData["Title"] = "ModelByBrand";
+    
 }
 
 <h1>@ViewBag.BrandName</h1>
@@ -53,7 +53,7 @@
                             <img src="/media/models/@item.Image" width="100px" />
                         </td>
                         <td>
-                            <a asp-action="AllocateSerialNumber" asp-route-id="@item.Id" class="btn btn-outline-primary">Serial Numbers</a> |
+                            <a asp-action="AllocateSerialNumber" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Serial Numbers</a> |
                             <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Models',@item.Id)">
                                 Edit
                             </button> |
