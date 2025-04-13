@@ -257,6 +257,37 @@ namespace Scribe.Controllers
                 }
             }
         }
+
+        // GET: Categories/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Categories", Url = Url.Action("Index", "Categories"), IsActive = false },
+                new BreadcrumbItem { Title = "Delete", Url = Url.Action("Delete", "Categories", new { id }), IsActive = true }
+            };
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
+            if (id == null)
+            {
+                TempData["Failure"] = "Category ID is required.";
+                return NotFound();
+            }
+
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (category == null)
+            {
+                TempData["Failure"] = "Categories not found.";
+                return NotFound();
+            }
+
+            return PartialView("_Delete", category);
+        }
+
+
         // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
