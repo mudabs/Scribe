@@ -450,7 +450,7 @@ namespace Scribe.Controllers
             var breadcrumbs = new List<BreadcrumbItem>
             {
                 new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
-                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+                new BreadcrumbItem { Title = "Models", Url = Url.Action("Index", "Models"), IsActive = false },
                 new BreadcrumbItem { Title = modelName.Name, Url = Url.Action("ViewHistory", "SerialNumbers", new { id }), IsActive = true }
             };
             ViewData["Breadcrumbs"] = breadcrumbs;

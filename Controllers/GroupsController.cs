@@ -615,7 +615,7 @@ namespace Scribe.Controllers
         public JsonResult GetSerialNumbersByModel(int modelId)
         {
             var serialNumbers = _context.SerialNumbers
-                                        .Where(s => s.ModelId == modelId && !_context.SerialNumberGroup.Any(g => g.SerialNumberId == s.Id && g.ADUsersId != null))
+                                        .Where(s => s.ModelId == modelId && !_context.SerialNumberGroup.Any(g => g.SerialNumberId == s.Id))
                                         .Select(s => new { Id = s.Id, Name = s.Name })
                                         .ToList();
 

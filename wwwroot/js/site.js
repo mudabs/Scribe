@@ -141,10 +141,14 @@ $(document).ready(function () {
     $('#aduser-search').select2({
         width: '100%'
     });
+
     $('#user-search').select2({
         width: '100%'
     });
     $('#brand-search').select2({
+        width: '100%'
+    });
+    $('#brand-select').select2({
         width: '100%'
     });
     $('#model-select').select2({
@@ -163,6 +167,15 @@ $(document).ready(function () {
         width: '100%'
     });
     $('#location-search').select2({
+        width: '100%'
+    });
+    $('#serial-number-select').select2({
+        width: '100%'
+    });
+    $('#sysUser-search').select2({
+        width: '100%'
+    });
+    $('#serial-number-select').select2({
         width: '100%'
     });
 });
