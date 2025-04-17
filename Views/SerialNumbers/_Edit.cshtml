@@ -2,122 +2,123 @@
 @model Scribe.Models.SerialNumber
 
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit Serial Number</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form asp-action="Edit" asp-controller="SerialNumbers">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="editModalLabel">Edit Serial Number</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form asp-action="Edit" asp-controller="SerialNumbers">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<input type="hidden" asp-for="Id" />
 
-                    <div class="form-group">
-                        <label class="control-label">Brand</label>
-                        <span class="form-control bg-secondary-subtle">@ViewBag.Brand</span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="ModelId" class="control-label"></label>
-                        <select asp-for="ModelId" class="form-control" asp-items="ViewBag.ModelId" hidden></select>
-                        <span class="form-control bg-secondary-subtle">@((Model.Model != null) ? Model.Model.Name : "N/A")</span>
-                        <span asp-validation-for="ModelId" class="text-danger"></span>
-                    </div>
+					<div class="form-group">
+						<label class="control-label">Brand</label>
+						<span class="form-control bg-secondary-subtle">@ViewBag.Brand</span>
+					</div>
+					<div class="form-group">
+						<label asp-for="ModelId" class="control-label"></label>
+						<select asp-for="ModelId" class="form-control" asp-items="ViewBag.ModelId" hidden></select>
+						<span class="form-control bg-secondary-subtle">@((Model.Model != null) ? Model.Model.Name : "N/A")</span>
+						<span asp-validation-for="ModelId" class="text-danger"></span>
+					</div>
 
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="ADUsersId" class="control-label"></label>
-                        <select asp-for="ADUsersId" class="form-control" asp-items="ViewBag.ADUsersId" hidden></select>
-                        <span class="form-control bg-secondary-subtle">@((Model.ADUsers != null) ? Model.ADUsers.Name : (Model.Group != null ? Model.Group.Name : "N/A"))</span>
-                        <span asp-validation-for="ADUsersId" class="text-danger"></span>
-                        
-                        <div class="form-group">
-                            <label asp-for="ConditionId" class="control-label"></label>
-                            <select asp-for="ConditionId" class="form-control" asp-items="ViewBag.ConditionId" hidden></select>
-                            <span class="form-control bg-secondary-subtle">@((Model.Condition != null) ? Model.Condition.Name : "N/A")</span>
-                            <span asp-validation-for="ConditionId" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="DepartmentId" class="control-label"></label>
-                            <select id="department-search" asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
-                            <span asp-validation-for="DepartmentId" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="LocationId" class="control-label"></label>
-                            <select id="location-search" asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
-                            <span asp-validation-for="LocationId" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Creation" class="control-label"></label>
-                            <input asp-for="Creation" class="form-control" />
-                            <span asp-validation-for="Creation" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Allocation" class="control-label"></label>
-                            <input asp-for="Allocation" class="form-control" hidden />
-                            <span class="form-control bg-secondary-subtle">
+					<div class="form-group">
+						<label asp-for="Name" class="control-label"></label>
+						<input asp-for="Name" class="form-control" />
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="ADUsersId" class="control-label"></label>
+						<select asp-for="ADUsersId" class="form-control" asp-items="ViewBag.ADUsersId" hidden></select>
+						<span class="form-control bg-secondary-subtle">@((Model.ADUsers != null) ? Model.ADUsers.Name : (Model.Group != null ? Model.Group.Name : "N/A"))</span>
+						<span asp-validation-for="ADUsersId" class="text-danger"></span>
+					</div>
+
+					<div class="form-group">
+						<label asp-for="ConditionId" class="control-label"></label>
+						<select asp-for="ConditionId" class="form-control" asp-items="ViewBag.ConditionId"></select>
+						@* <span class="form-control bg-secondary-subtle">@((Model.Condition != null) ? Model.Condition.Name : "N/A")</span> *@
+						<span asp-validation-for="ConditionId" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="DepartmentId" class="control-label"></label>
+						<select id="department-search" asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+						<span asp-validation-for="DepartmentId" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="LocationId" class="control-label"></label>
+						<select id="location-search" asp-for="LocationId" class="form-control" asp-items="ViewBag.LocationId"></select>
+						<span asp-validation-for="LocationId" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="Creation" class="control-label"></label>
+						<input asp-for="Creation" class="form-control" />
+						<span asp-validation-for="Creation" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="Allocation" class="control-label"></label>
+						<input asp-for="Allocation" class="form-control" />
+						@* <span class="form-control bg-secondary-subtle">
                                 @(Model.Allocation.HasValue ? Model.Allocation.Value.ToString("yyyy-MM-dd") : "No allocation yet")
-                            </span>
-                            <span asp-validation-for="Allocation" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="AllocatedBy" class="control-label"></label>
-                            <select asp-for="AllocatedBy" class="form-control" asp-items="ViewBag.Users" hidden>
-                                <option value="No User">---Select User---</option>
-                                <option value="No User">No User</option>
-                            </select>
-                            <span class="form-control bg-secondary-subtle">@((Model.AllocatedBy != null) ? Model.AllocatedBy : "No User")</span>
-                            <span asp-validation-for="AllocatedBy" class="text-danger"></span>
-                        </div>
-                        <br />
-                        <div class="form-group">
-                            <input type="submit" value="Save" class="btn btn-primary" />
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                            </span> *@
+						<span asp-validation-for="Allocation" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="AllocatedBy" class="control-label"></label>
+						<select asp-for="AllocatedBy" id="user-search" class="form-control" asp-items="ViewBag.Users">
+							<option value="No User">---Select User---</option>
+							<option value="No User">No User</option>
+						</select>
+						@* <span class="form-control bg-secondary-subtle">@((Model.AllocatedBy != null) ? Model.AllocatedBy : "No User")</span> *@
+						<span asp-validation-for="AllocatedBy" class="text-danger"></span>
+					</div>
+					<br />
+					<div class="form-group">
+						<input type="submit" value="Save" class="btn btn-primary" />
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </div>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 <style>
-    .select2-container {
-        z-index: 9999;
-    }
+	.select2-container {
+		z-index: 9999;
+	}
 </style>
 
 <script>
-    $(document).ready(function () {
-        $('#aduser-search').select2({
-            width: '100%',
-            dropdownParent: $('#editModal')
-        });
-        $('#user-search').select2({
-            width: '100%',
-            dropdownParent: $('#editModal')
-        });
-        $('#model-select').select2({
-            width: '100%',
-            dropdownParent: $('#editModal')
-        });
-        $('#condition-search').select2({
-            width: '100%',
-            dropdownParent: $('#editModal')
-        });
-        $('#department-search').select2({
-            width: '100%',
-            dropdownParent: $('#editModal')
-        });
-        $('#location-search').select2({
-            width: '100%',
-            dropdownParent: $('#editModal')
-        });
-    });
+	$(document).ready(function () {
+		$('#aduser-search').select2({
+			width: '100%',
+			dropdownParent: $('#editModal')
+		});
+		$('#user-search').select2({
+			width: '100%',
+			dropdownParent: $('#editModal')
+		});
+		$('#model-select').select2({
+			width: '100%',
+			dropdownParent: $('#editModal')
+		});
+		$('#condition-search').select2({
+			width: '100%',
+			dropdownParent: $('#editModal')
+		});
+		$('#department-search').select2({
+			width: '100%',
+			dropdownParent: $('#editModal')
+		});
+		$('#location-search').select2({
+			width: '100%',
+			dropdownParent: $('#editModal')
+		});
+	});
 </script>

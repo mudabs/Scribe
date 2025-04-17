@@ -181,100 +181,168 @@ namespace Scribe.Controllers
         }
 
         // POST: SerialNumbers/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, SerialNumber serialNumber)
-        {
-            if (id != serialNumber.Id)
-            {
-                return NotFound();
-            }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, SerialNumber serialNumber)
+        //{
+        //    if (id != serialNumber.Id)
+        //    {
+        //        return NotFound();
+        //    }
 
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //                var existingAllocation = await _context.SerialNumberGroup
+        //                    .FirstOrDefaultAsync(sng => sng.SerialNumberId == id);
+
+        //                if (existingAllocation != null)
+        //                {
+        //                    //_context.Remove(existingAllocation);
+
+        //                    var myAllocationHistory = _context.AllocationHistory.OrderByDescending(a => a.AllocationDate).First(x => x.SerialNumberId == existingAllocation.SerialNumberId);
+
+        //                    if (myAllocationHistory != null)
+        //                    {
+        //                        myAllocationHistory.DeallocationDate = DateTime.Now;
+        //                        _context.AllocationHistory.Update(myAllocationHistory);
+        //                    }
+        //                }
+        //                var individualId = _context.IndividualAssignment.FirstOrDefault(x => x.ADUsersId == serialNumber.ADUsersId);
+        //                var serialNumberGroup = new SerialNumberGroup();
+
+        //                if (individualId != null)
+        //                {
+        //                    if (individualId.ADUsersId != 1)
+        //                    {
+        //                        serialNumberGroup.SerialNumberId = serialNumber.Id;
+        //                        serialNumberGroup.ADUsersId = individualId.ADUsersId;
+        //                    }
+        //                }
+
+        //                var allocationHistory = new AllocationHistory
+        //                {
+        //                    SerialNumberId = id,
+        //                    ADUsersId = (int)serialNumber.ADUsersId,
+        //                    AllocationDate = (DateTime)serialNumber.Allocation,
+        //                    DeallocationDate = null,
+        //                };
+        //                _context.AllocationHistory.Add(allocationHistory);
+        //                _context.SerialNumberGroup.Add(serialNumberGroup);
+        //                //await _context.SaveChangesAsync();
+        //                TempData["Success"] = "The Device has been reallocated";
+
+
+        //            _context.Update(serialNumber);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!SerialNumberExists(serialNumber.Id))
+        //            {
+        //                return NotFound();
+        //            }
+        //            else
+        //            {
+        //                throw;
+        //            }
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name", serialNumber.ConditionId);
+        //    ViewData["DepartmentId"] = new SelectList(_context.Department, "Id", "Name", serialNumber.DepartmentId);
+        //    ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name", serialNumber.LocationId);
+        //    ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name", serialNumber.ADUsersId);
+        //    ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", serialNumber.ModelId);
+
+        //    // Set up breadcrumbs
+        //    var breadcrumbs = new List<BreadcrumbItem>
+        //    {
+        //        new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+        //        new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
+        //        new BreadcrumbItem { Title = serialNumber.Name, Url = Url.Action("Edit", "SerialNumbers", new { id }), IsActive = true }
+        //    };
+        //    ViewData["Breadcrumbs"] = breadcrumbs;
+
+        //    return View(serialNumber);
+        //}
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(SerialNumber serialNumber)
+        {
             if (ModelState.IsValid)
             {
-                try
+                // Fetch the last added AllocationHistory with the given SerialNumberId
+                var allocationHistory = await _context.AllocationHistory
+                    .Where(a => a.SerialNumberId == serialNumber.Id)
+                    .OrderByDescending(a => a.Id)
+                    .FirstOrDefaultAsync();
+
+                if (allocationHistory != null)
                 {
-                    var originalSerialNumber = await _context.SerialNumbers.FindAsync(id);
-                    if (originalSerialNumber == null)
-                    {
-                        return NotFound();
-                    }
+                    // Update the AllocationHistory fields
+                    allocationHistory.ADUsersId = serialNumber.ADUsersId;
+                    allocationHistory.GroupId = serialNumber.GroupId;
+                    allocationHistory.AllocationDate = serialNumber.Allocation ?? allocationHistory.AllocationDate;
+                    allocationHistory.AllocatedBy = serialNumber.AllocatedBy;
 
-                    if (originalSerialNumber.ADUsersId != serialNumber.ADUsersId)
-                    {
-                        var existingAllocation = await _context.SerialNumberGroup
-                            .FirstOrDefaultAsync(sng => sng.SerialNumberId == id);
-
-                        if (existingAllocation != null)
-                        {
-                            _context.Remove(existingAllocation);
-
-                            var myAllocationHistory = _context.AllocationHistory.OrderByDescending(a => a.AllocationDate).First(x => x.SerialNumberId == existingAllocation.SerialNumberId);
-
-                            if (myAllocationHistory != null)
-                            {
-                                myAllocationHistory.DeallocationDate = DateTime.Now;
-                                _context.AllocationHistory.Update(myAllocationHistory);
-                            }
-                        }
-                        var individualId = _context.IndividualAssignment.FirstOrDefault(x => x.ADUsersId == serialNumber.ADUsersId);
-                        var serialNumberGroup = new SerialNumberGroup();
-
-                        if (individualId != null)
-                        {
-                            if (individualId.ADUsersId != 1)
-                            {
-                                serialNumberGroup.SerialNumberId = serialNumber.Id;
-                                serialNumberGroup.ADUsersId = individualId.ADUsersId;
-                            }
-                        }
-
-                        var allocationHistory = new AllocationHistory
-                        {
-                            SerialNumberId = id,
-                            ADUsersId = (int)serialNumber.ADUsersId,
-                            AllocationDate = DateTime.Now,
-                            DeallocationDate = null,
-                        };
-                        _context.AllocationHistory.Add(allocationHistory);
-                        _context.SerialNumberGroup.Add(serialNumberGroup);
-                        await _context.SaveChangesAsync();
-                        TempData["Success"] = "The Device has been reallocated";
-                    }
-
-                    _context.Entry(originalSerialNumber).CurrentValues.SetValues(serialNumber);
-                    await _context.SaveChangesAsync();
+                    // Save changes to the database
+                    _context.Update(allocationHistory);
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!SerialNumberExists(serialNumber.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    //ModelState.AddModelError("", "AllocationHistory not found.");
+                    TempData["Failure"] = "AllocationHistory not found.";
                 }
-                return RedirectToAction(nameof(Index));
+
+
+                // Fetch the SerialNumberGroup with the given SerialNumberId, ADUsersId, or GroupId
+                var serialNumberGroup = await _context.SerialNumberGroup
+                 .Where(s => s.SerialNumberId == serialNumber.Id &&
+                 (s.ADUsersId == serialNumber.ADUsersId || s.GroupId == serialNumber.GroupId))
+                 .FirstOrDefaultAsync();
+
+                if (serialNumberGroup != null)
+                {
+                    // Update the SerialNumberGroup fields
+                    serialNumberGroup.ADUsersId = serialNumber.ADUsersId;
+                    serialNumberGroup.GroupId = serialNumber.GroupId;
+
+                    // Save changes to the database
+                    _context.Update(serialNumberGroup);
+                }
+               
+
+                // Update the SerialNumber fields
+                var serialNumberToUpdate = await _context.SerialNumbers.FindAsync(serialNumber.Id);
+                if (serialNumberToUpdate != null)
+                {
+                    serialNumberToUpdate.Name = serialNumber.Name;
+                    serialNumberToUpdate.ModelId = serialNumber.ModelId;
+                    serialNumberToUpdate.ConditionId = serialNumber.ConditionId;
+                    serialNumberToUpdate.DepartmentId = serialNumber.DepartmentId;
+                    serialNumberToUpdate.LocationId = serialNumber.LocationId;
+                    serialNumberToUpdate.Creation = serialNumber.Creation;
+                    serialNumberToUpdate.Allocation = serialNumber.Allocation;
+                    serialNumberToUpdate.AllocatedBy = serialNumber.AllocatedBy;
+
+                    // Save changes to the database
+                    _context.Update(serialNumberToUpdate);
+                    TempData["Success"] = "SerialNumber updated Successfully!!";
+                }
+                else
+                {
+                    //ModelState.AddModelError("", "SerialNumber not found.");
+                    TempData["Failure"] = "SerialNumber not found.";
+                }
+
+                await _context.SaveChangesAsync();
             }
 
-            ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name", serialNumber.ConditionId);
-            ViewData["DepartmentId"] = new SelectList(_context.Department, "Id", "Name", serialNumber.DepartmentId);
-            ViewData["LocationId"] = new SelectList(_context.Locations, "Id", "Name", serialNumber.LocationId);
-            ViewData["ADUsersId"] = new SelectList(_context.ADUsers, "Id", "Name", serialNumber.ADUsersId);
-            ViewData["ModelId"] = new SelectList(_context.Models, "Id", "Name", serialNumber.ModelId);
-
-            // Set up breadcrumbs
-            var breadcrumbs = new List<BreadcrumbItem>
-            {
-                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
-                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
-                new BreadcrumbItem { Title = serialNumber.Name, Url = Url.Action("Edit", "SerialNumbers", new { id }), IsActive = true }
-            };
-            ViewData["Breadcrumbs"] = breadcrumbs;
-
-            return View(serialNumber);
+            // Redirect to Index after all operations
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: SerialNumbers/Delete/5
