@@ -66,7 +66,11 @@ $(document).ready(function () {
     //Initialising Datatables on maintenance index page
     $('#maintenanceTable').DataTable();
     //Initialising Datatables on models index page
-    $('#modelsTable').DataTable();
+    var modelsTable = $('#allModelsTable').DataTable(dataTableOptions);
+     $('.column-toggle').change(function () {
+         var columnIndex = $(this).data('column');
+         modelsTable.column(columnIndex).visible(this.checked);
+     });
     //Initialising Datatables on models index page
     $('#allModelsTable').DataTable();
     //Initialising Datatables on brands index page
@@ -143,6 +147,9 @@ $(document).ready(function () {
     });
 
     $('#user-search').select2({
+        width: '100%'
+    });
+    $('#userFilter').select2({
         width: '100%'
     });
     $('#brand-search').select2({

@@ -1,69 +1,222 @@
 ﻿@model IEnumerable<Scribe.Models.SerialNumber>
 
 @{
-    ViewData["Title"] = "";
+	ViewData["Title"] = "";
 }
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="row">
-                <h1>All Devices (@ViewData["count"])</h1>
-            </div>
+	<div class="row">
+		<div class="col-12">
+			<div class="row">
+				<h1>All Devices (@ViewData["count"])</h1>
+				<button id="toggleFilterBtn" class="btn btn-primary" style="width:auto">Toggle Filters</button>
+			</div>
+			<br />
+			<div id="filterNav" class="side-nav" style="display:none;">
+				<h3>Filters</h3>
+				<div class="form-group">
+					<label for="brandFilter">Brand</label>
+					<select id="brandFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var item in Model.Select(m => m.Model.Brand).Distinct())
+						{
+							<option value="@item.Name">@item.Name</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="modelFilter">Model</label>
+					<select id="modelFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var item in Model.Select(m => m.Model).Distinct())
+						{
+							<option value="@item.Name">@item.Name</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="serialFilter">Serial Number</label>
+					<input type="text" id="serialFilter" class="form-control" placeholder="Serial Number">
+				</div>
+				<div class="form-group">
+					<label for="userFilter">User</label>
+					<input type="text" id="userFilter" class="form-control" placeholder="User">
+					@* <select id="userFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var item in Model.Select(m => m.ADUsers).Distinct())
+						{
+							<option value="@item.Name">@item.Name</option>
+						}
+					</select> *@
+				</div>
+				<div class="form-group">
+					<label for="conditionFilter">Condition</label>
+					<select id="conditionFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var item in Model.Select(m => m.Condition).Distinct())
+						{
+							<option value="@item.Name">@item.Name</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="departmentFilter">Department</label>
+					<select id="departmentFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var item in Model.Select(m => m.Department).Distinct())
+						{
+							<option value="@item.Name">@item.Name</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="locationFilter">Location</label>
+					<select id="locationFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var item in Model.Select(m => m.Location).Distinct())
+						{
+							<option value="@item.Name">@item.Name</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="creationFilter">Creation Date</label>
+					<input type="date" id="creationFilter" class="form-control">
+				</div>
+			</div>
 
-            <table class="table table-responsive" id="allDevicesTable">
-                <thead>
-                    <tr>
-                        <th>@Html.DisplayNameFor(model => model.Model.Brand)</th>
-                        <th>@Html.DisplayNameFor(model => model.Model)</th>
-                        <th>@Html.DisplayNameFor(model => model.Name)</th>
-                        <th>User</th>
-                        <th>@Html.DisplayNameFor(model => model.Condition)</th>
-                        <th>@Html.DisplayNameFor(model => model.Department)</th>
-                        <th>@Html.DisplayNameFor(model => model.Location)</th>
-                        <th>@Html.DisplayNameFor(model => model.Creation)</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="small" data-field="brand">@((item.Model != null && item.Model.Brand != null) ? item.Model.Brand.Name : "N/A")</td>
-                            <td class="small" data-field="model">@((item.Model != null) ? item.Model.Name : "N/A")</td>
-                            <td class="small" data-field="serial">@item.Name</td>
-                            <td class="small" data-field="adusers">
-                                @if (item.ADUsers != null)
-                                {
-                                    @item.ADUsers.Name
-                                }
-                                else if (item.Group != null)
-                                {
-                                    @item.Group.Name <img src="/media/icons/static/g.svg">
-                                }
-                                else
-                                {
-                                    @Html.Raw("N/A")
-                                }
-                            </td>
-                            <td class="small" data-field="condition">@((item.Condition != null) ? item.Condition.Name : "N/A")</td>
-                            <td class="small" data-field="department">@((item.Department != null) ? item.Department.Name : "N/A")</td>
-                            <td class="small" data-field="location">@((item.Location != null) ? item.Location.Name : "N/A")</td>
-                            <td class="small" data-field="creation">@item.Creation</td>
-                            <td>
-                                <a asp-action="ViewHistory" class="btn btn-sm btn-outline-primary" asp-route-id="@item.Id">View</a> |
-                                <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@item.Id)">
-                                    Edit
-                                </button> |
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('SerialNumbers',@item.Id)">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-        </div>
-    </div>
+			<table class="table table-responsive" id="allDevicesTable">
+				<thead>
+					<tr>
+						<th>@Html.DisplayNameFor(model => model.Model.Brand)</th>
+						<th>@Html.DisplayNameFor(model => model.Model)</th>
+						<th>@Html.DisplayNameFor(model => model.Name)</th>
+						<th>User</th>
+						<th>@Html.DisplayNameFor(model => model.Condition)</th>
+						<th>@Html.DisplayNameFor(model => model.Department)</th>
+						<th>@Html.DisplayNameFor(model => model.Location)</th>
+						<th>@Html.DisplayNameFor(model => model.Creation)</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td class="small" data-field="brand">@((item.Model != null && item.Model.Brand != null) ? item.Model.Brand.Name : "N/A")</td>
+							<td class="small" data-field="model">@((item.Model != null) ? item.Model.Name : "N/A")</td>
+							<td class="small" data-field="serial">@item.Name</td>
+							<td class="small" data-field="adusers">
+								@if (item.ADUsers != null)
+								{
+									@item.ADUsers.Name
+								}
+								else if (item.Group != null)
+								{
+									@item.Group.Name <img src="/media/icons/static/g.svg">
+								}
+								else
+								{
+									@Html.Raw("N/A")
+								}
+							</td>
+							<td class="small" data-field="condition">@((item.Condition != null) ? item.Condition.Name : "N/A")</td>
+							<td class="small" data-field="department">@((item.Department != null) ? item.Department.Name : "N/A")</td>
+							<td class="small" data-field="location">@((item.Location != null) ? item.Location.Name : "N/A")</td>
+							<td class="small" data-field="creation">@item.Creation</td>
+							<td>
+								<a asp-action="ViewHistory" class="btn btn-sm btn-outline-primary" asp-route-id="@item.Id">View</a> |
+								<button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@item.Id)">
+									Edit
+								</button> |
+								<button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('SerialNumbers',@item.Id)">
+									Delete
+								</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
+
+<script>
+	document.getElementById('toggleFilterBtn').addEventListener('click', function() {
+		var filterNav = document.getElementById('filterNav');
+		var tableContainer = document.querySelector('.container-fluid');
+		if (filterNav.style.display === 'none') {
+			filterNav.style.display = 'block';
+			tableContainer.style.marginRight = '250px';
+		} else {
+			filterNav.style.display = 'none';
+			tableContainer.style.marginRight = '0';
+		}
+	});
+
+	document.getElementById('brandFilter').addEventListener('change', filterTable);
+	document.getElementById('modelFilter').addEventListener('change', filterTable);
+	document.getElementById('serialFilter').addEventListener('input', filterTable);
+	document.getElementById('userFilter').addEventListener('input', filterTable);
+	document.getElementById('conditionFilter').addEventListener('change', filterTable);
+	document.getElementById('departmentFilter').addEventListener('change', filterTable);
+	document.getElementById('locationFilter').addEventListener('change', filterTable);
+	document.getElementById('creationFilter').addEventListener('change', filterTable);
+
+	function filterTable() {
+		var brandFilter = document.getElementById('brandFilter').value.toLowerCase();
+		var modelFilter = document.getElementById('modelFilter').value.toLowerCase();
+		var serialFilter = document.getElementById('serialFilter').value.toLowerCase();
+		var userFilter = document.getElementById('userFilter').value.toLowerCase();
+		var conditionFilter = document.getElementById('conditionFilter').value.toLowerCase();
+		var departmentFilter = document.getElementById('departmentFilter').value.toLowerCase();
+		var locationFilter = document.getElementById('locationFilter').value.toLowerCase();
+		var creationFilter = document.getElementById('creationFilter').value;
+
+		var rows = document.querySelectorAll('#allDevicesTable tbody tr');
+
+		rows.forEach(function(row) {
+			var brand = row.querySelector('[data-field="brand"]').textContent.toLowerCase();
+			var model = row.querySelector('[data-field="model"]').textContent.toLowerCase();
+			var serial = row.querySelector('[data-field="serial"]').textContent.toLowerCase();
+			var user = row.querySelector('[data-field="adusers"]').textContent.toLowerCase();
+			var condition = row.querySelector('[data-field="condition"]').textContent.toLowerCase();
+			var department = row.querySelector('[data-field="department"]').textContent.toLowerCase();
+			var location = row.querySelector('[data-field="location"]').textContent.toLowerCase();
+			var creation = row.querySelector('[data-field="creation"]').textContent;
+
+			var brandMatch = brandFilter === '' || brand.includes(brandFilter);
+			var modelMatch = modelFilter === '' || model.includes(modelFilter);
+			var serialMatch = serialFilter === '' || serial.includes(serialFilter);
+			var userMatch = userFilter === '' || user.includes(userFilter);
+			var conditionMatch = conditionFilter === '' || condition.includes(conditionFilter);
+			var departmentMatch = departmentFilter === '' || department.includes(departmentFilter);
+			var locationMatch = locationFilter === '' || location.includes(locationFilter);
+			var creationMatch = creationFilter === '' || creation.includes(creationFilter);
+
+						if (brandMatch && modelMatch && serialMatch && userMatch && conditionMatch && departmentMatch && locationMatch && creationMatch) {
+				row.style.display = '';
+			} else {
+				row.style.display = 'none';
+			}
+		});
+	}
+</script>
+
+<style>
+	.side-nav {
+		position: fixed;
+		right: 0;
+		top: 0;
+		width: 250px;
+		height: 100%;
+		background-color: #f8f9fa;
+		padding: 20px;
+		box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+		z-index: 1000;
+	}
+
+	.container-fluid {
+		transition: margin-right 0.3s;
+	}
+</style>

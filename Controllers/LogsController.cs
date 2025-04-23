@@ -39,6 +39,9 @@ namespace Scribe.Controllers
             var logs = await _context.Log
                 .OrderByDescending(log => log.Date) // Replace 'Date' with your actual date property name
                 .ToListAsync();
+            var users = await _context.SystemUsers.Select(u => u.SamAccountName).Distinct().ToListAsync();
+
+            ViewData["Users"] = users;
             return View(logs);
         }
 
@@ -58,6 +61,11 @@ namespace Scribe.Controllers
                 .Where(log => log.User == userId) // Filter logs by the user's ID
                 .OrderByDescending(log => log.Date) // Replace 'Date' with your actual date property name
                 .ToListAsync();
+
+            var users = await _context.SystemUsers.Select(u => u.SamAccountName).Distinct().ToListAsync();
+
+            ViewData["Users"] = users;
+
             return View(logs);
         }
 

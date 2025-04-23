@@ -4,24 +4,49 @@
     ViewData["Title"] = "";
 }
 
-
-
 <h1>Devices</h1>
 
 <p>
-    @* <a asp-action="Create" class="btn btn-success">Create New</a> *@
     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createModal" onclick="loadCreatePartial('Models')">
         Create Model
     </button>
+    <button id="toggleFilterBtn" class="btn btn-primary" style="width:auto;">Toggle Filters</button>
 </p>
 
+<div id="filterNav" class="side-nav" style="display:none;">
+    <h3>Filters</h3>
+    <div class="form-group">
+        <label for="brandFilter">Brand</label>
+        <select id="brandFilter" class="form-control">
+            <option value="">All</option>
+            @foreach (var item in Model.Select(m => m.Brand).Distinct())
+            {
+                <option value="@item.Name">@item.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="modelFilter">Model Name</label>
+        <input type="text" id="modelFilter" class="form-control" placeholder="Model Name">
+    </div>
+    <div class="form-group">
+        <label for="deviceTypeFilter">Device Type</label>
+        <select id="deviceTypeFilter" class="form-control">
+            <option value="">All</option>
+            @foreach (var item in Model.Select(m => m.Category).Distinct())
+            {
+                <option value="@item.Name">@item.Name</option>
+            }
+        </select>
+    </div>
+</div>
 
 <div class="column-selector">
     <label><input type="checkbox" class="column-toggle" data-column="0" checked> Brand</label>
     <label><input type="checkbox" class="column-toggle" data-column="1" checked> Model Name</label>
     <label><input type="checkbox" class="column-toggle" data-column="2" checked> Device Type</label>
     <label><input type="checkbox" class="column-toggle" data-column="3" checked> Image</label>
-    <label><input type="checkbox" class="column-toggle" data-column="10" checked> Actions</label>
+    <label><input type="checkbox" class="column-toggle" data-column="4" checked> Actions</label>
 </div>
 
 <br />
@@ -29,20 +54,12 @@
 <div class="row">
     <div class="col">
         <table class="table table-hover table-striped" id="allModelsTable">
-
             <thead>
                 <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Brand)
-                    </th>
-                    <th>
-                        Model Name
-                    </th>
-                    <th>
-                        Device Type
-                    </th>
-                    <th>
-                    </th>
+                    <th>@Html.DisplayNameFor(model => model.Brand)</th>
+                    <th>Model Name</th>
+                    <th>Device Type</th>
+                    <th></th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -50,96 +67,81 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Brand.Name)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Category.Name)
-                        </td>
-                        <td>
-                            <img src="/media/models/@item.Image" width="100px" />
-                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.Brand.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                        <td><img src="/media/models/@item.Image" width="100px" /></td>
                         <td>
                             <a asp-action="AllocateSerialNumber" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Serial Numbers</a> |
-                            <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Models',@item.Id)">
-                                Edit
-                            </button> |
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('Models',@item.Id)">
-                                Delete
-                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Models',@item.Id)">Edit</button> |
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('Models',@item.Id)">Delete</button>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-
     </div>
-   
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Define common options for the DataTables instance
-            var dataTableOptions = {
-                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"row"<"col-sm-12"tr>><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>B',
-                buttons: [
-                    {
-                        extend: 'copy',
-                        exportOptions: {
-                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
-                        }
-                    },
-                    {
-                        extend: 'csv',
-                        exportOptions: {
-                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
-                        }
-                    },
-                    {
-                        extend: 'excel',
-                        exportOptions: {
-                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
-                        }
-                    },
-                    {
-                        extend: 'pdf',
-                        exportOptions: {
-                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
-                        }
-                    },
-                    {
-                        extend: 'print',
-                        exportOptions: {
-                            columns: ':visible:not(:last-child)' // Export only visible columns except the last
-                        }
-                    }
-                ],
-                pageLength: 10,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                language: {
-                    lengthMenu: "_MENU_ records per page"
+            $('#toggleFilterBtn').click(function () {
+                var filterNav = $('#filterNav');
+                var tableContainer = $('.container-fluid');
+                if (filterNav.is(':visible')) {
+                    filterNav.hide();
+                    tableContainer.css('margin-right', '0');
+                } else {
+                    filterNav.show();
+                    tableContainer.css('margin-right', '250px');
                 }
-            };
-
-            // Initialize #modelsTable with filtering and column visibility toggle
-            var modelsTable = $('#modelsTable').DataTable(dataTableOptions);
-            $('.column-toggle').change(function () {
-                var columnIndex = $(this).data('column');
-                modelsTable.column(columnIndex).visible(this.checked);
             });
 
-            function isColumnVisible(columnIndex) {
-                return $('.column-toggle[data-column="' + columnIndex + '"]').is(':checked');
-            }
-
-            // Handle page size changes (optional, if you have a page size dropdown)
-            $('#pageSize').change(function () {
-                modelsTable.page.len($(this).val()).draw();
+            $('#brandFilter, #modelFilter, #deviceTypeFilter, #imageFilter').on('change input', function () {
+                filterTable();
             });
+
+                    function filterTable() {
+            var brandFilter = $('#brandFilter').val().toLowerCase();
+            var modelFilter = $('#modelFilter').val().toLowerCase();
+            var deviceTypeFilter = $('#deviceTypeFilter').val().toLowerCase();
+
+            $('#allModelsTable tbody tr').each(function () {
+                var row = $(this);
+                var brand = row.find('td:eq(0)').text().toLowerCase();
+                var model = row.find('td:eq(1)').text().toLowerCase();
+                var deviceType = row.find('td:eq(2)').text().toLowerCase();
+
+                var brandMatch = brandFilter === '' || brand.includes(brandFilter);
+                var modelMatch = modelFilter === '' || model.includes(modelFilter);
+                var deviceTypeMatch = deviceTypeFilter === '' || deviceType.includes(deviceTypeFilter);
+
+                if (brandMatch && modelMatch && deviceTypeMatch) {
+                    row.show();
+                } else {
+                    row.hide();
+                }
+            });
+        }
         });
     </script>
 }
+
+<style>
+    .side-nav {
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 250px;
+        height: 100%;
+        background-color: #f8f9fa;
+        padding: 20px;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+
+    .container-fluid {
+        transition: margin-right 0.3s;
+    }
+</style>
