@@ -470,8 +470,8 @@ namespace Scribe.Controllers
         {
             // Repopulate dropdowns for the view component
 
-            // Get users from the AD group "ZIM-WEB-IT"
-            ViewData["UserId"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            // Get users from the AD group "Scribe Admins"
+            ViewData["UserId"] = _adService.GetGroupMembersSelectList("Scribe Admins");
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
 
             // Check if there is the SerialNumber already exists in the Group
@@ -557,8 +557,8 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUserGroups(UserGroup userGroup)
         {
-            // Get users from the AD group "ZIM-WEB-IT"
-            ViewData["UserId"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            // Get users from the AD group "Scribe Admins"
+            ViewData["UserId"] = _adService.GetGroupMembersSelectList("Scribe Admins");
 
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name");
 

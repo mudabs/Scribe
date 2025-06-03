@@ -1,170 +1,321 @@
-﻿@using Scribe.Infrastructure
+﻿﻿@using Scribe.Infrastructure
 @model SerialNumberViewModel
 
 @{
     ViewData["Title"] = "SerialNumber";
+    var modelId = ViewData["modelId"];
     Layout = "_Layout";
 }
 
-<div class="row">
-    <div class="col">
-        <h3>@Model.Model.Brand.Name @Model.Model.Name</h3>
-        <img src="/media/models/@Model.Model.Image" width="100px" /><br /><br />
+<div class="">
+    <div class="row">
+        <div class="col">
+            <h3>@Model.Model.Brand.Name @Model.Model.Name</h3>
+            <img src="/media/models/@Model.Model.Image" width="100px" /><br /><br />
 
-        <form asp-action="CreateSerialNumber" method="post" class="form-inline mb-4">
-            <input type="hidden" asp-for="Model.Id" name="ModelId" />
-            <input type="text" name="Name" class="form-control mr-2" placeholder="Serial Number" id="serialInput" required />
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
+            <div style="height:100px;"></div>
 
-        <div class="d-flex align-items-center mb-3">
-            <h4 class="mb-0">Existing Serial Numbers (@Model.NumberOfDevices)</h4>
-            <button id="toggleFilterButton" class="btn btn-outline-success ml-auto">
-                <img src="~/media/icons/static/funnel.svg" alt="Filter" />
-            </button>
-            <a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary ml-2">Back to Models</a>
-            <button id="toggleButton" class="btn btn-info ml-2">Upload</button>
-        </div>
-
-        <div id="uploadForm" style="display:none;">
-            <hr />
-            <h5>Upload Serial Numbers</h5>
-            <form enctype="multipart/form-data" class="mb-4">
-                <input type="file" id="fileInput" name="file" class="form-control-file" />
-                <input type="hidden" id="modelId" value="@Model.Model.Id" />
-                <button type="submit" class="btn btn-primary mt-2">Upload</button>
+            <form asp-action="CreateSerialNumber" method="post">
+                <input type="hidden" asp-for="Model.Id" name="ModelId" />
+                <div class="form-group">
+                    <input type="text" name="Name" class="form-control" placeholder="Serial Number" id="serialInput" required />
+                </div>
+                <br />
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
             </form>
-            <hr />
-        </div>
 
-        <div id="previewContainer"></div>
+            <div class="row">
+                <h4>
+                    Existing Serial Numbers (@Model.NumberOfDevices)
+                    <span class="ml-auto">
+                        <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0"><img src="~/media/icons/static/funnel.svg" /></button>
+                    </span>
+                    <a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary">Back to Models</a>
+                    <button id="toggleButton" class="btn btn-info">Upload</button>
+                </h4>
+            </div>
 
-        <!-- FILTER SIDEBAR -->
-        <div id="filterSection" class="side-nav" style="display:none;">
-            <h5>Filters</h5>
-            <div class="form-group">
-                <label for="nameFilter">Serial Number</label>
-                <input id="nameFilter" class="form-control" placeholder="Search..." />
-            </div>
-            <div class="form-group">
-                <label for="userFilter">Allocated To</label>
-                <input id="userFilter" class="form-control" placeholder="Name or Group" />
-            </div>
-            <div class="form-group">
-                <label for="conditionFilter">Condition</label>
-                <select id="conditionFilter" class="form-control">
-                    <option value="">All</option>
-                    @foreach (var c in Model.SerialNumbers.Select(s => s.Condition?.Name).Distinct().Where(n => n != null))
-                    {
-                        <option>@c</option>
-                    }
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="departmentFilter">Department</label>
-                <select id="departmentFilter" class="form-control">
-                    <option value="">All</option>
-                    @foreach (var d in Model.SerialNumbers.Select(s => s.Department?.Name).Distinct().Where(n => n != null))
-                    {
-                        <option>@d</option>
-                    }
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="locationFilter">Location</label>
-                <select id="locationFilter" class="form-control">
-                    <option value="">All</option>
-                    @foreach (var l in Model.SerialNumbers.Select(s => s.Location?.Name).Distinct().Where(n => n != null))
-                    {
-                        <option>@l</option>
-                    }
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="checkinFilter">Check‑In Date</label>
-                <input type="date" id="checkinFilter" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label for="allocationFilter">Allocation Date</label>
-                <input type="date" id="allocationFilter" class="form-control" />
-            </div>
-        </div>
 
-        <!-- SERIALS TABLE -->
-        <table class="table table-hover table-striped" id="serialsTable">
-            <thead>
-                <tr>
-                    <th>Serial Number</th>
-                    <th>Allocated To</th>
-                    <th>Condition</th>
-                    <th>Department</th>
-                    <th>Location</th>
-                    <th>Check In Date</th>
-                    <th>Allocation Date</th>
-                    <th>Allocated By</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var s in Model.SerialNumbers)
-                {
+
+
+            <div id="uploadForm" style="display:none;">
+                <hr />
+                <h4>Upload Serial Numbers</h4>
+                <form enctype="multipart/form-data">
+                    <input type="file" id="fileInput" name="file" class="form-control" />
+                    <input type="hidden" id="modelId" value="@Model.Model.Id"></input>
+                    <button type="submit" class="btn btn-primary mt-2">Upload</button>
+                </form>
+
+                <hr />
+            </div>
+
+
+
+
+
+
+            <div id="previewContainer"></div>
+
+
+
+            <!-- FILTER SIDEBAR -->
+            <div id="filterSection" class="side-nav" style="display:none;">
+                <h5>Filters</h5>
+                <div class="form-group">
+                    <label for="nameFilter">Serial Number</label>
+                    <input id="nameFilter" class="form-control" placeholder="Search..." />
+                </div>
+                <div class="form-group">
+                    <label for="userFilter">Allocated To</label>
+                    <input id="userFilter" class="form-control" placeholder="Name or Group" />
+                </div>
+                <div class="form-group">
+                    <label for="conditionFilter">Condition</label>
+                    <select id="conditionFilter" class="form-control">
+                        <option value="">All</option>
+                        @foreach (var c in Model.SerialNumbers.Select(s => s.Condition?.Name).Distinct().Where(n => n != null))
+                        {
+                            <option>@c</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="departmentFilter">Department</label>
+                    <select id="departmentFilter" class="form-control">
+                        <option value="">All</option>
+                        @foreach (var d in Model.SerialNumbers.Select(s => s.Department?.Name).Distinct().Where(n => n != null))
+                        {
+                            <option>@d</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="locationFilter">Location</label>
+                    <select id="locationFilter" class="form-control">
+                        <option value="">All</option>
+                        @foreach (var l in Model.SerialNumbers.Select(s => s.Location?.Name).Distinct().Where(n => n != null))
+                        {
+                            <option>@l</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="checkinFilter">Check‑In Date</label>
+                    <input type="date" id="checkinFilter" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="allocationFilter">Allocation Date</label>
+                    <input type="date" id="allocationFilter" class="form-control" />
+                </div>
+            </div>
+
+            <!-- SERIALS TABLE -->
+            <table class="table table-hover table-striped" id="serials">
+                <thead>
                     <tr>
-                        <td class="serial-name">
-                            <span class="display-value">@s.Name</span>
-                        </td>
-                        <td class="serial-user">
-                            <span class="display-value">
-                                @(s.ADUsers?.Name ?? (s.Group != null ? s.Group.Name : "N/A"))
-                            </span>
-                        </td>
-                        <td class="serial-condition">
-                            <span class="display-value">@s.Condition?.Name</span>
-                        </td>
-                        <td class="serial-department">
-                            <span class="display-value">@s.Department?.Name</span>
-                        </td>
-                        <td class="serial-location">
-                            <span class="display-value">@s.Location?.Name</span>
-                        </td>
-                        <td class="serial-checkin">
-                            <span class="display-value">@s.Creation?.ToString("yyyy-MM-dd")</span>
-                        </td>
-                        <td class="serial-allocation">
-                            <span class="display-value">@s.Allocation?.ToString("yyyy-MM-dd")</span>
-                        </td>
-                        <td class="serial-allocatedBy">
-                            <span class="display-value">@s.AllocatedBy ?? "No User"</span>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal"
-                                    data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@s.Id)">
-                                Edit
-                            </button>
-                            |
-                            <a class="btn btn-outline-primary btn-sm"
-                               asp-controller="SerialNumbers" asp-action="ViewHistory" asp-route-id="@s.Id">
-                                View History
-                            </a>
-                            |
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal"
-                                    data-target="#deleteModal" onclick="loadDeleteAlloPartial('SerialNumbers',@s.Id)">
-                                Delete
-                            </button>
-                        </td>
+                        <th>Serial Number</th>
+                        <th>Allocated To</th>
+                        <th>Condition</th>
+                        <th>Department</th>
+                        <th>Location</th>
+                        <th>Check In Date</th>
+                        <th>Allocation Date</th>
+                        <th>Allocated By</th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var serialNumber in Model.SerialNumbers)
+                    {
+                        <tr>
+                            <td class="serial-name">
+                                <span class="display-value">@serialNumber.Name</span>
+                                <input type="text" name="Name" value="@serialNumber.Name" class="form-control edit-input" style="display:none;" />
+                            </td>
+                            <td class="serial-condition">
+                                <span class="display-value">
+
+                                    @if (serialNumber.ADUsers != null)
+                                    {
+                                        @serialNumber.ADUsers.Name
+                                    }
+                                    else if (serialNumber.Group != null)
+                                    {
+                                        @serialNumber.Group.Name <img src="/media/icons/static/g.svg">
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw("N/A")
+                                    }
+                                </span>
+                                <select name="ADUsersId" class="form-control edit-input" style="display:none;">
+                                    @foreach (var adUsers in ViewBag.ADUsersId)
+                                    {
+                                        <option value="@adUsers.Value" selected="@(adUsers.Value == serialNumber.ADUsers?.Name)">
+                                            @adUsers.Text
+                                        </option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="serial-condition">
+                                <span class="display-value">@serialNumber.Condition?.Name</span>
+                                <select name="ConditionId" class="form-control edit-input" style="display:none;">
+                                    @foreach (var condition in ViewBag.ConditionId)
+                                    {
+                                        <option value="@condition.Value" selected="@(condition.Value == serialNumber.ConditionId.ToString())">
+                                            @condition.Text
+                                        </option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="serial-department">
+                                <span class="display-value">@serialNumber.Department?.Name</span>
+                                <select name="DepartmentId" class="form-control edit-input" style="display:none;">
+                                    @foreach (var department in ViewBag.DepartmentId)
+                                    {
+                                        <option value="@department.Value" selected="@(department.Value == serialNumber.DepartmentId.ToString())">
+                                            @department.Text
+                                        </option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="serial-location">
+                                <span class="display-value">@serialNumber.Location?.Name</span>
+                                <select name="LocationId" class="form-control edit-input" style="display:none;">
+                                    @foreach (var location in ViewBag.LocationId)
+                                    {
+                                        <option value="@location.Value" selected="@(location.Value == serialNumber.LocationId.ToString())">
+                                            @location.Text
+                                        </option>
+                                    }
+                                </select>
+                            </td>
+                            <td class="serial-checkin">
+                                <span class="display-value">@serialNumber.Creation?.ToString("yyyy-MM-dd")</span>
+                                <input type="date" name="Creation" value="@serialNumber.Creation?.ToString("yyyy-MM-dd")" class="form-control edit-input" style="display:none;" />
+                            </td>
+                            <td class="serial-allocation">
+                                <span class="display-value">@serialNumber.Allocation?.ToString("yyyy-MM-dd")</span>
+                                <input type="date" name="Allocation" value="@serialNumber.Allocation?.ToString("yyyy-MM-dd")" class="form-control edit-input" style="display:none;" />
+                            </td>
+                            <td class="serial-allocatedBy">
+                                @if (serialNumber.AllocatedBy == null)
+                                {
+                                    <span>No User</span>
+                                }
+                                else
+                                {
+                                    <span class="display-value">@serialNumber.AllocatedBy</span>
+                                }
+                                @* <select name="AllocatedBy" class="form-control edit-input" style="display:;">
+                                    <option>Choose a User</option>
+                                    @foreach (var sysUser in ViewBag.Users as SelectList)
+                                    {
+                                        <option value="@sysUser.Value" selected="@(sysUser.Value == serialNumber.AllocatedBy?.ToString())">
+                                            @sysUser.Text
+                                        </option>
+                                    }
+                                </select> *@
+                            </td>
+                            <td>
+                                @* <a class="btn btn-outline-warning btn-sm" asp-controller="SerialNumbers" asp-action="Edit" asp-route-id="@serialNumber.Id">Edit</a> | *@
+                                <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@serialNumber.Id)">
+                                    Edit
+                                </button> |
+                                <a class="btn btn-outline-primary btn-sm" asp-controller="SerialNumbers" asp-action="ViewHistory" asp-route-id="@serialNumber.Id">View History</a> |
+                                @*   <form asp-action="DeleteSerialNumber" method="post" class="delete-form" style="display:inline;">
+                                    <input type="hidden" name="Id" value="@serialNumber.Id" />
+                                    <input type="hidden" name="ModelId" value="@Model.Model.Id" />
+                                    <input type="submit" value="Delete" class="btn btn-outline-danger btn-sm delete-button" style="margin-left: 5px;" />
+                                </form> *@
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeleteAlloPartial('SerialNumbers',@serialNumber.Id)">
+                                    Delete
+                                </button>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Custom Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Confirm Deletion</h2>
+        <p>Are you sure you want to delete the selected serial number(s)?</p>
+        <div class="modal-actions">
+            <button id="confirmDelete" class="btn btn-danger">Delete</button>
+            <button id="cancelDelete" class="btn btn-secondary">Cancel</button>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        $("#uploadForm").submit(function (e) {
+        e.preventDefault();
+        var formData = new FormData();
+        formData.append("file", $("#fileInput")[0].files[0]);
+        formData.append("modelId", $("#modelId").val());
+
+        $.ajax({
+        url: "/SerialNumbers/UploadFile",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+        $("#previewContainer").html(response);
+        },
+        error: function (xhr) {
+        alert(xhr.responseText);
+        }
+        });
+        });
+    </script>
+
+
+    <script>
+        var input = document.getElementById('serialInput');
+        input.focus();
+        input.select();
+    </script>
+
+    <style>
+        .fixed-column {
+            position: fixed;
+            top: 10;
+            background-color: white;
+            z-index: 1000;
+        }
+    </style>
+
+    <script>
+        document.getElementById('toggleButton').addEventListener('click', function() {
+            var form = document.getElementById('uploadForm');
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        });
+    </script>
+    <script>
         $(document).ready(function () {
             // Initialize DataTable
-            var table = $('#serialsTable').DataTable({
-                dom: 'Bfrtip',
-                buttons: ['copy','csv','excel','pdf','print']
+            var table = $('#serials').DataTable({
+                // dom: 'Bfrtip',
+                // buttons: ['copy','csv','excel','pdf','print']
             });
 
             // Toggle the filter sidebar

@@ -559,7 +559,7 @@ namespace Scribe.Controllers
             ViewData["modelId"] = id;
 
             var currentUserId = User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("Scribe Admins");
 
             var breadcrumbs = new List<BreadcrumbItem>
                 {

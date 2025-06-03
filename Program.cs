@@ -26,7 +26,7 @@ builder.Services.AddAuthorization(options =>
         {
             var user = context.User;
             var domain = "zlt.co.zw";
-            var groupName = "zim-web-it";
+            var groupName = "Scribe Admins";
 
             using (var principalContext = new PrincipalContext(ContextType.Domain, domain))
             using (var group = GroupPrincipal.FindByIdentity(principalContext, groupName))
@@ -75,7 +75,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
-}
+} 
 else
 {
     app.UseExceptionHandler("/Home/Error");

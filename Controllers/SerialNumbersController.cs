@@ -495,7 +495,7 @@ namespace Scribe.Controllers
             ViewData["Condition"] = _context.Condition.Where(x => x.Id == modelName.ConditionId).Select(x => x.Name).FirstOrDefault();
             ViewData["ConditionColorCode"] = _context.Condition.Where(x => x.Id == modelName.ConditionId).Select(x => x.ColorCode).FirstOrDefault();
 
-            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("Scribe Admins");
 
             var viewModel = new HistoryViewModel
             {

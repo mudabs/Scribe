@@ -16,7 +16,7 @@ namespace Scribe.Controllers
     public class AccountController : Controller
     {
         private readonly string domain = "zlt.co.zw";
-        private readonly string groupName = "zim-web-it";
+        private readonly string groupName = "Scribe Admins";
         private readonly ILoggingService _loggingService;
 
         public AccountController(ILoggingService loggingService)
@@ -27,6 +27,12 @@ namespace Scribe.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             // Set up breadcrumbs
             var breadcrumbs = new List<BreadcrumbItem>
             {
@@ -48,7 +54,7 @@ namespace Scribe.Controllers
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, username),
-                        new Claim(ClaimTypes.Role, "zim-web-it")
+                        new Claim(ClaimTypes.Role, "Scribe Admins")
                     };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

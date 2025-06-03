@@ -88,6 +88,7 @@ namespace Scribe.Controllers
             var details = $"Domain Controller Names Updated.";
             var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
             _loggingService.LogActionAsync(details, myUser); // Log the action
+            TempData["Success"] = "Company Employees Updated.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -99,6 +100,7 @@ namespace Scribe.Controllers
             var details = $"System Users Updated.";
             var myUser = User.Identity.Name ?? "Anonymous"; // Assuming you have user authentication
             _loggingService.LogActionAsync(details, myUser); // Log the action
+            TempData["Success"] = "System Users Updated.";
             return RedirectToAction(nameof(Index));
         }
 

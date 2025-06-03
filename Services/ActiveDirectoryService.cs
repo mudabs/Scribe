@@ -43,7 +43,7 @@ public class ActiveDirectoryService : IActiveDirectoryService
 
     //public List<SystemUser> GetUsersInGroup()
     //{
-    //    string groupName = "zim-web-it";
+    //    string groupName = "Scribe Admins";
     //    string domain = "zlt.co.zw";
     //    var users = new List<SystemUser>();
 
@@ -74,7 +74,7 @@ public class ActiveDirectoryService : IActiveDirectoryService
 
     //public List<SystemUser> GetUsersInGroup()
     //{
-    //    string groupName = "zim-web-it";
+    //    string groupName = "Scribe Admins";
     //    string domain = "zlt.co.zw";
     //    var users = new List<SystemUser>();
 
@@ -118,7 +118,7 @@ public class ActiveDirectoryService : IActiveDirectoryService
 
     public void StoreUsersInGroup()
     {
-        string groupName = "zim-web-it";
+        string groupName = "Scribe Admins";
         string domain = "zlt.co.zw";
         using (var context = new PrincipalContext(ContextType.Domain, domain))
         using (var group = GroupPrincipal.FindByIdentity(context, groupName))
@@ -131,7 +131,7 @@ public class ActiveDirectoryService : IActiveDirectoryService
                     if (de != null)
                     {
                         string samAccountName = de.Properties["samAccountName"].Value?.ToString();
-
+                        
                         if (!UserExistsInDatabase(samAccountName))
                         {
                             var systemUser = new SystemUser

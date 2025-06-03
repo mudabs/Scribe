@@ -64,8 +64,8 @@ namespace Scribe.Controllers
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
 
-            // Get users from the AD group "ZIM-WEB-IT"
-            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            // Get users from the AD group "Scribe Admins"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("Scribe Admins");
 
 
             return View();
@@ -99,8 +99,8 @@ namespace Scribe.Controllers
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
 
-            // Get users from the AD group "ZIM-WEB-IT"
-            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            // Get users from the AD group "Scribe Admins"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("Scribe Admins");
 
             return View(serviceHistory);
         }
@@ -123,8 +123,8 @@ namespace Scribe.Controllers
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
 
-            // Get users from the AD group "ZIM-WEB-IT"
-            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            // Get users from the AD group "Scribe Admins"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("Scribe Admins");
 
 
             return View(serviceHistory);
@@ -176,8 +176,8 @@ namespace Scribe.Controllers
             ViewData["ConditionId"] = new SelectList(_context.Condition, "Id", "Name");
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the logged-in user ID
 
-            // Get users from the AD group "ZIM-WEB-IT"
-            ViewData["Users"] = _adService.GetGroupMembersSelectList("zim-web-it");
+            // Get users from the AD group "Scribe Admins"
+            ViewData["Users"] = _adService.GetGroupMembersSelectList("Scribe Admins");
 
 
             return View(serviceHistory);
