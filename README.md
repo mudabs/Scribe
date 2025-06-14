@@ -67,4 +67,51 @@ Transform Content Creation, Empower Knowledge Sharing Seamlessly
 ### Installation
 
 1. **Clone the repository**
-   
+   git clone https://github.com/scribe/scribe
+   cd scribe
+
+2. **Restore dependencies**
+   dotnet restore
+
+3. **Update database**
+   dotnet ef database update
+
+4. **Run the application**
+   dotnet run
+
+### Usage
+
+- Access the app at `https://localhost:5001`
+- Login with your Active Directory credentials or seeded admin account
+- Navigate through the dashboard to manage assets, users, and reports
+
+### Testing
+
+- Unit tests are located in the `Scribe.Tests` project
+- Run tests using:
+  dotnet test
+
+---
+
+## 🧰 Technologies Used
+
+- ASP.NET Core MVC
+- Entity Framework Core
+- SQL Server
+- Active Directory
+- Bootstrap 5
+- jQuery
+- NuGet
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request with your changes.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
