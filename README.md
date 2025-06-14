@@ -1,4 +1,4 @@
-# Creating and saving a complete README.md file using a properly terminated multiline string
+# Scribe - Inventory Management System
 
 readme_content = """# 📦 Scribe - Inventory Management System
 
