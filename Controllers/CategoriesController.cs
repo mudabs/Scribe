@@ -193,13 +193,13 @@ namespace Scribe.Controllers
                     }
 
                     // Check for existing Category with the same Name
-                    bool exists2 = await _context.Categories.AnyAsync(m => m.Name == category.Name);
+                    //bool exists2 = await _context.Categories.AnyAsync(m => m.Name == category.Name);
 
-                    if (exists2)
-                    {
-                        TempData["Failure"] = "A category with the same Name already exists.";
-                        return RedirectToAction(nameof(Index));
-                    }
+                    //if (exists2)
+                    //{
+                    //    TempData["Failure"] = "A category with the same Name already exists.";
+                    //    return RedirectToAction(nameof(Index));
+                    //}
 
                     string iconName = originalCategory.Icon; // Preserve current icon if no new upload
                     if (category.IconUpload != null)

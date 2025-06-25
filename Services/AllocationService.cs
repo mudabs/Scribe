@@ -12,7 +12,7 @@ namespace Scribe.Services
 {
     public interface IAllocationService
     {
-        Task CreateAllocationAsync(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
+        Task CreateAllocationAsync(int serialNumberId, int adUsersId, DateTime? allocationDate, DateTime? deallocationDate, string allocatedBy);
         Task<bool> AllocationExists(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
         Task<bool> MyAllocationExists(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy);
           }
@@ -67,44 +67,42 @@ namespace Scribe.Services
             }
         }
 
-        public async Task CreateAllocationAsync(int serialNumberId, int adUsersId, DateTime allocationDate, DateTime? deallocationDate, string allocatedBy)
+        public async Task CreateAllocationAsync(int serialNumberId, int adUsersId, DateTime? allocationDate, DateTime? deallocationDate, string allocatedBy)
         {
-            //Checking existence of current allocation
+            // Use today's date if allocationDate is null
+            var effectiveAllocationDate = allocationDate ?? DateTime.Now;
+
+            // Checking existence of current allocation
             var sng = await _context.SerialNumberGroup.FirstOrDefaultAsync(x => x.SerialNumberId == serialNumberId && x.ADUsersId == adUsersId);
             if (sng == null)
             {
-                //// Check if the SerialNumber is currently allocated another person
-                //var existingAllocation = await _context.SerialNumberGroup
-                //    .FirstOrDefaultAsync(sng => sng.SerialNumberId == serialNumberId);
-
-                //if (existingAllocation != null)
-                //{
-                //    //will change logic to add notification
-                //    _context.Remove(existingAllocation);
-                //}
-
                 // Creating an Allocation History
                 AllocationHistory allocationHistory = new AllocationHistory()
                 {
                     SerialNumberId = serialNumberId,
                     ADUsersId = adUsersId,
-                    AllocationDate = allocationDate,
+                    AllocationDate = effectiveAllocationDate,
                     DeallocationDate = deallocationDate,
                     AllocatedBy = allocatedBy
                 };
 
-                //Updating Serial Number User and Condition
-                var sn = await _context.SerialNumbers.Include(x => x.ADUsers).Include(x => x.Model).Include(x => x.Model.Brand).Include(x => x.Model.Category).FirstOrDefaultAsync(x => x.Id == serialNumberId);
+                // Updating Serial Number User and Condition
+                var sn = await _context.SerialNumbers
+                    .Include(x => x.ADUsers)
+                    .Include(x => x.Model).ThenInclude(m => m.Brand)
+                    .Include(x => x.Model).ThenInclude(m => m.Category)
+                    .Include(x => x.Location)
+                    .FirstOrDefaultAsync(x => x.Id == serialNumberId);
+
                 sn.ADUsersId = adUsersId;
-                //Find Condition with "In Use"
-                var condId = _context.Condition.FirstOrDefault(x => x.Name == "In Use").Id;
-                sn.ConditionId = condId;
+                sn.ConditionId = _context.Condition.FirstOrDefault(x => x.Name == "In Use").Id;
+                sn.LocationId = _context.Locations.FirstOrDefault(x => x.Name == "User Station").Id;
                 sn.AllocatedBy = allocatedBy;
-                sn.Allocation = DateTime.Now;
+                sn.Allocation = effectiveAllocationDate;
                 sn.CurrentlyAllocated = true;
                 sn.GroupId = null;
 
-                //Creating SerialNumber Group
+                // Creating SerialNumber Group
                 SerialNumberGroup serialNumberGroup = new SerialNumberGroup
                 {
                     ADUsersId = adUsersId,
@@ -112,24 +110,21 @@ namespace Scribe.Services
                     GroupId = null
                 };
 
-
                 await _context.AllocationHistory.AddAsync(allocationHistory);
                 await _context.SerialNumberGroup.AddAsync(serialNumberGroup);
                 _context.SerialNumbers.Update(sn);
                 await _context.SaveChangesAsync();
 
-                // Create a log entry using logging service
-                var employee = await _context.ADUsers.FindAsync(sn.Id);
+                // Logging
+                var employee = await _context.ADUsers.FindAsync(adUsersId);
                 var details = $"Serial Number '{sn.Name}' for '{sn.Model.Brand.Name}' '{sn.Model.Name}' '{sn.Model.Category.Name}' allocated to '{employee.Name}'.";
-                var myUser = GetCurrentUserName(); // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = GetCurrentUserName();
+                await _loggingService.LogActionAsync(details, myUser);
             }
             else
             {
                 throw new InvalidOperationException("User is Currently Allocated this Device.");
             }
-
-
         }
     }
 }

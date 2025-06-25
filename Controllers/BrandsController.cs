@@ -165,7 +165,7 @@ namespace Scribe.Controllers
         // POST: Brands/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Brand brand)
+        public async Task<IActionResult> Edit(int id, Brand brand)
         {
             var breadcrumbs = new List<BreadcrumbItem>
             {
@@ -185,11 +185,11 @@ namespace Scribe.Controllers
             if (ModelState.IsValid)
             {
                 // Check if a brand with the same name already exists (case insensitive)
-                if (_context.Brands.Any(b => b.Name.ToLower() == brand.Name.ToLower()))
-                {
-                    TempData["Failure"] = $"A brand with the name '{brand.Name}' already exists. Please choose a different name.";
-                    return RedirectToAction(nameof(Index));
-                }
+                //if (_context.Brands.Any(b => b.Name.ToLower() == brand.Name.ToLower()))
+                //{
+                //    TempData["Failure"] = $"A brand with the name '{brand.Name}' already exists. Please choose a different name.";
+                //    return RedirectToAction(nameof(Index));
+                //}
 
                 try
                 {
@@ -204,7 +204,7 @@ namespace Scribe.Controllers
                     var initialBrandName = originalBrand.Name;
 
                     // Update image if provided
-                    if (brand.ImageName != null)
+                    if (brand.ImageUpload != null)
                     {
                         string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/brands");
                         var imageName = Guid.NewGuid().ToString() + "_" + brand.ImageUpload.FileName;

@@ -120,7 +120,7 @@ namespace Scribe.Controllers
             if (groupExists)
             {
                 TempData["Failure"] = "A group with the same name already exists!";
-                return RedirectToAction("Create");
+                return RedirectToAction("AllocateGroup", new { id = group.Id });
             }
 
             if (ModelState.IsValid)
@@ -305,10 +305,12 @@ namespace Scribe.Controllers
 
                 //Find Condition with "In Use"
                 var condId = _context.Condition.FirstOrDefault(x => x.Name == "Awaiting User").Id;
+                var locationId = _context.Locations.FirstOrDefault(x => x.Name == "User Station").Id;
                 sn.ConditionId = condId;
                 sn.DeallocatedBy = User.Identity.Name;
                 sn.CurrentlyAllocated = false;
                 sn.GroupId = null;
+                sn.LocationId = locationId;
 
 
                 _context.SerialNumbers.Update(sn);
@@ -523,7 +525,7 @@ namespace Scribe.Controllers
                     AllocationDate = DateTime.Now,
                     DeallocationDate = null,
                     AllocatedBy = User.Identity.Name,
-                    GroupId = serialNumberGroup.GroupId
+                    GroupId = serialNumberGroup.GroupId,
                 };
 
 
@@ -531,11 +533,13 @@ namespace Scribe.Controllers
                 sn.ADUsersId = null;
                 //Find Condition with "In Use"
                 var condId = _context.Condition.FirstOrDefault(x => x.Name == "In Use").Id;
+                var locationId = _context.Locations.FirstOrDefault(x => x.Name == "User Station").Id;
                 sn.ConditionId = condId;
                 sn.AllocatedBy = User.Identity.Name;
                 sn.Allocation = DateTime.Now;
                 sn.CurrentlyAllocated = true;
                 sn.GroupId = serialNumberGroup.GroupId;
+                sn.LocationId = locationId;
 
                 _context.SerialNumberGroup.Add(serialNumberGroup);
                 await _context.AllocationHistory.AddAsync(allocationHistory);

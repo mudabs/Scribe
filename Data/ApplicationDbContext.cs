@@ -73,6 +73,18 @@ namespace Scribe.Data
                     Id = 1,
                     Name = "New Storage",
                     Description = "IT Storage room"
+                },
+                new Location
+                {
+                    Id = 2,
+                    Name = "Old Storage",
+                    Description = "IT Storage room"
+                },
+                new Location
+                {
+                    Id = 3,
+                    Name = "User Station",
+                    Description = "User Office or Station"
                 }
             );
 
