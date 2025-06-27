@@ -5,19 +5,36 @@
 
 <style>
     .side-nav {
-        width: 250px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: #ffffff;
+        border-right: 1px solid #ddd;
         transition: width 0.3s;
+        overflow-x: hidden;
+        z-index: 999;
     }
+
+        .side-nav.full {
+            width: 250px;
+        }
 
         .side-nav.collapsed {
             width: 60px;
         }
 
-        .side-nav .accordion-button,
-        .side-nav .dropdown-item {
+        .side-nav .nav-item {
             display: flex;
             align-items: center;
+            padding: 15px 20px;
+            white-space: nowrap;
+            transition: background 0.2s;
         }
+
+            .side-nav .nav-item:hover {
+                background: #f0f0f0;
+            }
 
         .side-nav .nav-icon {
             width: 24px;
@@ -25,16 +42,24 @@
         }
 
         .side-nav .nav-label {
-            display: inline;
             transition: opacity 0.3s, width 0.3s;
-            white-space: nowrap;
         }
 
         .side-nav.collapsed .nav-label {
             display: none;
         }
 
-    /* Responsive collapse at small screens */
+        /* Toggle button */
+        .side-nav .toggle-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+    /* Auto collapse on small screens */
     @media (max-width: 768px) {
         .side-nav
 
@@ -47,101 +72,74 @@
     }
 
     }
-
-    .accordion-button:hover, .dropdown-item:hover {
-        background-color: #f0f0f0;
-        cursor: pointer;
-    }
-
-    .dropdown-item {
-        display: block;
-        padding: 0.5rem 1rem;
-        color: #212529;
-        text-decoration: none;
-        background-color: transparent;
-        border: 0;
-    }
 </style>
 
-<div class="accordion side-nav" id="accordionMenu">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingHome">
-            <a asp-action="Index" asp-controller="Home" style="text-decoration:none;">
-                <div class="d-flex align-items-center" style="margin: 16px;">
-                    <img src="/media/icons/static/home-svgrepo-com.svg" class="nav-icon" />
-                    <span class="nav-label">Home</span>
-                </div>
-            </a>
-        </h2>
+<div class="side-nav full" id="sideNav">
+    <!-- Toggle button -->
+    <div class="toggle-btn" onclick="toggleSideNav()">
+        <img src="/media/icons/static/menu-svgrepo-com.svg" class="nav-icon" />
     </div>
 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingAssets">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAssets" aria-expanded="false" aria-controls="collapseAssets">
-                <img src="/media/icons/static/laptop-alt-2-svgrepo-com.svg" class="nav-icon" />
-                <span class="nav-label">Assets</span>
-            </button>
-        </h2>
-        <div id="collapseAssets" class="accordion-collapse collapse" aria-labelledby="headingAssets" data-bs-parent="#accordionMenu">
-            <div class="accordion-body">
-                <ul style="list-style-type: none; padding-left: 0;">
-                    <li><a class="dropdown-item" asp-controller="SerialNumbers" asp-action="">All Assets</a></li>
-                    <li><a class="dropdown-item" asp-controller="Models" asp-action="">Add Asset</a></li>
-                    <li><a class="dropdown-item" asp-controller="Brands" asp-action="Index">Brands</a></li>
-                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Categories</a></li>
-                    <li><a class="dropdown-item" asp-controller="Conditions" asp-action="Index">Conditions</a></li>
-                    <li><a class="dropdown-item" asp-controller="Locations" asp-action="Index">Locations</a></li>
-                </ul>
-            </div>
+    <!-- Home -->
+    <a asp-action="Index" asp-controller="Home" class="nav-item">
+        <img src="/media/icons/static/home-svgrepo-com.svg" class="nav-icon" />
+        <span class="nav-label">Home</span>
+    </a>
+
+    <!-- Assets -->
+    <div>
+        <div class="nav-item" data-bs-toggle="collapse" data-bs-target="#collapseAssets" aria-expanded="false">
+            <img src="/media/icons/static/laptop-alt-2-svgrepo-com.svg" class="nav-icon" />
+            <span class="nav-label">Assets</span>
+        </div>
+        <div id="collapseAssets" class="collapse ps-4">
+            <a class="nav-item" asp-controller="SerialNumbers" asp-action="">All Assets</a>
+            <a class="nav-item" asp-controller="Models" asp-action="">Add Asset</a>
+            <a class="nav-item" asp-controller="Brands" asp-action="Index">Brands</a>
+            <a class="nav-item" asp-controller="Categories" asp-action="Index">Categories</a>
+            <a class="nav-item" asp-controller="Conditions" asp-action="Index">Conditions</a>
+            <a class="nav-item" asp-controller="Locations" asp-action="Index">Locations</a>
         </div>
     </div>
 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingLogs">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogs" aria-expanded="false" aria-controls="collapseLogs">
-                <img src="/media/icons/static/report-barchart-svgrepo-com.svg" class="nav-icon" />
-                <span class="nav-label">System Logs</span>
-            </button>
-        </h2>
-        <div id="collapseLogs" class="accordion-collapse collapse" aria-labelledby="headingLogs" data-bs-parent="#accordionMenu">
-            <div class="accordion-body">
-                <ul style="list-style-type: none; padding-left: 0;">
-                    <li><a class="dropdown-item" asp-controller="Logs" asp-action="">All Logs</a></li>
-                    <li><a class="dropdown-item" asp-controller="Logs" asp-action="MyActivity">My Activity</a></li>
-                </ul>
-            </div>
+    <!-- Logs -->
+    <div>
+        <div class="nav-item" data-bs-toggle="collapse" data-bs-target="#collapseLogs" aria-expanded="false">
+            <img src="/media/icons/static/report-barchart-svgrepo-com.svg" class="nav-icon" />
+            <span class="nav-label">System Logs</span>
+        </div>
+        <div id="collapseLogs" class="collapse ps-4">
+            <a class="nav-item" asp-controller="Logs" asp-action="">All Logs</a>
+            <a class="nav-item" asp-controller="Logs" asp-action="MyActivity">My Activity</a>
         </div>
     </div>
 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingAllocations">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAllocations" aria-expanded="false" aria-controls="collapseAllocations">
-                <img src="/media/icons/static/users-svgrepo-com.svg" class="nav-icon" />
-                <span class="nav-label">Allocations</span>
-            </button>
-        </h2>
-        <div id="collapseAllocations" class="accordion-collapse collapse" aria-labelledby="headingAllocations" data-bs-parent="#accordionMenu">
-            <div class="accordion-body">
-                <ul style="list-style-type: none; padding-left: 0;">
-                    <li><a class="dropdown-item" asp-controller="ADUsers" asp-action="Index">Individual Allocations</a></li>
-                    <li><a class="dropdown-item" asp-controller="Groups" asp-action="">Group Allocations</a></li>
-                    <li><a class="dropdown-item" asp-controller="Departments" asp-action="Index">Departments</a></li>
-                </ul>
-            </div>
+    <!-- Allocations -->
+    <div>
+        <div class="nav-item" data-bs-toggle="collapse" data-bs-target="#collapseAllocations" aria-expanded="false">
+            <img src="/media/icons/static/users-svgrepo-com.svg" class="nav-icon" />
+            <span class="nav-label">Allocations</span>
+        </div>
+        <div id="collapseAllocations" class="collapse ps-4">
+            <a class="nav-item" asp-controller="ADUsers" asp-action="Index">Individual Allocations</a>
+            <a class="nav-item" asp-controller="Groups" asp-action="">Group Allocations</a>
+            <a class="nav-item" asp-controller="Departments" asp-action="Index">Departments</a>
         </div>
     </div>
 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingMaintenance">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMaintenance" aria-expanded="false" aria-controls="collapseMaintenance">
-                <img src="/media/icons/static/tools-svgrepo-com.svg" class="nav-icon" />
-                <span class="nav-label">Maintenance</span>
-            </button>
-        </h2>
-        <div id="collapseMaintenance" class="accordion-collapse collapse" aria-labelledby="headingMaintenance" data-bs-parent="#accordionMenu">
-            <div class="accordion-body">
-                <a class="nav-link text-dark" asp-controller="Maintenances" asp-action="Index">Maintenance</a>
-            </div>
-        </div>
-    </div>
+    <!-- Maintenance -->
+    <a asp-controller="Maintenances" asp-action="Index" class="nav-item">
+        <img src="/media/icons/static/tools-svgrepo-com.svg" class="nav-icon" />
+        <span class="nav-label">Maintenance</span>
+    </a>
 </div>
+
+@section Scripts {
+    <script>
+        function toggleSideNav() {
+            const sideNav = document.getElementById('sideNav');
+            sideNav.classList.toggle('collapsed');
+            sideNav.classList.toggle('full');
+        }
+    </script>
+}
