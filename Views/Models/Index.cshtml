@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Scribe.Models.Model>
 
 @{
-    ViewData["Title"] = "";
+    ViewData["Title"] = "Devices";
 }
 
 <h1>Devices</h1>
@@ -59,18 +59,37 @@
                     <th>@Html.DisplayNameFor(model => model.Brand)</th>
                     <th>Model Name</th>
                     <th>Device Type</th>
-                    <th></th>
+                    <th>Image</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
+                    var total = item.SerialNumbers?.Count ?? 0;
+                    var allocated = item.SerialNumbers?.Count(sn => sn.CurrentlyAllocated) ?? 0;
+                    var unallocated = total - allocated;
+
+                    var popoverContent = $@"
+                <b>Total:</b> {total}<br/>
+                <b>Allocated:</b> {allocated}<br/>
+                <b>Unallocated:</b> {unallocated}";
+
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.Brand.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>
+                            <span class="model-popover"
+                                  data-bs-toggle="popover"
+                                  data-bs-html="true"
+                                  title="Allocation Summary"
+                                  data-bs-content="@Html.Raw(popoverContent)">
+                                @item.Name
+                            </span>
+                        </td>
                         <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
-                        <td><img src="/media/models/@item.Image" width="100px" /></td>
+                        <td>
+                            <img src="/media/models/@item.Image" width="100px" />
+                        </td>
                         <td>
                             <a asp-action="AllocateSerialNumber" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Serial Numbers</a> |
                             <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Models',@item.Id)">Edit</button> |
@@ -98,32 +117,40 @@
                 }
             });
 
-            $('#brandFilter, #modelFilter, #deviceTypeFilter, #imageFilter').on('change input', function () {
+            $('#brandFilter, #modelFilter, #deviceTypeFilter').on('change input', function () {
                 filterTable();
             });
 
-                    function filterTable() {
-            var brandFilter = $('#brandFilter').val().toLowerCase();
-            var modelFilter = $('#modelFilter').val().toLowerCase();
-            var deviceTypeFilter = $('#deviceTypeFilter').val().toLowerCase();
+            function filterTable() {
+                var brandFilter = $('#brandFilter').val().toLowerCase();
+                var modelFilter = $('#modelFilter').val().toLowerCase();
+                var deviceTypeFilter = $('#deviceTypeFilter').val().toLowerCase();
 
-            $('#allModelsTable tbody tr').each(function () {
-                var row = $(this);
-                var brand = row.find('td:eq(0)').text().toLowerCase();
-                var model = row.find('td:eq(1)').text().toLowerCase();
-                var deviceType = row.find('td:eq(2)').text().toLowerCase();
+                $('#allModelsTable tbody tr').each(function () {
+                    var row = $(this);
+                    var brand = row.find('td:eq(0)').text().toLowerCase();
+                    var model = row.find('td:eq(1)').text().toLowerCase();
+                    var deviceType = row.find('td:eq(2)').text().toLowerCase();
 
-                var brandMatch = brandFilter === '' || brand.includes(brandFilter);
-                var modelMatch = modelFilter === '' || model.includes(modelFilter);
-                var deviceTypeMatch = deviceTypeFilter === '' || deviceType.includes(deviceTypeFilter);
+                    var brandMatch = brandFilter === '' || brand.includes(brandFilter);
+                    var modelMatch = modelFilter === '' || model.includes(modelFilter);
+                    var deviceTypeMatch = deviceTypeFilter === '' || deviceType.includes(deviceTypeFilter);
 
-                if (brandMatch && modelMatch && deviceTypeMatch) {
-                    row.show();
-                } else {
-                    row.hide();
-                }
+                    if (brandMatch && modelMatch && deviceTypeMatch) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+            }
+
+            // Enable Bootstrap popovers on hover
+            $(function () {
+                $('[data-bs-toggle="popover"]').popover({
+                    trigger: 'hover',
+                    placement: 'right'
+                });
             });
-        }
         });
     </script>
 }
@@ -137,7 +164,7 @@
         height: 100%;
         background-color: #f8f9fa;
         padding: 20px;
-        box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
         z-index: 1000;
     }
 

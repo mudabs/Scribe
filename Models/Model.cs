@@ -24,6 +24,10 @@ namespace Scribe.Models
         [NotMapped]
         [FileExtension]
         public IFormFile? ImageUpload { get; set; }
+        [NotMapped]
+        public string? AllocationSummary { get; set; }
+        public virtual ICollection<SerialNumber> SerialNumbers { get; set; }
+
 
     }
 }

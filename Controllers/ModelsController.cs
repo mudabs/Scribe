@@ -28,7 +28,11 @@ namespace Scribe.Controllers
         // GET: Models
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Models.Include(m => m.Brand).Include(m => m.Category);
+            var applicationDbContext = _context.Models
+                .Include(m => m.Brand)
+                .Include(m => m.Category)
+                .Include(m => m.SerialNumbers);
+
 
             ViewBag.BrandId = _context.Brands
                 .Select(b => new SelectListItem
