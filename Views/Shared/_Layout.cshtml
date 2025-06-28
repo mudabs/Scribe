@@ -58,7 +58,7 @@
         <div class="row">
             @if (User.Identity.AuthenticationType == "Cookies")
             {
-                <nav class="col-md-2">
+                <nav class="col">
                     @await Html.PartialAsync("_SideNav")
                 </nav>
             }
