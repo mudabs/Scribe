@@ -16,6 +16,11 @@ namespace Scribe.Controllers
 
         public IActionResult Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Insights", Url = Url.Action("Index", "Dashboard"), IsActive = true }
+            };
             var totalDevices = _context.SerialNumbers.Count();
             var deadDevices = _context.SerialNumbers
                 .Where(x => x.Condition.Name == "Dead").Count();
