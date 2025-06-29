@@ -265,22 +265,22 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateByBrand(Model model)
         {
+            bool exists = await _context.Models
+                .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
+
+            if (exists)
+            {
+                TempData["Failure"] = "A model with the same Brand, Name, and Category already exists.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (ModelState.IsValid)
             {
-                bool exists = await _context.Models
-                     .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
-
-                if (exists)
-                {
-                    TempData["Failure"] = "A model with the same Brand, Name, and Category already exists.";
-                    return RedirectToAction(nameof(Index));
-                }
-
                 string imageName = "noimage.png";
 
                 if (model.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/devices");
+                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/models");
                     imageName = Guid.NewGuid().ToString() + "_" + model.ImageUpload.FileName;
                     string filePath = Path.Combine(uploadDir, imageName);
                     using (var fs = new FileStream(filePath, FileMode.Create))
@@ -293,17 +293,16 @@ namespace Scribe.Controllers
                 _context.Add(model);
                 await _context.SaveChangesAsync();
 
-                var details = $"Model '{model.Name}' created with Image '{imageName}'.";
+                var details = $"Model {model.Name} created with Image {imageName}.";
                 var myUser = User.Identity.Name ?? "Anonymous";
                 await _loggingService.LogActionAsync(details, myUser);
 
                 TempData["Success"] = "The Model has been created Successfully!";
                 return RedirectToAction(nameof(Index));
             }
-
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
-            return PartialView("_CreateByBrand", model);
+            return View(model);
         }
 
         // GET: Models/CreateByCategory/5
@@ -342,22 +341,22 @@ namespace Scribe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateByCategory(Model model)
         {
+            bool exists = await _context.Models
+               .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
+
+            if (exists)
+            {
+                TempData["Failure"] = "A model with the same Brand, Name, and Category already exists.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (ModelState.IsValid)
             {
-                bool exists = await _context.Models
-                    .AnyAsync(m => m.BrandId == model.BrandId && m.Name == model.Name && m.CategoryId == model.CategoryId);
-
-                if (exists)
-                {
-                    TempData["Failure"] = "A model with the same Brand, Name, and Category already exists.";
-                    return RedirectToAction(nameof(Index));
-                }
-
                 string imageName = "noimage.png";
 
                 if (model.ImageUpload != null)
                 {
-                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/devices");
+                    string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/models");
                     imageName = Guid.NewGuid().ToString() + "_" + model.ImageUpload.FileName;
                     string filePath = Path.Combine(uploadDir, imageName);
                     using (var fs = new FileStream(filePath, FileMode.Create))
@@ -370,17 +369,16 @@ namespace Scribe.Controllers
                 _context.Add(model);
                 await _context.SaveChangesAsync();
 
-                var details = $"Model '{model.Name}' created with Image '{imageName}'.";
+                var details = $"Model {model.Name} created with Image {imageName}.";
                 var myUser = User.Identity.Name ?? "Anonymous";
                 await _loggingService.LogActionAsync(details, myUser);
 
                 TempData["Success"] = "The Model has been created Successfully!";
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewData["CategoryName"] = _context.Categories.Find(model.CategoryId)?.Name;
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", model.BrandId);
-            return PartialView("_CreateByCategory", model);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
+            return View(model);
         }
 
         // GET: Models/Edit/5

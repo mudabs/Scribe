@@ -36,7 +36,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ADUsers");
+                    b.ToTable("ADUsers", (string)null);
 
                     b.HasData(
                         new
@@ -83,7 +83,7 @@ namespace Scribe.Migrations
 
                     b.HasIndex("SerialNumberId");
 
-                    b.ToTable("AllocationHistory");
+                    b.ToTable("AllocationHistory", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.Brand", b =>
@@ -103,7 +103,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.Category", b =>
@@ -123,7 +123,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.Condition", b =>
@@ -144,7 +144,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Condition");
+                    b.ToTable("Condition", (string)null);
 
                     b.HasData(
                         new
@@ -193,7 +193,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Department");
+                    b.ToTable("Department", (string)null);
 
                     b.HasData(
                         new
@@ -222,7 +222,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Group");
+                    b.ToTable("Group", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.IndividualAssignment", b =>
@@ -245,7 +245,7 @@ namespace Scribe.Migrations
 
                     b.HasIndex("SerialNumberId");
 
-                    b.ToTable("IndividualAssignment");
+                    b.ToTable("IndividualAssignment", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.Location", b =>
@@ -265,7 +265,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
 
                     b.HasData(
                         new
@@ -309,7 +309,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Log");
+                    b.ToTable("Log", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.Maintenance", b =>
@@ -344,7 +344,7 @@ namespace Scribe.Migrations
 
                     b.HasIndex("SerialNumberId");
 
-                    b.ToTable("Maintenances");
+                    b.ToTable("Maintenances", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.Model", b =>
@@ -374,7 +374,7 @@ namespace Scribe.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Models");
+                    b.ToTable("Models", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.SerialNumber", b =>
@@ -441,7 +441,7 @@ namespace Scribe.Migrations
 
                     b.HasIndex("SerialNumberId");
 
-                    b.ToTable("SerialNumbers");
+                    b.ToTable("SerialNumbers", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.SerialNumberGroup", b =>
@@ -469,7 +469,7 @@ namespace Scribe.Migrations
 
                     b.HasIndex("SerialNumberId");
 
-                    b.ToTable("SerialNumberGroup");
+                    b.ToTable("SerialNumberGroup", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.SystemUser", b =>
@@ -497,7 +497,7 @@ namespace Scribe.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SystemUsers");
+                    b.ToTable("SystemUsers", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.UserGroup", b =>
@@ -520,7 +520,7 @@ namespace Scribe.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserGroup");
+                    b.ToTable("UserGroup", (string)null);
                 });
 
             modelBuilder.Entity("Scribe.Models.AllocationHistory", b =>

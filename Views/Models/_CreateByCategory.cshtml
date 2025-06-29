@@ -60,12 +60,26 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
+    <style>
+        .select2-container {
+            z-index: 9999;
+        }
+    </style>
+
     <script>
-        $(document).ready(function () {
-            $('#category-search').select2();
+           $(document).ready(function () {
+
+            $('#brand-search').select2({
+                width: '100%',
+                dropdownParent: $('#createModal')
+            });
+            $('#category-search').select2({
+                width: '100%',
+                dropdownParent: $('#createModal')
+            });
+
         });
     </script>
-
    
 
     <script>

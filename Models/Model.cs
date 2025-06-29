@@ -26,7 +26,7 @@ namespace Scribe.Models
         public IFormFile? ImageUpload { get; set; }
         [NotMapped]
         public string? AllocationSummary { get; set; }
-        public virtual ICollection<SerialNumber> SerialNumbers { get; set; }
+        public virtual ICollection<SerialNumber>? SerialNumbers { get; set; }
 
 
     }
