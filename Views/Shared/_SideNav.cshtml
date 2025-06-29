@@ -91,6 +91,18 @@
             </div>
         </div>
     </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingInsights">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsights" aria-expanded="false" aria-controls="collapseInsights">
+                <img src="/media/icons/static/chart-line-svgrepo-com.svg" style="width:20px; margin-right:10px;" /> Insights
+            </button>
+        </h2>
+        <div id="collapseInsights" class="accordion-collapse collapse" aria-labelledby="headingInsights" data-bs-parent="#accordionMenu">
+            <div class="accordion-body">
+                <a class="nav-link text-dark" asp-controller="Insightss" asp-action="Index" style="text-decoration:none">Insights</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {

@@ -1,0 +1,28 @@
+﻿@model Scribe.Models.DashboardViewModel
+
+<h2>Dashboard</h2>
+
+<p>Total Devices: @Model.TotalDevices</p>
+<p>Dead Devices: @Model.DeadDevices</p>
+<p>New Devices: @Model.NewDevices</p>
+<p>In Use Devices: @Model.InUseDevices</p>
+
+<canvas id="devicesPie" width="400" height="400"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script>
+    var ctx = document.getElementById('devicesPie').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Dead', 'New', 'In Use'],
+            datasets: [{
+                data: [@Model.DeadDevices, @Model.NewDevices, @Model.InUseDevices],
+                backgroundColor: ['#dc3545', '#28a745', '#007bff']
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
