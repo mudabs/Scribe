@@ -16,9 +16,14 @@
 
     <!-- Status Pie: always full width -->
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col">
+
+        </div>
+        <div class="col-8">
             <h5>Status Distribution</h5>
             <canvas id="statusPieChart"></canvas>
+        </div>
+        <div class="col">
         </div>
     </div>
 
@@ -40,13 +45,16 @@
             <h5>Device Expiry Rate</h5>
             <canvas id="expiryChart"></canvas>
         </div>
-        @if (Model.MostServicedModels != null && Model.MostServicedModels.Any(x => x.Value > 1))
-        {
+        
             <div class="col-lg-6">
                 <h5>Most Serviced Models</h5>
-                <canvas id="mostServicedChart"></canvas>
+			   @*  @if (Model.MostServicedModels != null && Model.MostServicedModels.Any(x => x.Value > 1))
+			    { *@
+                    <canvas id="mostServicedChart"></canvas>
+                @* } *@
             </div>
-        }
+
+        
     </div>
 
     <!-- Average Lifetime + Forecasted Lifetime Tables -->
