@@ -37,7 +37,11 @@ namespace Scribe.Controllers
 
             // 2️⃣ Pie chart
             model.StatusDistribution = await _context.SerialNumbers
-                .Select(c => new { c.Name, Count = c.Condition.Name.Count() })
+                .GroupBy(s => s.ConditionId)
+                .Select(c => new {
+                    ConditionID = g.Key,
+                    Count = g.Count()
+                })
                 .ToDictionaryAsync(k => k.Name, v => v.Count);
 
             // 3️⃣ Monthly new devices
