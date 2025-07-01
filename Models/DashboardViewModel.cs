@@ -12,7 +12,9 @@
         public Dictionary<string, int> AllocationsMonthly { get; set; } = new();
         public Dictionary<string, int> DeviceExpiryMonthly { get; set; } = new();
         public Dictionary<string, int> MostServicedModels { get; set; } = new();
-        public Dictionary<string, double> ModelLifetimes { get; set; } = new();
-        public Dictionary<string, double> ModelLifetimeForecasts { get; set; } = new();
+
+        public Dictionary<string, Dictionary<string, double>> ModelLifetimesByBrand { get; set; } = new();
+        public Dictionary<string, Dictionary<string, double>> ModelLifetimeForecastsByBrand { get; set; } = new();
     }
+
 }

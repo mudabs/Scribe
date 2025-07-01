@@ -14,7 +14,7 @@
 
 <div id="dashboardContent" class="container-fluid">
 
-    <!-- Status Pie: always full width -->
+    <!-- Status Pie -->
     <div class="row mb-4">
         <div class="col-12">
             <h5>Status Distribution</h5>
@@ -49,53 +49,90 @@
         }
     </div>
 
-    <!-- Average Lifetime + Forecasted Lifetime Tables -->
+    <!-- Lifetime Tables Accordion -->
     <div class="row mb-4">
+        <!-- Average Lifetime -->
         <div class="col-lg-6 mb-4 mb-lg-0">
-            <h5>Average Model Lifetime (days)</h5>
-            <table class="table table-bordered table-sm">
-                <thead>
-                    <tr>
-                        <th>Model</th>
-                        <th>Average Lifetime</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ModelLifetimes)
-                    {
-                        <tr>
-                            <td>@item.Key</td>
-                            <td>@item.Value</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <h5>Average Model Lifetime (years)</h5>
+            <div class="accordion" id="avgLifetimeAccordion">
+                @foreach (var brand in Model.ModelLifetimesByBrand)
+                {
+                    var brandId = brand.Key.Replace(" ", "") + "Avg";
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-@brandId">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@brandId" aria-expanded="false" aria-controls="collapse-@brandId">
+                                @brand.Key
+                            </button>
+                        </h2>
+                        <div id="collapse-@brandId" class="accordion-collapse collapse" aria-labelledby="heading-@brandId" data-bs-parent="#avgLifetimeAccordion">
+                            <div class="accordion-body p-0">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Model</th>
+                                            <th>Average Lifetime (years)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in brand.Value)
+                                        {
+                                            <tr>
+                                                <td>@item.Key</td>
+                                                <td>@Math.Round(item.Value / 365.25, 2)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
+
+        <!-- Forecasted Lifetime -->
         <div class="col-lg-6">
-            <h5>Forecasted Model Lifetime (days)</h5>
-            <table class="table table-bordered table-sm">
-                <thead>
-                    <tr>
-                        <th>Model</th>
-                        <th>Forecasted Lifetime</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ModelLifetimeForecasts)
-                    {
-                        <tr>
-                            <td>@item.Key</td>
-                            <td>@item.Value</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <h5>Forecasted Model Lifetime (years)</h5>
+            <div class="accordion" id="forecastAccordion">
+                @foreach (var brand in Model.ModelLifetimeForecastsByBrand)
+                {
+                    var brandId = brand.Key.Replace(" ", "") + "Forecast";
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-@brandId">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@brandId" aria-expanded="false" aria-controls="collapse-@brandId">
+                                @brand.Key
+                            </button>
+                        </h2>
+                        <div id="collapse-@brandId" class="accordion-collapse collapse" aria-labelledby="heading-@brandId" data-bs-parent="#forecastAccordion">
+                            <div class="accordion-body p-0">
+                                <table class="table table-bordered table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Model</th>
+                                            <th>Forecasted Lifetime (years)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in brand.Value)
+                                        {
+                                            <tr>
+                                                <td>@item.Key</td>
+                                                <td>@Math.Round(item.Value / 365.25, 2)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
-
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     // Export to PDF
