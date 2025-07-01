@@ -34,15 +34,25 @@ namespace Scribe.Controllers
             model.DeadDevices = await _context.SerialNumbers.CountAsync(s => s.Condition.Name == "Dead");
             model.NewDevices = await _context.SerialNumbers.CountAsync(s => s.Condition.Name == "New");
             model.InUseDevices = await _context.SerialNumbers.CountAsync(s => s.Condition.Name == "In Use");
-
-            // 2️⃣ Pie chart
+            // 2️⃣ Pie chart — Correct version with join for Condition.Name
             model.StatusDistribution = await _context.SerialNumbers
+                .Where(s => s.ConditionId != null) // skip nulls just in case
                 .GroupBy(s => s.ConditionId)
-                .Select(c => new {
-                    ConditionID = g.Key,
+                .Select(g => new
+                {
+                    ConditionId = g.Key,
                     Count = g.Count()
                 })
-                .ToDictionaryAsync(k => k.Name, v => v.Count);
+                .Join(_context.Condition,
+                      g => g.ConditionId,
+                      c => c.Id,
+                      (g, c) => new
+                      {
+                          ConditionName = c.Name,
+                          Count = g.Count
+                      })
+                .ToDictionaryAsync(k => k.ConditionName, v => v.Count);
+
 
             // 3️⃣ Monthly new devices
             var twelveMonthsAgo = DateTime.Now.AddMonths(-11);
