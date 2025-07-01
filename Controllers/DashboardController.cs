@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Scribe.Data; // Adjust to your namespace for the DbContext
+using Scribe.Data; 
 using Scribe.Models;
 using System.Linq;
 
@@ -21,6 +21,10 @@ namespace Scribe.Controllers
                 new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
                 new BreadcrumbItem { Title = "Insights", Url = Url.Action("Index", "Dashboard"), IsActive = true }
             };
+
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var totalDevices = _context.SerialNumbers.Count();
             var deadDevices = _context.SerialNumbers
                 .Where(x => x.Condition.Name == "Dead").Count();

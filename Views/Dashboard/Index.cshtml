@@ -1,4 +1,8 @@
 ﻿@model Scribe.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "";
+    Layout = "_Layout";
+}
 
 <h2>Dashboard</h2>
 
@@ -7,7 +11,7 @@
 <p>New Devices: @Model.NewDevices</p>
 <p>In Use Devices: @Model.InUseDevices</p>
 
-<canvas id="devicesPie" width="400" height="400"></canvas>
+<canvas id="devicesPie" style="width:100px;" ></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script>
