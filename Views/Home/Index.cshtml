@@ -99,7 +99,24 @@
             maintainAspectRatio: false
         }
     });
+
+    // 👉 Option 1: Make the WHOLE chart clickable
+    document.getElementById('conditionChart').onclick = function () {
+        window.location.href = '@Url.Action("Index", "Dashboard")';
+    };
+
+    // 👉 OR Option 2: Make only slices clickable (optional — comment out above if using this)
+    /*
+    document.getElementById('conditionChart').onclick = function (evt) {
+        const activePoints = conditionChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+
+        if (activePoints.length > 0) {
+            window.location.href = '@Url.Action("Index", "Dashboard")';
+        }
+    };
+    */
 </script>
+
 
 <!-- Add Bootstrap 5 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
