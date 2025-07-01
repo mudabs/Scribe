@@ -9,166 +9,214 @@
 
 <h2>Device Dashboard</h2>
 
-<!-- Export PDF Button -->
-<button id="exportPdfBtn" class="btn btn-danger mb-4">Export Dashboard as PDF</button>
+<!-- Export PDF -->
+<button id="exportPdfBtn" class="btn btn-primary mb-4">Export as PDF</button>
 
-<!-- Dashboard Content Wrapper -->
 <div id="dashboardContent">
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <h5>Monthly New Devices Received</h5>
-            <canvas id="newDevicesChart"></canvas>
-        </div>
-        <div class="col-md-6 mb-4">
-            <h5>Monthly Allocations</h5>
-            <canvas id="allocationsChart"></canvas>
-        </div>
+    <!-- Status Pie -->
+    <div class="mb-4">
+        <h5>Status Distribution</h5>
+        <canvas id="statusPieChart"></canvas>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <h5>Device Expiry/Death Rate</h5>
-            <canvas id="expiryChart"></canvas>
-        </div>
-        <div class="col-md-6 mb-4">
+    <!-- New Devices -->
+    <div class="mb-4">
+        <h5>Monthly New Devices</h5>
+        <canvas id="newDevicesChart"></canvas>
+    </div>
+
+    <!-- Allocations -->
+    <div class="mb-4">
+        <h5>Monthly Allocations</h5>
+        <canvas id="allocationsChart"></canvas>
+    </div>
+
+    <!-- Expiry -->
+    <div class="mb-4">
+        <h5>Device Expiry Rate</h5>
+        <canvas id="expiryChart"></canvas>
+    </div>
+
+    <!-- Most Serviced Models -->
+    @if (Model.MostServicedModels != null && Model.MostServicedModels.Any(x => x.Value > 1))
+    {
+        <div class="mb-4">
             <h5>Most Serviced Models</h5>
             <canvas id="mostServicedChart"></canvas>
         </div>
+    }
+
+    <!-- Average Lifetime Table -->
+    <div class="mb-4">
+        <h5>Average Model Lifetime (days)</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Average Lifetime</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ModelLifetimes)
+                {
+                    <tr>
+                        <td>@item.Key</td>
+                        <td>@item.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <h5>Average Model Lifetime</h5>
-            <canvas id="modelLifetimeChart"></canvas>
-        </div>
+    <!-- Forecasted Lifetime Table -->
+    <div class="mb-4">
+        <h5>Forecasted Model Lifetime (days)</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Forecasted Lifetime</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ModelLifetimeForecasts)
+                {
+                    <tr>
+                        <td>@item.Key</td>
+                        <td>@item.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
-
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <h5>Forecasted Model Lifetime</h5>
-            <canvas id="modelLifetimeForecastsChart"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- Toggle -->
-<div class="mb-3">
-    <label for="timeRange" class="form-label">Select Range:</label>
-    <select id="timeRange" class="form-select" style="width:auto;">
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-        <option value="monthly" selected>Monthly</option>
-        <option value="annual">Annual</option>
-    </select>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <script>
-    // Export PDF
+    // Export to PDF
     document.getElementById("exportPdfBtn").addEventListener("click", function () {
-        var element = document.getElementById("dashboardContent");
-        html2pdf().from(element).save("dashboard.pdf");
+        html2pdf().from(document.getElementById("dashboardContent")).save("dashboard.pdf");
     });
 
-    // Data
-    const timeRange = document.getElementById("timeRange");
-
-    const newDevicesData = @Html.Raw(Json.Serialize(Model.NewDevicesMonthly.Values));
-    const newDevicesLabels = @Html.Raw(Json.Serialize(Model.NewDevicesMonthly.Keys));
-
-    const allocationsData = @Html.Raw(Json.Serialize(Model.AllocationsMonthly.Values));
-    const allocationsLabels = @Html.Raw(Json.Serialize(Model.AllocationsMonthly.Keys));
-
-    const expiryData = @Html.Raw(Json.Serialize(Model.DeviceExpiryMonthly.Values));
-    const expiryLabels = @Html.Raw(Json.Serialize(Model.DeviceExpiryMonthly.Keys));
-
-    const mostServicedData = @Html.Raw(Json.Serialize(Model.MostServicedModels.Values));
-    const mostServicedLabels = @Html.Raw(Json.Serialize(Model.MostServicedModels.Keys));
-
-    const lifetimeData = @Html.Raw(Json.Serialize(Model.ModelLifetimes.Values));
-    const lifetimeLabels = @Html.Raw(Json.Serialize(Model.ModelLifetimes.Keys));
-
-    const forecastData = @Html.Raw(Json.Serialize(Model.ModelLifetimeForecasts.Values));
-    const forecastLabels = @Html.Raw(Json.Serialize(Model.ModelLifetimeForecasts.Keys));
-
-    // Charts
-    let newDevicesChart = new Chart(document.getElementById("newDevicesChart"), {
-        type: "line",
+    // Status Pie
+    const statusPieCtx = document.getElementById('statusPieChart').getContext('2d');
+    new Chart(statusPieCtx, {
+        type: 'pie',
         data: {
-            labels: newDevicesLabels,
+            labels: @Html.Raw(Json.Serialize(Model.StatusDistribution.Keys)),
             datasets: [{
-                label: "New Devices",
-                data: newDevicesData,
-                borderColor: "green",
-                fill: true
+                data: @Html.Raw(Json.Serialize(Model.StatusDistribution.Values)),
+                backgroundColor: ['#4CAF50', '#F44336', '#FFC107', '#2196F3']
             }]
         }
     });
 
-    let allocationsChart = new Chart(document.getElementById("allocationsChart"), {
-        type: "line",
+    // Monthly New Devices
+    const newDevicesCtx = document.getElementById('newDevicesChart').getContext('2d');
+    new Chart(newDevicesCtx, {
+        type: 'bar',
         data: {
-            labels: allocationsLabels,
+            labels: @Html.Raw(Json.Serialize(Model.NewDevicesMonthly.Keys)),
             datasets: [{
-                label: "Allocations",
-                data: allocationsData,
-                borderColor: "blue",
-                fill: true
+                label: 'New Devices',
+                data: @Html.Raw(Json.Serialize(Model.NewDevicesMonthly.Values)),
+                backgroundColor: '#4CAF50'
             }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { beginAtZero: true },
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                zoom: {
+                    pan: { enabled: true, mode: 'x' },
+                    zoom: { wheel: { enabled: true }, mode: 'x' }
+                }
+            }
         }
     });
 
-    let expiryChart = new Chart(document.getElementById("expiryChart"), {
-        type: "line",
+    // Monthly Allocations
+    const allocationsCtx = document.getElementById('allocationsChart').getContext('2d');
+    new Chart(allocationsCtx, {
+        type: 'bar',
         data: {
-            labels: expiryLabels,
+            labels: @Html.Raw(Json.Serialize(Model.AllocationsMonthly.Keys)),
             datasets: [{
-                label: "Expiry/Death Rate",
-                data: expiryData,
-                borderColor: "red",
-                fill: true
+                label: 'Allocations',
+                data: @Html.Raw(Json.Serialize(Model.AllocationsMonthly.Values)),
+                backgroundColor: '#2196F3'
             }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { beginAtZero: true },
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                zoom: {
+                    pan: { enabled: true, mode: 'x' },
+                    zoom: { wheel: { enabled: true }, mode: 'x' }
+                }
+            }
         }
     });
 
-    let mostServicedChart = new Chart(document.getElementById("mostServicedChart"), {
-        type: "bar",
+    // Expiry Line
+    const expiryCtx = document.getElementById('expiryChart').getContext('2d');
+    new Chart(expiryCtx, {
+        type: 'line',
         data: {
-            labels: mostServicedLabels,
+            labels: @Html.Raw(Json.Serialize(Model.DeviceExpiryMonthly.Keys)),
             datasets: [{
-                label: "Services",
-                data: mostServicedData,
-                backgroundColor: "orange"
+                label: 'Expired Devices',
+                data: @Html.Raw(Json.Serialize(Model.DeviceExpiryMonthly.Values)),
+                borderColor: '#F44336',
+                fill: false
             }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { beginAtZero: true },
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                zoom: {
+                    pan: { enabled: true, mode: 'x' },
+                    zoom: { wheel: { enabled: true }, mode: 'x' }
+                }
+            }
         }
     });
 
-    let lifetimeChart = new Chart(document.getElementById("modelLifetimeChart"), {
-        type: "bar",
-        data: {
-            labels: lifetimeLabels,
-            datasets: [{
-                label: "Average Lifetime (days)",
-                data: lifetimeData,
-                backgroundColor: "purple"
-            }]
-        }
-    });
-
-    let forecastChart = new Chart(document.getElementById("modelLifetimeForecastsChart"), {
-        type: "bar",
-        data: {
-            labels: forecastLabels,
-            datasets: [{
-                label: "Forecasted Lifetime (days)",
-                data: forecastData,
-                backgroundColor: "teal"
-            }]
-        }
-    });
-
-    // Toggle event (dummy for now)
-    timeRange.addEventListener("change", () => {
-        alert("In real app, load new data for: " + timeRange.value);
-    });
+    // Most Serviced Models
+    @if (Model.MostServicedModels != null && Model.MostServicedModels.Any(x => x.Value > 1))
+    {
+        <text>
+        const mostServicedCtx = document.getElementById('mostServicedChart').getContext('2d');
+        new Chart(mostServicedCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MostServicedModels.Where(x => x.Value > 1).Select(x => x.Key))),
+                datasets: [{
+                    label: 'Services',
+                    data: @Html.Raw(Json.Serialize(Model.MostServicedModels.Where(x => x.Value > 1).Select(x => x.Value))),
+                    backgroundColor: '#FFC107'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { beginAtZero: true },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+        </text>
+    }
 </script>

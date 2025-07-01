@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Scribe.Data; 
 using Scribe.Models;
 using System.Globalization;
-using System.Linq;
 
 namespace Scribe.Controllers
 {
@@ -16,102 +14,114 @@ namespace Scribe.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var breadcrumbs = new List<BreadcrumbItem>
-            {
-                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
-                new BreadcrumbItem { Title = "Insights", Url = Url.Action("Index", "Dashboard"), IsActive = true }
-            };
+            var model = new DashboardViewModel();
 
+            // 1️⃣ Basic counts
+            model.TotalDevices = await _context.SerialNumbers.CountAsync();
+            model.DeadDevices = await _context.SerialNumbers.CountAsync(s => s.Condition.Name == "Dead");
+            model.NewDevices = await _context.SerialNumbers.CountAsync(s => s.Condition.Name == "New");
+            model.InUseDevices = await _context.SerialNumbers.CountAsync(s => s.Condition.Name == "In Use");
 
-            ViewData["Breadcrumbs"] = breadcrumbs;
+            // 2️⃣ Pie chart
+            model.StatusDistribution = await _context.SerialNumbers
+                .Select(c => new { c.Name, Count = c.SerialNumbers.Count() })
+                .ToDictionaryAsync(k => k.Name, v => v.Count);
 
-            var now = DateTime.Now;
+            // 3️⃣ Monthly new devices
+            var twelveMonthsAgo = DateTime.Now.AddMonths(-11);
+            var newDevices = await _context.SerialNumbers
+                .Where(s => s.Creation.HasValue && s.Creation.Value >= twelveMonthsAgo)
+                .GroupBy(s => new { s.Creation.Value.Year, s.Creation.Value.Month })
+                .Select(g => new
+                {
+                    Month = new DateTime(g.Key.Year, g.Key.Month, 1),
+                    Count = g.Count()
+                })
+                .ToListAsync();
 
-            var labels = Enumerable.Range(0, 12)
-                .Select(i => now.AddMonths(-i).ToString("MMM yyyy"))
-                .Reverse()
-                .ToList();
+            model.NewDevicesMonthly = newDevices
+                .OrderBy(x => x.Month)
+                .ToDictionary(
+                    k => k.Month.ToString("MMM yyyy"),
+                    v => v.Count
+                );
 
-            var newDevices = new List<int>();
-            var allocations = new List<int>();
-            var deadDevices = new List<int>();
+            //  Monthly allocations — using AllocationHistory!
+            var allocationHistory = await _context.AllocationHistory
+                .Where(a => a.AllocationDate >= twelveMonthsAgo)
+                .GroupBy(a => new { a.AllocationDate.Year, a.AllocationDate.Month })
+                .Select(g => new
+                {
+                    Month = new DateTime(g.Key.Year, g.Key.Month, 1),
+                    Count = g.Count()
+                })
+                .ToListAsync();
 
-            foreach (var label in labels)
-            {
-                var date = DateTime.ParseExact(label, "MMM yyyy", CultureInfo.InvariantCulture);
-                var start = new DateTime(date.Year, date.Month, 1);
-                var end = start.AddMonths(1);
+            model.AllocationsMonthly = allocationHistory
+                .OrderBy(x => x.Month)
+                .ToDictionary(
+                    k => k.Month.ToString("MMM yyyy"),
+                    v => v.Count
+                );
 
-                newDevices.Add(_context.SerialNumbers
-                    .Where(s => s.Creation >= start && s.Creation < end && s.Condition.Name == "New")
-                    .Count());
+            // 5️⃣ Monthly dead devices trend (here using Creation as placeholder — adjust if you have another date)
+            var deadDevices = await _context.SerialNumbers
+                .Where(s => s.Condition.Name == "Dead" && s.Creation.HasValue && s.Creation.Value >= twelveMonthsAgo)
+                .GroupBy(s => new { s.Creation.Value.Year, s.Creation.Value.Month })
+                .Select(g => new
+                {
+                    Month = new DateTime(g.Key.Year, g.Key.Month, 1),
+                    Count = g.Count()
+                })
+                .ToListAsync();
 
-                allocations.Add(_context.SerialNumbers
-                    .Where(s => s.Allocation >= start && s.Allocation < end && s.ADUsersId != null)
-                    .Count());
+            model.DeviceExpiryMonthly = deadDevices
+                .OrderBy(x => x.Month)
+                .ToDictionary(
+                    k => k.Month.ToString("MMM yyyy"),
+                    v => v.Count
+                );
 
-                deadDevices.Add(_context.SerialNumbers
-                    .Where(s => s.Condition.Name == "Dead" && s.Creation >= start && s.Creation < end)
-                    .Count());
-            }
-
-            // ✅ Include SerialNumber and then its Model
-            var mostServiced = _context.Maintenances
+            // 6️⃣ Most serviced models
+            var servicedModels = await _context.Maintenances
                 .Include(m => m.SerialNumber)
-                    .ThenInclude(sn => sn.Model)
-                .Where(m => m.SerialNumber != null && m.SerialNumber.Model != null)
+                .ThenInclude(sn => sn.Model)
+                .Where(m => m.SerialNumber.Model != null)
                 .GroupBy(m => m.SerialNumber.Model.Name)
-                .Select(g => new { Model = g.Key, Count = g.Count() })
+                .Select(g => new
+                {
+                    ModelName = g.Key,
+                    Count = g.Count()
+                })
+                .Where(x => x.Count > 1)
                 .OrderByDescending(x => x.Count)
-                .Take(5)
-                .ToDictionary(x => x.Model, x => x.Count);
+                .ToListAsync();
 
-            // ✅ Average lifetime calculation using SerialNumbers
-            var lifetimes = _context.SerialNumbers
+            model.MostServicedModels = servicedModels
+                .ToDictionary(k => k.ModelName, v => v.Count);
+
+            // 7️⃣ Average model lifetimes
+            var lifetimes = await _context.SerialNumbers
                 .Include(sn => sn.Model)
-                .Where(sn => sn.Allocation != null && sn.Creation != null && sn.Model != null)
+                .Where(sn => sn.Model != null && sn.Creation.HasValue)
                 .GroupBy(sn => sn.Model.Name)
                 .Select(g => new
                 {
-                    Model = g.Key,
-                    AvgLifetime = g.Average(sn => EF.Functions.DateDiffDay(sn.Creation.Value, sn.Allocation.Value))
+                    ModelName = g.Key,
+                    LifetimeDays = g.Average(sn => EF.Functions.DateDiffDay(sn.Creation.Value, DateTime.Now))
                 })
-                .ToDictionary(x => x.Model, x => x.AvgLifetime);
+                .ToListAsync();
 
-            var viewModel = new DashboardViewModel
-            {
-                TotalDevices = _context.SerialNumbers.Count(),
-                DeadDevices = _context.SerialNumbers.Count(x => x.Condition.Name == "Dead"),
-                NewDevices = _context.SerialNumbers.Count(x => x.Condition.Name == "New"),
-                InUseDevices = _context.SerialNumbers.Count(x => x.ADUsersId != null),
+            model.ModelLifetimes = lifetimes
+                .ToDictionary(k => k.ModelName, v => Math.Round(v.LifetimeDays / 30.0, 1)); // Convert days to months
 
-                Labels = labels,
-                MonthlyNewDevices = newDevices,
-                MonthlyAllocations = allocations,
-                MonthlyDeadDevices = deadDevices,
+            // 8️⃣ Forecast = same as average for now
+            model.ModelLifetimeForecasts = lifetimes
+                .ToDictionary(k => k.ModelName, v => Math.Round(v.LifetimeDays / 30.0, 1));
 
-                MostServicedModels = mostServiced,
-                ModelLifetimes = lifetimes
-            };
-
-            return View(viewModel);
+            return View(model);
         }
-
-        private Dictionary<string, double> ForecastModelLifetimes(Dictionary<string, double> lifetimes)
-        {
-            var forecasts = new Dictionary<string, double>();
-
-            foreach (var entry in lifetimes)
-            {
-                // Simple forecast: +10% increase for demonstration
-                double forecast = entry.Value * 1.1;
-                forecasts.Add(entry.Key, forecast);
-            }
-
-            return forecasts;
-        }
-
     }
 }
