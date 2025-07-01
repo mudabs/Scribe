@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Scribe.Data; 
 using Scribe.Models;
 using System.Globalization;
+using System.Linq;
 
 namespace Scribe.Controllers
 {
@@ -16,6 +18,15 @@ namespace Scribe.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var breadcrumbs = new List<BreadcrumbItem>
+            {
+                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
+                new BreadcrumbItem { Title = "Insights", Url = Url.Action("Index", "Dashboard"), IsActive = true }
+            };
+
+
+            ViewData["Breadcrumbs"] = breadcrumbs;
+
             var model = new DashboardViewModel();
 
             // 1️⃣ Basic counts
@@ -123,5 +134,20 @@ namespace Scribe.Controllers
 
             return View(model);
         }
+
+        private Dictionary<string, double> ForecastModelLifetimes(Dictionary<string, double> lifetimes)
+        {
+            var forecasts = new Dictionary<string, double>();
+
+            foreach (var entry in lifetimes)
+            {
+                // Simple forecast: +10% increase for demonstration
+                double forecast = entry.Value * 1.1;
+                forecasts.Add(entry.Key, forecast);
+            }
+
+            return forecasts;
+        }
+ 
     }
 }
