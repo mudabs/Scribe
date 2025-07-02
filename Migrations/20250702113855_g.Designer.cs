@@ -12,8 +12,8 @@ using Scribe.Data;
 namespace Scribe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250401152442_d")]
-    partial class d
+    [Migration("20250702113855_g")]
+    partial class g
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -276,6 +276,18 @@ namespace Scribe.Migrations
                             Id = 1,
                             Description = "IT Storage room",
                             Name = "New Storage"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "IT Storage room",
+                            Name = "Old Storage"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "User Office or Station",
+                            Name = "User Station"
                         });
                 });
 
@@ -416,9 +428,6 @@ namespace Scribe.Migrations
                     b.Property<int?>("SerialNumberId")
                         .HasColumnType("int");
 
-                    b.Property<string>("User")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ADUsersId");
@@ -515,6 +524,30 @@ namespace Scribe.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserGroup");
+                });
+
+            modelBuilder.Entity("Scribe.Models.Warranty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ModelId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PurchaseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WarrantyDurationYears")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModelId");
+
+                    b.ToTable("Warranties");
                 });
 
             modelBuilder.Entity("Scribe.Models.AllocationHistory", b =>
@@ -617,7 +650,7 @@ namespace Scribe.Migrations
                         .HasForeignKey("LocationId");
 
                     b.HasOne("Scribe.Models.Model", "Model")
-                        .WithMany()
+                        .WithMany("SerialNumbers")
                         .HasForeignKey("ModelId");
 
                     b.HasOne("Scribe.Models.SerialNumber", null)
@@ -679,6 +712,17 @@ namespace Scribe.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Scribe.Models.Warranty", b =>
+                {
+                    b.HasOne("Scribe.Models.Model", "Model")
+                        .WithMany()
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Model");
+                });
+
             modelBuilder.Entity("Scribe.Models.ADUsers", b =>
                 {
                     b.Navigation("SerialNumbers");
@@ -689,6 +733,11 @@ namespace Scribe.Migrations
                     b.Navigation("SerialNumberGroups");
 
                     b.Navigation("UserGroups");
+                });
+
+            modelBuilder.Entity("Scribe.Models.Model", b =>
+                {
+                    b.Navigation("SerialNumbers");
                 });
 
             modelBuilder.Entity("Scribe.Models.SerialNumber", b =>
