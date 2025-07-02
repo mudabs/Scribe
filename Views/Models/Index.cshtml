@@ -93,6 +93,10 @@
                         <td>
                             <a asp-action="AllocateSerialNumber" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Serial Numbers</a> |
                             <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('Models',@item.Id)">Edit</button> |
+                            <button class="btn btn-sm btn-info view-warranty-btn"
+                                    data-model-id="@item.Id">
+                                View Warranty
+                            </button>
                             <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('Models',@item.Id)">Delete</button>
                         </td>
                     </tr>
@@ -100,6 +104,16 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Add Warranty Modal here -->
+    <div class="modal fade" id="warrantyModal" tabindex="-1" aria-labelledby="warrantyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="warrantyModalContent">
+                <!-- Warranty partial will be loaded here -->
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
@@ -144,13 +158,45 @@
                 });
             }
 
-            // Enable Bootstrap popovers on hover
+            // Enable Bootstrap popovers
             $(function () {
                 $('[data-bs-toggle="popover"]').popover({
                     trigger: 'hover',
                     placement: 'right'
                 });
             });
+
+            // ✅ Warranty modal logic
+            $('.view-warranty-btn').click(function () {
+                var modelId = $(this).data('model-id');
+
+                $.get('/Models/WarrantyDetails', { modelId: modelId }, function (data) {
+                    $('#warrantyModalContent').html(data);
+                    var modal = new bootstrap.Modal(document.getElementById('warrantyModal'));
+                    modal.show();
+                });
+            });
+
+            $(document).on('click', '#editWarrantyBtn', function () {
+                var modelId = $(this).data('model-id');
+
+                $.get('/Models/EditWarranty', { modelId: modelId }, function (data) {
+                    $('#warrantyModalContent').html(data);
+                });
+            });
+
+            $(document).on('submit', '#warrantyEditForm', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                $.post(form.attr('action'), form.serialize(), function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        $('#warrantyModalContent').html(res);
+                    }
+                });
+            });
+
         });
     </script>
 }

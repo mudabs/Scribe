@@ -27,6 +27,7 @@ namespace Scribe.Data
         public DbSet<ADUsers> ADUsers { get; set; } = default!;
         public DbSet<IndividualAssignment> IndividualAssignment { get; set; } = default!;
         public DbSet<AllocationHistory> AllocationHistory { get; set; } = default!;
+        public DbSet<Warranty> Warranties { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

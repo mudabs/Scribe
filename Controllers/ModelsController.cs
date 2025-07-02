@@ -217,6 +217,15 @@ namespace Scribe.Controllers
                 _context.Add(model);
                 await _context.SaveChangesAsync();
 
+                var warranty = new Warranty
+                {
+                    ModelId = model.Id,
+                    PurchaseDate = DateTime.UtcNow,
+                    WarrantyDurationYears = 0
+                };
+                _context.Warranties.Add(warranty);
+                await _context.SaveChangesAsync();
+
                 var details = $"Model {model.Name} created with Image {imageName}.";
                 var myUser = User.Identity.Name ?? "Anonymous";
                 await _loggingService.LogActionAsync(details, myUser);
@@ -728,6 +737,55 @@ namespace Scribe.Controllers
                 }
             }
         }
+
+        //Warranty Information
+
+        public async Task<IActionResult> WarrantyDetails(int modelId)
+        {
+            var warranty = await _context.Warranties
+                .Include(w => w.Model)
+                .FirstOrDefaultAsync(w => w.ModelId == modelId);
+
+            if (warranty == null)
+            {
+                warranty = new Warranty
+                {
+                    ModelId = modelId,
+                    PurchaseDate = DateTime.UtcNow,
+                    WarrantyDurationYears = 1
+                };
+                _context.Warranties.Add(warranty);
+                await _context.SaveChangesAsync();
+            }
+
+            return PartialView("_WarrantyDetailsPartial", warranty);
+        }
+
+        public async Task<IActionResult> EditWarranty(int modelId)
+        {
+            var warranty = await _context.Warranties
+                .Include(w => w.Model)
+                .FirstOrDefaultAsync(w => w.ModelId == modelId);
+
+            if (warranty == null) return NotFound();
+
+            return PartialView("_WarrantyEditPartial", warranty);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditWarranty(Warranty warranty)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Warranties.Update(warranty);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+
+            return PartialView("_WarrantyEditPartial", warranty);
+        }
+
     }
 }
 
