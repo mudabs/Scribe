@@ -780,6 +780,7 @@ namespace Scribe.Controllers
             {
                 _context.Warranties.Update(warranty);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Warranty Information Updated Successfully";
                 return Json(new { success = true });
             }
 

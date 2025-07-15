@@ -39,7 +39,6 @@ namespace Scribe.Services
             return "Anonymous"; // Handle unauthenticated users
         }
 
-
         public async Task DeallocateAsync(int allocationId, string deallocatedBy)
         {
             // Find the allocation history entry by ID
@@ -49,23 +48,30 @@ namespace Scribe.Services
                 throw new InvalidOperationException("Allocation Log not found.");
             }
 
-            var currentSerialNumber = await _context.SerialNumbers.Include(x=>x.Model).Include(x=>x.Model.Brand).Include(x=>x.Model.Category).Include(x=>x.Group).Include(x=>x.ADUsers).FirstOrDefaultAsync(x=>x.Id == allocationHistory.SerialNumberId);
-            var serialNumberGroup = await _context.SerialNumberGroup.FirstOrDefaultAsync(x => x.SerialNumberId == allocationHistory.SerialNumberId);
+            var currentSerialNumber = await _context.SerialNumbers
+                .Include(x => x.Model)
+                .Include(x => x.Model.Brand)
+                .Include(x => x.Model.Category)
+                .Include(x => x.Group)
+                .Include(x => x.ADUsers)
+                .FirstOrDefaultAsync(x => x.Id == allocationHistory.SerialNumberId);
+
+            var serialNumberGroup = await _context.SerialNumberGroup
+                .FirstOrDefaultAsync(x => x.SerialNumberId == allocationHistory.SerialNumberId);
 
             var employee = await _context.ADUsers.FindAsync(currentSerialNumber.ADUsersId);
             var brand = await _context.Brands.FirstOrDefaultAsync(x => x.Id == currentSerialNumber.Model.BrandId);
             var model = await _context.Models.FirstOrDefaultAsync(x => x.Id == currentSerialNumber.ModelId);
             var category = await _context.Categories.FirstOrDefaultAsync(x => x.Id == currentSerialNumber.Model.CategoryId);
 
-            // Remove the allocation history entry
+            // Update allocation history
             allocationHistory.DeallocationDate = DateTime.Now;
             allocationHistory.DeallocatedBy = deallocatedBy;
             _context.AllocationHistory.Update(allocationHistory);
-            
 
-            // Set User to No User in SerialNumbers Table
             if (currentSerialNumber != null)
             {
+                // Prepare log details
                 var details = "det";
                 if (currentSerialNumber.Group != null)
                 {
@@ -76,23 +82,30 @@ namespace Scribe.Services
                     details = $"Serial Number '{currentSerialNumber.Name}' for '{brand.Name}' '{model.Name}' '{category.Name}' deallocated from '{employee.Name}'.";
                 }
 
-                // Create a log entry using logging service
-                var myUser = GetCurrentUserName(); // Assuming you have user authentication
-                await _loggingService.LogActionAsync(details, myUser); // Log the action
+                var myUser = GetCurrentUserName();
+                await _loggingService.LogActionAsync(details, myUser);
 
+                // Look up required reference data
+                var aduserNone = _context.ADUsers.FirstOrDefault(x => x.Name == "No User")?.Id;
+                var condId = _context.Condition.FirstOrDefault(x => x.Name == "Awaiting User")?.Id;
+                var locationId = _context.Locations.FirstOrDefault(x => x.Name == "Old Storage")?.Id;
 
-                var aduserNone = _context.ADUsers.FirstOrDefault(x => x.Name == "No User").Id; // Looking for Id of "No User"
-                var condId = _context.Condition.FirstOrDefault(x => x.Name == "Awaiting User").Id; // Looking for Id of "No User"
-                currentSerialNumber.ADUsersId = aduserNone; 
-                currentSerialNumber.ConditionId = condId; 
-                currentSerialNumber.DeallocatedBy = deallocatedBy; 
-                currentSerialNumber.CurrentlyAllocated = false; 
+                if (aduserNone == null || condId == null || locationId == null)
+                {
+                    throw new InvalidOperationException("Required reference data not found.");
+                }
+
+                // Update SerialNumber
+                currentSerialNumber.ADUsersId = aduserNone;
+                currentSerialNumber.ConditionId = condId;
+                currentSerialNumber.LocationId = locationId;
+                currentSerialNumber.DeallocatedBy = deallocatedBy;
+                currentSerialNumber.CurrentlyAllocated = false;
+
                 _context.SerialNumbers.Update(currentSerialNumber);
             }
 
-
-
-            // Remove Device from SerialNumberGroup Table
+            // Remove from SerialNumberGroup
             if (serialNumberGroup != null)
             {
                 _context.SerialNumberGroup.Remove(serialNumberGroup);
@@ -100,5 +113,6 @@ namespace Scribe.Services
 
             await _context.SaveChangesAsync();
         }
+
     }
 }

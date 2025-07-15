@@ -46,5 +46,7 @@ namespace Scribe.Models
         [ForeignKey("GroupId")]
         public Group? Group { get; set; }
         public bool CurrentlyAllocated { get; set; } = false;
+        public string? Description { get; set; }
+        public string? MacAddress { get; set; }
     }
 }

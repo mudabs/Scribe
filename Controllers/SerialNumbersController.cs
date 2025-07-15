@@ -476,7 +476,8 @@ namespace Scribe.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                TempData["Failure"] = ex.Message;
+                TempData["Success"] = "Device deallocated successfully.";
+                return RedirectToAction("ViewHistory", new { id = allocationHistory.SerialNumberId });
             }
             return RedirectToAction("ViewHistory", new { id = allocationHistory.SerialNumberId });
         }

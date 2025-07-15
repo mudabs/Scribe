@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Scribe.Data;
 
@@ -11,9 +12,11 @@ using Scribe.Data;
 namespace Scribe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715134805_h")]
+    partial class h
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -417,9 +420,6 @@ namespace Scribe.Migrations
 
                     b.Property<int?>("LocationId")
                         .HasColumnType("int");
-
-                    b.Property<string>("MacAddress")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ModelId")
                         .HasColumnType("int");
