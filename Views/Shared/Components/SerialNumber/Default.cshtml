@@ -30,10 +30,19 @@
             </div>
             <div style="height:100px;"></div>
 
+            <!-- ✅ Add Description & MAC Address inputs -->
             <form asp-action="CreateSerialNumber" method="post">
                 <input type="hidden" asp-for="Model.Id" name="ModelId" />
                 <div class="form-group">
                     <input type="text" name="Name" class="form-control" placeholder="Add Serial Number" id="serialInput" required />
+                </div>
+                <br />
+                <div class="form-group">
+                    <input type="text" name="Description" class="form-control" placeholder="Description (optional)" />
+                </div>
+                <br />
+                <div class="form-group">
+                    <input type="text" name="MACAddress" class="form-control" placeholder="MAC Address (optional)" />
                 </div>
                 <br />
                 <div class="form-group">
@@ -45,15 +54,14 @@
                 <h4>
                     Existing Serial Numbers (@Model.NumberOfDevices)
                     <span class="ml-auto">
-                        <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0"><img src="~/media/icons/static/funnel.svg" /></button>
+                        <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0">
+                            <img src="~/media/icons/static/funnel.svg" />
+                        </button>
                     </span>
                     <a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary">Back to Models</a>
                     <button id="toggleButton" class="btn btn-info">Upload</button>
                 </h4>
             </div>
-
-
-
 
             <div id="uploadForm" style="display:none;">
                 <hr />
@@ -63,18 +71,10 @@
                     <input type="hidden" id="modelId" value="@Model.Model.Id"></input>
                     <button type="submit" class="btn btn-primary mt-2">Upload</button>
                 </form>
-
                 <hr />
             </div>
 
-
-
-
-
-
             <div id="previewContainer"></div>
-
-
 
             <!-- FILTER SIDEBAR -->
             <div id="filterSection" class="side-nav" style="display:none;">
@@ -127,7 +127,7 @@
                 </div>
             </div>
 
-            <!-- SERIALS TABLE -->
+            <!-- ✅ SERIALS TABLE UPDATED -->
             <table class="table table-hover table-striped" id="serials">
                 <thead>
                     <tr>
@@ -138,6 +138,8 @@
                         <th>Location</th>
                         <th>Check In Date</th>
                         <th>Allocation Date</th>
+                        <th>Description</th>
+                        <th>MAC Address</th>
                         <th>Allocated By</th>
                         <th></th>
                     </tr>
@@ -146,123 +148,53 @@
                     @foreach (var serialNumber in Model.SerialNumbers)
                     {
                         <tr>
-                            <td class="serial-name">
-                                <span class="display-value">@serialNumber.Name</span>
-                                <input type="text" name="Name" value="@serialNumber.Name" class="form-control edit-input" style="display:none;" />
+                            <td class="serial-name">@serialNumber.Name</td>
+                            <td>
+                                @if (serialNumber.ADUsers != null)
+                                {
+                                    @serialNumber.ADUsers.Name
+                                }
+                                else if (serialNumber.Group != null)
+                                {
+                                    @serialNumber.Group.Name <img src="/media/icons/static/g.svg">
+                                }
+                                else
+                                {
+                                    @Html.Raw("N/A")
+                                }
                             </td>
-                            <td class="serial-condition">
-                                <span class="display-value">
-
-                                    @if (serialNumber.ADUsers != null)
-                                    {
-                                        @serialNumber.ADUsers.Name
-                                    }
-                                    else if (serialNumber.Group != null)
-                                    {
-                                        @serialNumber.Group.Name <img src="/media/icons/static/g.svg">
-                                    }
-                                    else
-                                    {
-                                        @Html.Raw("N/A")
-                                    }
-                                </span>
-                                <select name="ADUsersId" class="form-control edit-input" style="display:none;">
-                                    @foreach (var adUsers in ViewBag.ADUsersId)
-                                    {
-                                        <option value="@adUsers.Value" selected="@(adUsers.Value == serialNumber.ADUsers?.Name)">
-                                            @adUsers.Text
-                                        </option>
-                                    }
-                                </select>
-                            </td>
-                            <td class="serial-condition">
-                                <span class="display-value">@serialNumber.Condition?.Name</span>
-                                <select name="ConditionId" class="form-control edit-input" style="display:none;">
-                                    @foreach (var condition in ViewBag.ConditionId)
-                                    {
-                                        <option value="@condition.Value" selected="@(condition.Value == serialNumber.ConditionId.ToString())">
-                                            @condition.Text
-                                        </option>
-                                    }
-                                </select>
-                            </td>
-                            <td class="serial-department">
-                                <span class="display-value">@serialNumber.Department?.Name</span>
-                                <select name="DepartmentId" class="form-control edit-input" style="display:none;">
-                                    @foreach (var department in ViewBag.DepartmentId)
-                                    {
-                                        <option value="@department.Value" selected="@(department.Value == serialNumber.DepartmentId.ToString())">
-                                            @department.Text
-                                        </option>
-                                    }
-                                </select>
-                            </td>
-                            <td class="serial-location">
-                                <span class="display-value">@serialNumber.Location?.Name</span>
-                                <select name="LocationId" class="form-control edit-input" style="display:none;">
-                                    @foreach (var location in ViewBag.LocationId)
-                                    {
-                                        <option value="@location.Value" selected="@(location.Value == serialNumber.LocationId.ToString())">
-                                            @location.Text
-                                        </option>
-                                    }
-                                </select>
-                            </td>
-                            <td class="serial-checkin">
-                                <span class="display-value">@serialNumber.Creation?.ToString("yyyy-MM-dd")</span>
-                                <input type="date" name="Creation" value="@serialNumber.Creation?.ToString("yyyy-MM-dd")" class="form-control edit-input" style="display:none;" />
-                            </td>
-                            <td class="serial-allocation">
-                                <span class="display-value">@serialNumber.Allocation?.ToString("yyyy-MM-dd")</span>
-                                <input type="date" name="Allocation" value="@serialNumber.Allocation?.ToString("yyyy-MM-dd")" class="form-control edit-input" style="display:none;" />
-                            </td>
-                            <td class="serial-allocatedBy">
+                            <td>@serialNumber.Condition?.Name</td>
+                            <td>@serialNumber.Department?.Name</td>
+                            <td>@serialNumber.Location?.Name</td>
+                            <td>@serialNumber.Creation?.ToString("yyyy-MM-dd")</td>
+                            <td>@serialNumber.Allocation?.ToString("yyyy-MM-dd")</td>
+                            <td>@serialNumber.Description</td>
+                            <td>@serialNumber.MACAddress</td>
+                            <td>
                                 @if (serialNumber.AllocatedBy == null)
                                 {
                                     <span>No User</span>
                                 }
                                 else
                                 {
-                                    <span class="display-value">@serialNumber.AllocatedBy</span>
+                                    <span>@serialNumber.AllocatedBy</span>
                                 }
-                                @* <select name="AllocatedBy" class="form-control edit-input" style="display:;">
-                                    <option>Choose a User</option>
-                                    @foreach (var sysUser in ViewBag.Users as SelectList)
-                                    {
-                                        <option value="@sysUser.Value" selected="@(sysUser.Value == serialNumber.AllocatedBy?.ToString())">
-                                            @sysUser.Text
-                                        </option>
-                                    }
-                                </select> *@
                             </td>
                             <td>
-                                @* <a class="btn btn-outline-warning btn-sm" asp-controller="SerialNumbers" asp-action="Edit" asp-route-id="@serialNumber.Id">Edit</a> | *@
-                                <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@serialNumber.Id)">
-                                    Edit
-                                </button> |
+                                <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@serialNumber.Id)">Edit</button> |
                                 <a class="btn btn-outline-primary btn-sm" asp-controller="SerialNumbers" asp-action="ViewHistory" asp-route-id="@serialNumber.Id">View History</a> |
-                                @*   <form asp-action="DeleteSerialNumber" method="post" class="delete-form" style="display:inline;">
-                                    <input type="hidden" name="Id" value="@serialNumber.Id" />
-                                    <input type="hidden" name="ModelId" value="@Model.Model.Id" />
-                                    <input type="submit" value="Delete" class="btn btn-outline-danger btn-sm delete-button" style="margin-left: 5px;" />
-                                </form> *@
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeleteAlloPartial('SerialNumbers',@serialNumber.Id)">
-                                    Delete
-                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeleteAlloPartial('SerialNumbers',@serialNumber.Id)">Delete</button>
                             </td>
-
                         </tr>
                     }
                 </tbody>
             </table>
 
-
-
         </div>
     </div>
 </div>
 
-<!-- Custom Modal -->
+<!-- DELETE MODAL -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
@@ -278,67 +210,40 @@
 @section Scripts {
     <script>
         $("#uploadForm").submit(function (e) {
-        e.preventDefault();
-        var formData = new FormData();
-        formData.append("file", $("#fileInput")[0].files[0]);
-        formData.append("modelId", $("#modelId").val());
+            e.preventDefault();
+            var formData = new FormData();
+            formData.append("file", $("#fileInput")[0].files[0]);
+            formData.append("modelId", $("#modelId").val());
 
-        $.ajax({
-        url: "/SerialNumbers/UploadFile",
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-        $("#previewContainer").html(response);
-        },
-        error: function (xhr) {
-        alert(xhr.responseText);
-        }
+            $.ajax({
+                url: "/SerialNumbers/UploadFile",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $("#previewContainer").html(response);
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText);
+                }
+            });
         });
-        });
-    </script>
 
-
-    <script>
-        var input = document.getElementById('serialInput');
-        input.focus();
-        input.select();
-    </script>
-
-    <style>
-        .fixed-column {
-            position: fixed;
-            top: 10;
-            background-color: white;
-            z-index: 1000;
-        }
-    </style>
-
-    <script>
         document.getElementById('toggleButton').addEventListener('click', function() {
             var form = document.getElementById('uploadForm');
-            if (form.style.display === 'none' || form.style.display === '') {
-                form.style.display = 'block';
-            } else {
-                form.style.display = 'none';
-            }
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
         });
-    </script>
-    <script>
-        $(document).ready(function () {
-            // Initialize DataTable
-            var table = $('#serials').DataTable({
-                // dom: 'Bfrtip',
-                // buttons: ['copy','csv','excel','pdf','print']
-            });
 
-            // Toggle the filter sidebar
+        $(document).ready(function () {
+            $('#serialInput').focus().select();
+
+            var table = $('#serials').DataTable();
+
             $('#toggleFilterButton').on('click', function () {
                 $('#filterSection').toggle();
             });
 
-            // The filtering logic
             function filterTable() {
                 var nameVal = $('#nameFilter').val().toLowerCase();
                 var userVal = $('#userFilter').val().toLowerCase();
@@ -348,15 +253,15 @@
                 var checkinVal = $('#checkinFilter').val();
                 var allocVal = $('#allocationFilter').val();
 
-                $('#serialsTable tbody tr').each(function () {
+                $('#serials tbody tr').each(function () {
                     var $tr = $(this);
-                    var nameMatch = $tr.find('.serial-name .display-value').text().toLowerCase().includes(nameVal);
-                    var userMatch = $tr.find('.serial-user .display-value').text().toLowerCase().includes(userVal);
-                    var condMatch = !condVal || $tr.find('.serial-condition .display-value').text() === condVal;
-                    var deptMatch = !deptVal || $tr.find('.serial-department .display-value').text() === deptVal;
-                    var locMatch  = !locVal  || $tr.find('.serial-location .display-value').text() === locVal;
-                    var checkinMatch = !checkinVal || $tr.find('.serial-checkin .display-value').text().startsWith(checkinVal);
-                    var allocMatch   = !allocVal   || $tr.find('.serial-allocation .display-value').text().startsWith(allocVal);
+                    var nameMatch = $tr.find('.serial-name').text().toLowerCase().includes(nameVal);
+                    var userMatch = $tr.find('td:nth-child(2)').text().toLowerCase().includes(userVal);
+                    var condMatch = !condVal || $tr.find('td:nth-child(3)').text() === condVal;
+                    var deptMatch = !deptVal || $tr.find('td:nth-child(4)').text() === deptVal;
+                    var locMatch  = !locVal  || $tr.find('td:nth-child(5)').text() === locVal;
+                    var checkinMatch = !checkinVal || $tr.find('td:nth-child(6)').text().startsWith(checkinVal);
+                    var allocMatch   = !allocVal   || $tr.find('td:nth-child(7)').text().startsWith(allocVal);
 
                     if (nameMatch && userMatch && condMatch && deptMatch && locMatch && checkinMatch && allocMatch) {
                         $tr.show();
@@ -366,13 +271,8 @@
                 });
             }
 
-            // Wire up filter inputs
             $('#nameFilter, #userFilter').on('keyup', filterTable);
-            $('#conditionFilter, #departmentFilter, #locationFilter, #checkinFilter, #allocationFilter')
-                .on('change input', filterTable);
-
-            // Set focus on the new‑serial input
-            $('#serialInput').focus().select();
+            $('#conditionFilter, #departmentFilter, #locationFilter, #checkinFilter, #allocationFilter').on('change input', filterTable);
         });
     </script>
 
