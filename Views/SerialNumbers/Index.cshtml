@@ -97,7 +97,7 @@
 						<th>@Html.DisplayNameFor(model => model.Department)</th>
 						<th>@Html.DisplayNameFor(model => model.Location)</th>
 						<th>@Html.DisplayNameFor(model => model.Description)</th>
-						<th>@Html.DisplayNameFor(model => model.MACAddress)</th>
+						<th>@Html.DisplayNameFor(model => model.MacAddress)</th>
 						<th>@Html.DisplayNameFor(model => model.Creation)</th>
 						<th></th>
 					</tr>
@@ -127,7 +127,7 @@
 							<td class="small" data-field="department">@((item.Department != null) ? item.Department.Name : "N/A")</td>
 							<td class="small" data-field="location">@((item.Location != null) ? item.Location.Name : "N/A")</td>
 							<td class="small" data-field="description">@item.Description</td>
-							<td class="small" data-field="mac">@item.MACAddress</td>
+							<td class="small" data-field="mac">@item.MacAddress</td>
 							<td class="small" data-field="creation">@item.Creation?.ToString("yyyy-MM-dd")</td>
 							<td>
 								<a asp-action="ViewHistory" class="btn btn-sm btn-outline-primary" asp-route-id="@item.Id">View</a> |
