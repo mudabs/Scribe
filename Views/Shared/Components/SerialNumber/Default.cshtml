@@ -2,290 +2,282 @@
 @model SerialNumberViewModel
 
 @{
-    ViewData["Title"] = "SerialNumber";
-    var modelId = ViewData["modelId"];
-    Layout = "_Layout";
+	ViewData["Title"] = "SerialNumber";
+	var modelId = ViewData["modelId"];
+	Layout = "_Layout";
 }
 
 <div class="">
-    <div class="row">
-        <div class="col">
-            <div class="d-flex align-items-start">
-                <img src="/media/models/@Model.Model.Image" width="100px" class="me-3" />
+	<div class="row">
+		<div class="col">
+			<div class="d-flex align-items-start">
+				<img src="/media/models/@Model.Model.Image" width="100px" class="me-3" />
 
-                @{
-                    var total = Model.SerialNumbers?.Count ?? 0;
-                    var allocated = Model.SerialNumbers?.Count(sn => sn.CurrentlyAllocated) ?? 0;
-                    var unallocated = total - allocated;
-                }
+				@{
+					var total = Model.SerialNumbers?.Count ?? 0;
+					var allocated = Model.SerialNumbers?.Count(sn => sn.CurrentlyAllocated) ?? 0;
+					var unallocated = total - allocated;
+				}
 
-                <div class="card" style="min-width:200px;">
-                    <div class="card-body">
-                        <h5 class="card-title">Allocation Summary</h5>
-                        <p class="card-text"><strong>Total:</strong> @total</p>
-                        <p class="card-text"><strong>Allocated:</strong> @allocated</p>
-                        <p class="card-text"><strong>Unallocated:</strong> @unallocated</p>
-                    </div>
-                </div>
-            </div>
-            <div style="height:100px;"></div>
+				<div class="card" style="min-width:200px;">
+					<div class="card-body">
+						<h5 class="card-title">Allocation Summary</h5>
+						<p class="card-text"><strong>Total:</strong> @total</p>
+						<p class="card-text"><strong>Allocated:</strong> @allocated</p>
+						<p class="card-text"><strong>Unallocated:</strong> @unallocated</p>
+					</div>
+				</div>
+			</div>
+			<div style="height:100px;"></div>
 
-            <!-- ✅ Add Description & MAC Address inputs -->
-            <form asp-action="CreateSerialNumber" method="post">
-                <input type="hidden" asp-for="Model.Id" name="ModelId" />
-                <div class="form-group">
-                    <input type="text" name="Name" class="form-control" placeholder="Add Serial Number" id="serialInput" required />
-                </div>
-                <br />
-                <div class="form-group">
-                    <input type="text" name="Description" class="form-control" placeholder="Description (optional)" />
-                </div>
-                <br />
-                <div class="form-group">
-                    <input type="text" name="MACAddress" class="form-control" placeholder="MAC Address (optional)" />
-                </div>
-                <br />
-                <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-primary" />
-                </div>
-            </form>
+			<!-- ✅ Add Description & MAC Address inputs -->
+			<form asp-action="CreateSerialNumber" method="post">
+				<input type="hidden" asp-for="Model.Id" name="ModelId" />
+				<div class="form-group">
+					<input type="text" name="Name" class="form-control" placeholder="Add Serial Number" id="serialInput" required />
+				</div>
+				<br />
+				<div class="form-group">
+					<input type="submit" value="Create" class="btn btn-primary" />
+				</div>
+			</form>
 
-            <div class="row">
-                <h4>
-                    Existing Serial Numbers (@Model.NumberOfDevices)
-                    <span class="ml-auto">
-                        <button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0">
-                            <img src="~/media/icons/static/funnel.svg" />
-                        </button>
-                    </span>
-                    <a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary">Back to Models</a>
-                    <button id="toggleButton" class="btn btn-info">Upload</button>
-                </h4>
-            </div>
+			<div class="row">
+				<h4>
+					Existing Serial Numbers (@Model.NumberOfDevices)
+					<span class="ml-auto">
+						<button id="toggleFilterButton" class="btn btn-outline-success position-relative top-0">
+							<img src="~/media/icons/static/funnel.svg" />
+						</button>
+					</span>
+					<a asp-controller="Models" asp-action="Index" class="btn btn-outline-secondary">Back to Models</a>
+					<button id="toggleButton" class="btn btn-info">Upload</button>
+				</h4>
+			</div>
 
-            <div id="uploadForm" style="display:none;">
-                <hr />
-                <h4>Upload Serial Numbers</h4>
-                <form enctype="multipart/form-data">
-                    <input type="file" id="fileInput" name="file" class="form-control" />
-                    <input type="hidden" id="modelId" value="@Model.Model.Id"></input>
-                    <button type="submit" class="btn btn-primary mt-2">Upload</button>
-                </form>
-                <hr />
-            </div>
+			<div id="uploadForm" style="display:none;">
+				<hr />
+				<h4>Upload Serial Numbers</h4>
+				<form enctype="multipart/form-data">
+					<input type="file" id="fileInput" name="file" class="form-control" />
+					<input type="hidden" id="modelId" value="@Model.Model.Id"></input>
+					<button type="submit" class="btn btn-primary mt-2">Upload</button>
+				</form>
+				<hr />
+			</div>
 
-            <div id="previewContainer"></div>
+			<div id="previewContainer"></div>
 
-            <!-- FILTER SIDEBAR -->
-            <div id="filterSection" class="side-nav" style="display:none;">
-                <h5>Filters</h5>
-                <div class="form-group">
-                    <label for="nameFilter">Serial Number</label>
-                    <input id="nameFilter" class="form-control" placeholder="Search..." />
-                </div>
-                <div class="form-group">
-                    <label for="userFilter">Allocated To</label>
-                    <input id="userFilter" class="form-control" placeholder="Name or Group" />
-                </div>
-                <div class="form-group">
-                    <label for="conditionFilter">Condition</label>
-                    <select id="conditionFilter" class="form-control">
-                        <option value="">All</option>
-                        @foreach (var c in Model.SerialNumbers.Select(s => s.Condition?.Name).Distinct().Where(n => n != null))
-                        {
-                            <option>@c</option>
-                        }
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="departmentFilter">Department</label>
-                    <select id="departmentFilter" class="form-control">
-                        <option value="">All</option>
-                        @foreach (var d in Model.SerialNumbers.Select(s => s.Department?.Name).Distinct().Where(n => n != null))
-                        {
-                            <option>@d</option>
-                        }
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="locationFilter">Location</label>
-                    <select id="locationFilter" class="form-control">
-                        <option value="">All</option>
-                        @foreach (var l in Model.SerialNumbers.Select(s => s.Location?.Name).Distinct().Where(n => n != null))
-                        {
-                            <option>@l</option>
-                        }
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="checkinFilter">Check‑In Date</label>
-                    <input type="date" id="checkinFilter" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label for="allocationFilter">Allocation Date</label>
-                    <input type="date" id="allocationFilter" class="form-control" />
-                </div>
-            </div>
+			<!-- FILTER SIDEBAR -->
+			<div id="filterSection" class="side-nav" style="display:none;">
+				<h5>Filters</h5>
+				<div class="form-group">
+					<label for="nameFilter">Serial Number</label>
+					<input id="nameFilter" class="form-control" placeholder="Search..." />
+				</div>
+				<div class="form-group">
+					<label for="userFilter">Allocated To</label>
+					<input id="userFilter" class="form-control" placeholder="Name or Group" />
+				</div>
+				<div class="form-group">
+					<label for="conditionFilter">Condition</label>
+					<select id="conditionFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var c in Model.SerialNumbers.Select(s => s.Condition?.Name).Distinct().Where(n => n != null))
+						{
+							<option>@c</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="departmentFilter">Department</label>
+					<select id="departmentFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var d in Model.SerialNumbers.Select(s => s.Department?.Name).Distinct().Where(n => n != null))
+						{
+							<option>@d</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="locationFilter">Location</label>
+					<select id="locationFilter" class="form-control">
+						<option value="">All</option>
+						@foreach (var l in Model.SerialNumbers.Select(s => s.Location?.Name).Distinct().Where(n => n != null))
+						{
+							<option>@l</option>
+						}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="checkinFilter">Check‑In Date</label>
+					<input type="date" id="checkinFilter" class="form-control" />
+				</div>
+				<div class="form-group">
+					<label for="allocationFilter">Allocation Date</label>
+					<input type="date" id="allocationFilter" class="form-control" />
+				</div>
+			</div>
 
-            <!-- ✅ SERIALS TABLE UPDATED -->
-            <table class="table table-hover table-striped" id="serials">
-                <thead>
-                    <tr>
-                        <th>Serial Number</th>
-                        <th>Allocated To</th>
-                        <th>Condition</th>
-                        <th>Department</th>
-                        <th>Location</th>
-                        <th>Check In Date</th>
-                        <th>Allocation Date</th>
-                        <th>Description</th>
-                        <th>MAC Address</th>
-                        <th>Allocated By</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var serialNumber in Model.SerialNumbers)
-                    {
-                        <tr>
-                            <td class="serial-name">@serialNumber.Name</td>
-                            <td>
-                                @if (serialNumber.ADUsers != null)
-                                {
-                                    @serialNumber.ADUsers.Name
-                                }
-                                else if (serialNumber.Group != null)
-                                {
-                                    @serialNumber.Group.Name <img src="/media/icons/static/g.svg">
-                                }
-                                else
-                                {
-                                    @Html.Raw("N/A")
-                                }
-                            </td>
-                            <td>@serialNumber.Condition?.Name</td>
-                            <td>@serialNumber.Department?.Name</td>
-                            <td>@serialNumber.Location?.Name</td>
-                            <td>@serialNumber.Creation?.ToString("yyyy-MM-dd")</td>
-                            <td>@serialNumber.Allocation?.ToString("yyyy-MM-dd")</td>
-                            <td>@serialNumber.Description</td>
-                            <td>@serialNumber.MACAddress</td>
-                            <td>
-                                @if (serialNumber.AllocatedBy == null)
-                                {
-                                    <span>No User</span>
-                                }
-                                else
-                                {
-                                    <span>@serialNumber.AllocatedBy</span>
-                                }
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@serialNumber.Id)">Edit</button> |
-                                <a class="btn btn-outline-primary btn-sm" asp-controller="SerialNumbers" asp-action="ViewHistory" asp-route-id="@serialNumber.Id">View History</a> |
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeleteAlloPartial('SerialNumbers',@serialNumber.Id)">Delete</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+			<!-- ✅ SERIALS TABLE UPDATED -->
+			<table class="table table-hover table-striped" id="serials">
+				<thead>
+					<tr>
+						<th>Serial Number</th>
+						<th>Allocated To</th>
+						<th>Condition</th>
+						<th>Department</th>
+						<th>Location</th>
+						<th>Check In Date</th>
+						<th>Allocation Date</th>
+						<th>Description</th>
+						<th>MAC Address</th>
+						<th>Allocated By</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var serialNumber in Model.SerialNumbers)
+					{
+						<tr>
+							<td class="serial-name">@serialNumber.Name</td>
+							<td>
+								@if (serialNumber.ADUsers != null)
+								{
+									@serialNumber.ADUsers.Name
+								}
+								else if (serialNumber.Group != null)
+								{
+									@serialNumber.Group.Name <img src="/media/icons/static/g.svg">
+								}
+								else
+								{
+									@Html.Raw("N/A")
+								}
+							</td>
+							<td>@serialNumber.Condition?.Name</td>
+							<td>@serialNumber.Department?.Name</td>
+							<td>@serialNumber.Location?.Name</td>
+							<td>@serialNumber.Creation?.ToString("yyyy-MM-dd")</td>
+							<td>@serialNumber.Allocation?.ToString("yyyy-MM-dd")</td>
+							<td>@serialNumber.Description</td>
+							<td>@serialNumber.MACAddress</td>
+							<td>
+								@if (serialNumber.AllocatedBy == null)
+								{
+									<span>No User</span>
+								}
+								else
+								{
+									<span>@serialNumber.AllocatedBy</span>
+								}
+							</td>
+							<td>
+								<button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@serialNumber.Id)">Edit</button> |
+								<a class="btn btn-outline-primary btn-sm" asp-controller="SerialNumbers" asp-action="ViewHistory" asp-route-id="@serialNumber.Id">View History</a> |
+								<button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeleteAlloPartial('SerialNumbers',@serialNumber.Id)">Delete</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
 
-        </div>
-    </div>
+		</div>
+	</div>
 </div>
 
 <!-- DELETE MODAL -->
 <div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Confirm Deletion</h2>
-        <p>Are you sure you want to delete the selected serial number(s)?</p>
-        <div class="modal-actions">
-            <button id="confirmDelete" class="btn btn-danger">Delete</button>
-            <button id="cancelDelete" class="btn btn-secondary">Cancel</button>
-        </div>
-    </div>
+	<div class="modal-content">
+		<span class="close">&times;</span>
+		<h2>Confirm Deletion</h2>
+		<p>Are you sure you want to delete the selected serial number(s)?</p>
+		<div class="modal-actions">
+			<button id="confirmDelete" class="btn btn-danger">Delete</button>
+			<button id="cancelDelete" class="btn btn-secondary">Cancel</button>
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        $("#uploadForm").submit(function (e) {
-            e.preventDefault();
-            var formData = new FormData();
-            formData.append("file", $("#fileInput")[0].files[0]);
-            formData.append("modelId", $("#modelId").val());
+	<script>
+		$("#uploadForm").submit(function (e) {
+			e.preventDefault();
+			var formData = new FormData();
+			formData.append("file", $("#fileInput")[0].files[0]);
+			formData.append("modelId", $("#modelId").val());
 
-            $.ajax({
-                url: "/SerialNumbers/UploadFile",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    $("#previewContainer").html(response);
-                },
-                error: function (xhr) {
-                    alert(xhr.responseText);
-                }
-            });
-        });
+			$.ajax({
+				url: "/SerialNumbers/UploadFile",
+				type: "POST",
+				data: formData,
+				processData: false,
+				contentType: false,
+				success: function (response) {
+					$("#previewContainer").html(response);
+				},
+				error: function (xhr) {
+					alert(xhr.responseText);
+				}
+			});
+		});
 
-        document.getElementById('toggleButton').addEventListener('click', function() {
-            var form = document.getElementById('uploadForm');
-            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
-        });
+		document.getElementById('toggleButton').addEventListener('click', function() {
+			var form = document.getElementById('uploadForm');
+			form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+		});
 
-        $(document).ready(function () {
-            $('#serialInput').focus().select();
+		$(document).ready(function () {
+			$('#serialInput').focus().select();
 
-            var table = $('#serials').DataTable();
+			var table = $('#serials').DataTable();
 
-            $('#toggleFilterButton').on('click', function () {
-                $('#filterSection').toggle();
-            });
+			$('#toggleFilterButton').on('click', function () {
+				$('#filterSection').toggle();
+			});
 
-            function filterTable() {
-                var nameVal = $('#nameFilter').val().toLowerCase();
-                var userVal = $('#userFilter').val().toLowerCase();
-                var condVal = $('#conditionFilter').val();
-                var deptVal = $('#departmentFilter').val();
-                var locVal = $('#locationFilter').val();
-                var checkinVal = $('#checkinFilter').val();
-                var allocVal = $('#allocationFilter').val();
+			function filterTable() {
+				var nameVal = $('#nameFilter').val().toLowerCase();
+				var userVal = $('#userFilter').val().toLowerCase();
+				var condVal = $('#conditionFilter').val();
+				var deptVal = $('#departmentFilter').val();
+				var locVal = $('#locationFilter').val();
+				var checkinVal = $('#checkinFilter').val();
+				var allocVal = $('#allocationFilter').val();
 
-                $('#serials tbody tr').each(function () {
-                    var $tr = $(this);
-                    var nameMatch = $tr.find('.serial-name').text().toLowerCase().includes(nameVal);
-                    var userMatch = $tr.find('td:nth-child(2)').text().toLowerCase().includes(userVal);
-                    var condMatch = !condVal || $tr.find('td:nth-child(3)').text() === condVal;
-                    var deptMatch = !deptVal || $tr.find('td:nth-child(4)').text() === deptVal;
-                    var locMatch  = !locVal  || $tr.find('td:nth-child(5)').text() === locVal;
-                    var checkinMatch = !checkinVal || $tr.find('td:nth-child(6)').text().startsWith(checkinVal);
-                    var allocMatch   = !allocVal   || $tr.find('td:nth-child(7)').text().startsWith(allocVal);
+				$('#serials tbody tr').each(function () {
+					var $tr = $(this);
+					var nameMatch = $tr.find('.serial-name').text().toLowerCase().includes(nameVal);
+					var userMatch = $tr.find('td:nth-child(2)').text().toLowerCase().includes(userVal);
+					var condMatch = !condVal || $tr.find('td:nth-child(3)').text() === condVal;
+					var deptMatch = !deptVal || $tr.find('td:nth-child(4)').text() === deptVal;
+					var locMatch  = !locVal  || $tr.find('td:nth-child(5)').text() === locVal;
+					var checkinMatch = !checkinVal || $tr.find('td:nth-child(6)').text().startsWith(checkinVal);
+					var allocMatch   = !allocVal   || $tr.find('td:nth-child(7)').text().startsWith(allocVal);
 
-                    if (nameMatch && userMatch && condMatch && deptMatch && locMatch && checkinMatch && allocMatch) {
-                        $tr.show();
-                    } else {
-                        $tr.hide();
-                    }
-                });
-            }
+					if (nameMatch && userMatch && condMatch && deptMatch && locMatch && checkinMatch && allocMatch) {
+						$tr.show();
+					} else {
+						$tr.hide();
+					}
+				});
+			}
 
-            $('#nameFilter, #userFilter').on('keyup', filterTable);
-            $('#conditionFilter, #departmentFilter, #locationFilter, #checkinFilter, #allocationFilter').on('change input', filterTable);
-        });
-    </script>
+			$('#nameFilter, #userFilter').on('keyup', filterTable);
+			$('#conditionFilter, #departmentFilter, #locationFilter, #checkinFilter, #allocationFilter').on('change input', filterTable);
+		});
+	</script>
 
-    <style>
-        .side-nav {
-            position: fixed;
-            right: 0;
-            top: 70px;
-            width: 260px;
-            background: #f8f9fa;
-            padding: 15px;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-    </style>
+	<style>
+		.side-nav {
+			position: fixed;
+			right: 0;
+			top: 70px;
+			width: 260px;
+			background: #f8f9fa;
+			padding: 15px;
+			box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+			z-index: 1000;
+		}
+	</style>
 }
