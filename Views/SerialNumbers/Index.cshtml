@@ -41,13 +41,6 @@
 				<div class="form-group">
 					<label for="userFilter">User</label>
 					<input type="text" id="userFilter" class="form-control" placeholder="User">
-					@* <select id="userFilter" class="form-control">
-						<option value="">All</option>
-						@foreach (var item in Model.Select(m => m.ADUsers).Distinct())
-						{
-							<option value="@item.Name">@item.Name</option>
-						}
-					</select> *@
 				</div>
 				<div class="form-group">
 					<label for="conditionFilter">Condition</label>
@@ -80,6 +73,14 @@
 					</select>
 				</div>
 				<div class="form-group">
+					<label for="descriptionFilter">Description</label>
+					<input type="text" id="descriptionFilter" class="form-control" placeholder="Description">
+				</div>
+				<div class="form-group">
+					<label for="macFilter">MAC Address</label>
+					<input type="text" id="macFilter" class="form-control" placeholder="MAC Address">
+				</div>
+				<div class="form-group">
 					<label for="creationFilter">Creation Date</label>
 					<input type="date" id="creationFilter" class="form-control">
 				</div>
@@ -95,6 +96,8 @@
 						<th>@Html.DisplayNameFor(model => model.Condition)</th>
 						<th>@Html.DisplayNameFor(model => model.Department)</th>
 						<th>@Html.DisplayNameFor(model => model.Location)</th>
+						<th>@Html.DisplayNameFor(model => model.Description)</th>
+						<th>@Html.DisplayNameFor(model => model.MACAddress)</th>
 						<th>@Html.DisplayNameFor(model => model.Creation)</th>
 						<th></th>
 					</tr>
@@ -123,7 +126,9 @@
 							<td class="small" data-field="condition">@((item.Condition != null) ? item.Condition.Name : "N/A")</td>
 							<td class="small" data-field="department">@((item.Department != null) ? item.Department.Name : "N/A")</td>
 							<td class="small" data-field="location">@((item.Location != null) ? item.Location.Name : "N/A")</td>
-							<td class="small" data-field="creation">@item.Creation</td>
+							<td class="small" data-field="description">@item.Description</td>
+							<td class="small" data-field="mac">@item.MACAddress</td>
+							<td class="small" data-field="creation">@item.Creation?.ToString("yyyy-MM-dd")</td>
 							<td>
 								<a asp-action="ViewHistory" class="btn btn-sm btn-outline-primary" asp-route-id="@item.Id">View</a> |
 								<button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@item.Id)">
@@ -161,6 +166,8 @@
 	document.getElementById('conditionFilter').addEventListener('change', filterTable);
 	document.getElementById('departmentFilter').addEventListener('change', filterTable);
 	document.getElementById('locationFilter').addEventListener('change', filterTable);
+	document.getElementById('descriptionFilter').addEventListener('input', filterTable);
+	document.getElementById('macFilter').addEventListener('input', filterTable);
 	document.getElementById('creationFilter').addEventListener('change', filterTable);
 
 	function filterTable() {
@@ -171,6 +178,8 @@
 		var conditionFilter = document.getElementById('conditionFilter').value.toLowerCase();
 		var departmentFilter = document.getElementById('departmentFilter').value.toLowerCase();
 		var locationFilter = document.getElementById('locationFilter').value.toLowerCase();
+		var descriptionFilter = document.getElementById('descriptionFilter').value.toLowerCase();
+		var macFilter = document.getElementById('macFilter').value.toLowerCase();
 		var creationFilter = document.getElementById('creationFilter').value;
 
 		var rows = document.querySelectorAll('#allDevicesTable tbody tr');
@@ -183,6 +192,8 @@
 			var condition = row.querySelector('[data-field="condition"]').textContent.toLowerCase();
 			var department = row.querySelector('[data-field="department"]').textContent.toLowerCase();
 			var location = row.querySelector('[data-field="location"]').textContent.toLowerCase();
+			var description = row.querySelector('[data-field="description"]').textContent.toLowerCase();
+			var mac = row.querySelector('[data-field="mac"]').textContent.toLowerCase();
 			var creation = row.querySelector('[data-field="creation"]').textContent;
 
 			var brandMatch = brandFilter === '' || brand.includes(brandFilter);
@@ -192,9 +203,11 @@
 			var conditionMatch = conditionFilter === '' || condition.includes(conditionFilter);
 			var departmentMatch = departmentFilter === '' || department.includes(departmentFilter);
 			var locationMatch = locationFilter === '' || location.includes(locationFilter);
+			var descriptionMatch = descriptionFilter === '' || description.includes(descriptionFilter);
+			var macMatch = macFilter === '' || mac.includes(macFilter);
 			var creationMatch = creationFilter === '' || creation.includes(creationFilter);
 
-						if (brandMatch && modelMatch && serialMatch && userMatch && conditionMatch && departmentMatch && locationMatch && creationMatch) {
+			if (brandMatch && modelMatch && serialMatch && userMatch && conditionMatch && departmentMatch && locationMatch && descriptionMatch && macMatch && creationMatch) {
 				row.style.display = '';
 			} else {
 				row.style.display = 'none';
