@@ -291,12 +291,6 @@ namespace Scribe.Controllers
                     // Save changes to the database
                     _context.Update(allocationHistory);
                 }
-                else
-                {
-                    //ModelState.AddModelError("", "AllocationHistory not found.");
-                    TempData["Failure"] = "AllocationHistory not found.";
-                }
-
 
                 // Fetch the SerialNumberGroup with the given SerialNumberId, ADUsersId, or GroupId
                 var serialNumberGroup = await _context.SerialNumberGroup
@@ -327,6 +321,8 @@ namespace Scribe.Controllers
                     serialNumberToUpdate.Creation = serialNumber.Creation;
                     serialNumberToUpdate.Allocation = serialNumber.Allocation;
                     serialNumberToUpdate.AllocatedBy = serialNumber.AllocatedBy;
+                    serialNumberToUpdate.Description = serialNumber.Description;
+                    serialNumberToUpdate.MacAddress = serialNumber.MacAddress;
 
                     // Save changes to the database
                     _context.Update(serialNumberToUpdate);

@@ -131,7 +131,7 @@
 							<td class="small" data-field="creation">@item.Creation?.ToString("yyyy-MM-dd")</td>
 							<td>
 								<a asp-action="ViewHistory" class="btn btn-sm btn-outline-primary" asp-route-id="@item.Id">View</a> |
-								<button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@item.Id)">
+								<button type="button" class="btn btn-sm btn-outline-warning" tdata-toggle="modal" data-target="#editModal" onclick="loadEditPartial('SerialNumbers',@item.Id)">
 									Edit
 								</button> |
 								<button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteModal" onclick="loadDeletePartial('SerialNumbers',@item.Id)">
