@@ -12,12 +12,15 @@ public interface IActiveDirectoryService
     SelectList GetGroupMembersSelectList(string groupName);
     //List<SystemUser> GetUsersInGroup();
     void StoreUsersInGroup();
+    bool UserExists(string samAccountName);
+    int? GetSystemUserId(string samAccountName);
 }
 public class ActiveDirectoryService : IActiveDirectoryService
 {
     private readonly string _domain;
     private readonly string _container;
     private readonly ApplicationDbContext _context;
+
 
     public ActiveDirectoryService(string domain, string container, ApplicationDbContext context)
     {
@@ -26,6 +29,15 @@ public class ActiveDirectoryService : IActiveDirectoryService
         _context = context;
     }
 
+    public int? GetSystemUserId(string samAccountName)
+    {
+        return _context.SystemUsers.FirstOrDefault(u => u.SamAccountName == samAccountName)?.Id;
+    }
+
+    public bool UserExists(string samAccountName)
+    {
+        return _context.SystemUsers.Any(u => u.SamAccountName == samAccountName);
+    }
 
     public SelectList GetGroupMembersSelectList(string groupName)
     {
@@ -40,73 +52,6 @@ public class ActiveDirectoryService : IActiveDirectoryService
 
         return new SelectList(users, "Value", "Text");
     }
-
-    //public List<SystemUser> GetUsersInGroup()
-    //{
-    //    string groupName = "Scribe Admins";
-    //    string domain = "zlt.co.zw";
-    //    var users = new List<SystemUser>();
-
-    //    using (var context = new PrincipalContext(ContextType.Domain, domain))
-    //    using (var group = GroupPrincipal.FindByIdentity(context, groupName))
-    //    {
-    //        if (group != null)
-    //        {
-    //            foreach (var principal in group.GetMembers())
-    //            {
-    //                DirectoryEntry de = principal.GetUnderlyingObject() as DirectoryEntry;
-    //                if (de != null)
-    //                {
-    //                    users.Add(new SystemUser
-    //                    {
-    //                        FirstName = de.Properties["givenName"].Value?.ToString(),
-    //                        LastName = de.Properties["sn"].Value?.ToString(),
-    //                        SamAccountName = de.Properties["samAccountName"].Value?.ToString(),
-    //                        UserPrincipalName = de.Properties["userPrincipalName"].Value?.ToString()
-    //                    });
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return users;
-    //}
-
-    //public List<SystemUser> GetUsersInGroup()
-    //{
-    //    string groupName = "Scribe Admins";
-    //    string domain = "zlt.co.zw";
-    //    var users = new List<SystemUser>();
-
-    //    using (var context = new PrincipalContext(ContextType.Domain, domain))
-    //    using (var group = GroupPrincipal.FindByIdentity(context, groupName))
-    //    {
-    //        if (group != null)
-    //        {
-    //            foreach (var principal in group.GetMembers())
-    //            {
-    //                DirectoryEntry de = principal.GetUnderlyingObject() as DirectoryEntry;
-    //                if (de != null)
-    //                {
-    //                    string samAccountName = de.Properties["samAccountName"].Value?.ToString();
-
-    //                    if (!UserExistsInDatabase(samAccountName))
-    //                    {
-    //                        users.Add(new SystemUser
-    //                        {
-    //                            FirstName = de.Properties["givenName"].Value?.ToString(),
-    //                            LastName = de.Properties["sn"].Value?.ToString(),
-    //                            SamAccountName = samAccountName,
-    //                            UserPrincipalName = de.Properties["userPrincipalName"].Value?.ToString()
-    //                        });
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return users;
-    //}
 
     ////Methos checks the existence of a user in SystemUsers Table
     private bool UserExistsInDatabase(string samAccountName)

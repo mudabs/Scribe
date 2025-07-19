@@ -1,0 +1,51 @@
+﻿@using Scribe.Models
+@model List<UploadedRow>
+
+<form asp-action="SaveSerialNumbers" method="post">
+    <input type="hidden" name="modelId" value="@ViewData["modelId"]" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Serial</th>
+                <th>Type</th>
+                <th>To</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model[i].SerialNumber
+                        <input type="hidden" name="rows[@i].SerialNumber" value="@Model[i].SerialNumber" />
+                    </td>
+                    <td>
+                        @Model[i].AllocateToType
+                        <input type="hidden" name="rows[@i].AllocateToType" value="@Model[i].AllocateToType" />
+                    </td>
+                    <td>
+                        @Model[i].AllocateToName
+                        <input type="hidden" name="rows[@i].AllocateToName" value="@Model[i].AllocateToName" />
+                        <input type="hidden" name="rows[@i].ResolvedUserId" value="@Model[i].ResolvedUserId" />
+                        <input type="hidden" name="rows[@i].ResolvedGroupId" value="@Model[i].ResolvedGroupId" />
+                        <input type="hidden" name="rows[@i].IsValid" value="@Model[i].IsValid" />
+                    </td>
+                    <td>
+                        @if (Model[i].IsValid)
+                        {
+                            <span class="text-success">OK</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">@Model[i].Error</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Confirm & Save</button>
+</form>

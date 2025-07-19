@@ -619,8 +619,7 @@ namespace Scribe.Controllers
 
             return RedirectToAction("ViewHistory", new { id = SerialNumberId });
         }
-
-        // POST: UploadFile
+        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile file, int modelId)
         {
@@ -631,110 +630,116 @@ namespace Scribe.Controllers
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
 
             if (!validExtensions.Contains(fileExtension))
-                return BadRequest("Invalid file format. Only CSV or Excel files are allowed.");
+                return BadRequest("Invalid file format.");
 
-            var serialNumbers = new HashSet<string>();
+            var rows = new List<UploadedRow>();
 
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
                 stream.Position = 0;
 
-                if (fileExtension == ".csv")
+                // For example: CSV with 3 columns: SerialNumber, AllocateToType, AllocateToName
+                using (var reader = new StreamReader(stream))
                 {
-                    using (var reader = new StreamReader(stream, Encoding.UTF8))
+                    var header = reader.ReadLine();
+                    while (!reader.EndOfStream)
                     {
-                        string header = reader.ReadLine();
-                        if (header == null || header.Split(',').Length > 1)
-                            return BadRequest("File must contain only one column.");
+                        var parts = reader.ReadLine()?.Split(',') ?? Array.Empty<string>();
+                        if (parts.Length < 3) continue;
 
-                        while (!reader.EndOfStream)
+                        var row = new UploadedRow
                         {
-                            var line = reader.ReadLine()?.Trim();
-                            if (!string.IsNullOrEmpty(line))
-                                serialNumbers.Add(line);
-                        }
-                    }
-                }
-                else
-                {
-                    System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-                    using (var reader = ExcelReaderFactory.CreateReader(stream))
-                    {
-                        var dataset = reader.AsDataSet();
-                        if (dataset.Tables.Count != 1)
-                            return BadRequest("The file must contain only one sheet.");
+                            SerialNumber = parts[0].Trim(),
+                            AllocateToType = parts[1].Trim(),
+                            AllocateToName = parts[2].Trim()
+                        };
 
-                        var table = dataset.Tables[0];
-                        if (table.Columns.Count != 1)
-                            return BadRequest("File must contain only one column.");
-
-                        for (int row = 1; row < table.Rows.Count; row++)
+                        if (string.IsNullOrEmpty(row.SerialNumber))
                         {
-                            var value = table.Rows[row][0]?.ToString().Trim();
-                            if (!string.IsNullOrEmpty(value))
-                                serialNumbers.Add(value);
+                            row.IsValid = false;
+                            row.Error = "Serial number is missing.";
                         }
+                        else if (row.AllocateToType.Equals("User", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var userId = _adService.GetSystemUserId(row.AllocateToName);
+                            if (userId == null)
+                            {
+                                row.IsValid = false;
+                                row.Error = $"User '{row.AllocateToName}' not found.";
+                            }
+                            else
+                            {
+                                row.ResolvedUserId = userId;
+                            }
+                        }
+                        else if (row.AllocateToType.Equals("Group", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var group = _context.Group.FirstOrDefault(g => g.Name == row.AllocateToName);
+                            if (group == null)
+                            {
+                                // Auto-create group
+                                group = new Group { Name = row.AllocateToName };
+                                _context.Group.Add(group);
+                                await _context.SaveChangesAsync();
+                            }
+                            row.ResolvedGroupId = group.Id;
+                        }
+                        else
+                        {
+                            row.IsValid = false;
+                            row.Error = $"Unknown AllocateToType '{row.AllocateToType}'.";
+                        }
+
+                        rows.Add(row);
                     }
                 }
             }
 
-            if (serialNumbers.Count == 0)
-                return BadRequest("No valid serial numbers found in the file.");
-
-            ViewData["modelId"] = modelId;
-
-            // Set up breadcrumbs
-            var breadcrumbs = new List<BreadcrumbItem>
-            {
-                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
-                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
-                new BreadcrumbItem { Title = "Upload File", Url = Url.Action("UploadFile", "SerialNumbers"), IsActive = true }
-            };
-            ViewData["Breadcrumbs"] = breadcrumbs;
-
-            return PartialView("_PreviewSerialNumbers", serialNumbers);
+            return PartialView("_PreviewUploadRows", rows);
         }
 
-        // POST: SaveSerialNumbers
+        // POST: Confirm & Save
         [HttpPost]
-        public async Task<IActionResult> SaveSerialNumbers(List<string> serialNumbers, int modelId)
+        public async Task<IActionResult> SaveSerialNumbers(List<UploadedRow> rows, int modelId)
         {
-            if (serialNumbers == null || !serialNumbers.Any())
-                return BadRequest("No serial numbers to save.");
+            if (rows == null || !rows.Any())
+                return BadRequest("Nothing to save.");
 
             var existingSerials = _context.SerialNumbers.Select(s => s.Name).ToHashSet();
-            var newSerials = serialNumbers.Where(s => !existingSerials.Contains(s))
-                .Select(s => new SerialNumber
+
+            var toSave = new List<SerialNumber>();
+
+            foreach (var row in rows)
+            {
+                if (!row.IsValid) continue;
+
+                if (existingSerials.Contains(row.SerialNumber)) continue;
+
+                var sn = new SerialNumber
                 {
+                    Name = row.SerialNumber,
                     ModelId = modelId,
-                    Name = s,
-                    ADUsersId = 1,
-                    ConditionId = 1,
+                    ADUsersId = row.ResolvedUserId,
+                    GroupId = row.ResolvedGroupId,
+                    ConditionId = 1, // default condition
                     DepartmentId = 1,
                     LocationId = 1,
                     Creation = DateTime.Now,
-                    Allocation = null,
-                    AllocatedBy = User.Identity.Name,
-                    DeallocatedBy = null
-                }).ToList();
+                    AllocatedBy = User.Identity.Name
+                };
 
-            if (newSerials.Count == 0)
-                return BadRequest("All serial numbers already exist.");
+                toSave.Add(sn);
+            }
 
-            await _context.SerialNumbers.AddRangeAsync(newSerials);
+            if (!toSave.Any())
+                return BadRequest("All serials already exist or none valid.");
+
+            await _context.SerialNumbers.AddRangeAsync(toSave);
             await _context.SaveChangesAsync();
 
-            // Set up breadcrumbs
-            var breadcrumbs = new List<BreadcrumbItem>
-            {
-                new BreadcrumbItem { Title = "Home", Url = Url.Action("Index", "Home"), IsActive = false },
-                new BreadcrumbItem { Title = "Serial Numbers", Url = Url.Action("Index", "SerialNumbers"), IsActive = false },
-                new BreadcrumbItem { Title = "Save Serial Numbers", Url = Url.Action("SaveSerialNumbers", "SerialNumbers"), IsActive = true }
-            };
-            ViewData["Breadcrumbs"] = breadcrumbs;
-
-            return Ok("Serial numbers uploaded successfully.");
+            return Ok("Upload successful.");
         }
+
     }
 }
