@@ -61,6 +61,16 @@ The VPS demonstration branch uses local cookie authentication and does not requi
 
 ## 🛠️ Getting Started
 
+### Run with Docker
+
+Docker and Docker Compose are the only local prerequisites for the demonstration stack. It starts Scribe and a persistent SQL Server container, applies the existing EF Core migrations on first startup, and exposes the app at `http://localhost:8080`.
+
+```bash
+docker compose up --build -d
+```
+
+The default demo login is `demo` / `ChangeMe123!`. Set `DEMO_USERNAME`, `DEMO_PASSWORD`, and `SA_PASSWORD` in the environment before starting the stack to replace the defaults. Stop the containers with `docker compose down`; database data remains in the named Docker volume. To remove the demo database as well, use `docker compose down -v`.
+
 ### Prerequisites
 
 - [.NET SDK 6.0+](https://dotnet.microsoft.com/)

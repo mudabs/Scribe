@@ -55,6 +55,16 @@ builder.Services.AddDataProtection()
 
 var app = builder.Build();
 
+// The Compose demo stack can initialize its database automatically. Leave this
+// disabled by default for existing deployments where migrations are managed
+// separately.
+if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsProduction())
 {

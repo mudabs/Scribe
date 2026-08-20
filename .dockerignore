@@ -1,0 +1,12 @@
+.git
+.github
+.vs
+bin
+obj
+data-protection-keys
+*.user
+*.suo
+*.dbmdl
+docker-compose*.yml
+Dockerfile*
+README.md
