@@ -24,6 +24,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization(options =>
 {
+    // Keep the policy name used by existing controllers while removing the
+    // Active Directory group lookup from its implementation.
+    options.AddPolicy("GroupPolicy", policy => policy.RequireAuthenticatedUser());
     options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
@@ -76,7 +79,10 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (builder.Configuration.GetValue("Http:UseHttpsRedirection", true))
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 
 app.UseRouting();

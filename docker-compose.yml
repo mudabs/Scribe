@@ -8,6 +8,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      Http__UseHttpsRedirection: "false"
       ConnectionStrings__DefaultConnection: "Server=db,1433;Database=ScribeDB;User Id=sa;Password=${SA_PASSWORD:-ScribeDemo!ChangeMe123};MultipleActiveResultSets=true;TrustServerCertificate=True"
       Database__ApplyMigrationsOnStartup: "true"
       DemoAuthentication__Username: "${DEMO_USERNAME:-demo}"
