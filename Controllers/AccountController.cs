@@ -3,11 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using System.DirectoryServices.AccountManagement;
 using Scribe.Services;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
-using Humanizer;
-using System.Security;
 using Scribe.Models;
 
 namespace Scribe.Controllers
@@ -15,13 +11,13 @@ namespace Scribe.Controllers
     [AllowAnonymous]
     public class AccountController : Controller
     {
-        private readonly string domain = "zlt.co.zw";
-        private readonly string groupName = "Scribe Admins";
         private readonly ILoggingService _loggingService;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(ILoggingService loggingService)
+        public AccountController(ILoggingService loggingService, IConfiguration configuration)
         {
             _loggingService = loggingService;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -49,32 +45,24 @@ namespace Scribe.Controllers
         {
             if (ValidateUser(username, password, out string validationMessage))
             {
-                if (IsUserInGroup(username))
+                var claims = new List<Claim>
                 {
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, username),
-                        new Claim(ClaimTypes.Role, "Scribe Admins")
-                    };
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Role, "Scribe Admins")
+                };
 
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                    TempData["Success"] = "Welcome " + username;
-                    var details = "User " + username + " logged in.";
-                    await _loggingService.LogActionAsync(details, username);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                TempData["Success"] = "Welcome " + username;
+                var details = "User " + username + " logged in.";
+                await _loggingService.LogActionAsync(details, username);
 
-                    Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
-                    Response.Headers["Pragma"] = "no-cache";
-                    Response.Headers["Expires"] = "0";
+                Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                Response.Headers["Pragma"] = "no-cache";
+                Response.Headers["Expires"] = "0";
 
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "You do not have permission to access this system.");
-                    TempData["Failure"] = "You do not have permission to access this system.";
-                }
+                return RedirectToAction("Index", "Home");
             }
             else
             {
@@ -117,44 +105,20 @@ namespace Scribe.Controllers
 
         private bool ValidateUser(string username, string password, out string validationMessage)
         {
-            using (var context = new PrincipalContext(ContextType.Domain, domain))
-            {
-                if (context.ValidateCredentials(username, password))
-                {
-                    validationMessage = string.Empty;
-                    return true;
-                }
-                else
-                {
-                    using (var user = UserPrincipal.FindByIdentity(context, username))
-                    {
-                        if (user != null && user.IsAccountLockedOut())
-                        {
-                            validationMessage = "Your account is locked. Please try again later.";
-                            TempData["Failure"] = "Your account is locked. Please try again later.";
-                        }
-                        else
-                        {
-                            validationMessage = "Invalid username or password.";
-                            TempData["Failure"] = "Invalid username or password.";
-                        }
-                    }
-                    return false;
-                }
-            }
-        }
+            var configuredUsername = _configuration["DemoAuthentication:Username"];
+            var configuredPassword = _configuration["DemoAuthentication:Password"];
 
-        private bool IsUserInGroup(string username)
-        {
-            using (var context = new PrincipalContext(ContextType.Domain, domain))
-            using (var user = UserPrincipal.FindByIdentity(context, username))
-            using (var group = GroupPrincipal.FindByIdentity(context, groupName))
+            if (!string.IsNullOrWhiteSpace(configuredUsername) &&
+                !string.IsNullOrWhiteSpace(configuredPassword) &&
+                string.Equals(username?.Trim(), configuredUsername.Trim(), StringComparison.Ordinal) &&
+                string.Equals(password, configuredPassword, StringComparison.Ordinal))
             {
-                if (user != null && group != null)
-                {
-                    return group.GetMembers().Any(member => member.SamAccountName.Equals(username, StringComparison.OrdinalIgnoreCase));
-                }
+                validationMessage = string.Empty;
+                return true;
             }
+
+            validationMessage = "Invalid username or password.";
+            TempData["Failure"] = validationMessage;
             return false;
         }
     }

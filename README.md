@@ -51,6 +51,10 @@ Transform Content Creation, Empower Knowledge Sharing Seamlessly
 - **Frontend**: Razor Views, Bootstrap, jQuery
 - **Database**: SQL Server (or any EF Core-compatible DB)
 - **Authentication**: Active Directory / Identity
+
+### VPS demonstration authentication
+
+The VPS demonstration branch uses local cookie authentication and does not require Windows Authentication or an Active Directory group lookup. Configure the demo account through `DemoAuthentication:Username` and `DemoAuthentication:Password` (environment variables use `DemoAuthentication__Username` and `DemoAuthentication__Password`). The checked-in values are demonstration defaults and should be replaced before exposing the app publicly.
 - **Dependency Injection**: Built-in .NET Core DI container
 
 ---
