@@ -1,36 +1,35 @@
-﻿@{
-     // Set the extended layout
-    ViewData["Title"] = "Settings Page";
+@{
+    ViewData["Title"] = "Settings";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        
-        <main class="col-md-9 col-lg-10 ml-sm-auto px-4">
-            <h3>Appearance Settings</h3>
-            <div class="card p-4 mt-3 row " style="background-color: #f0f0f0; border:unset; border-radius:15px;">
-                <h5 class="card-title">Theme</h5>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="theme" id="lightTheme" value="light" checked>
-                    <label class="form-check-label" for="lightTheme">
-                        Light
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="theme" id="darkTheme" value="dark">
-                    <label class="form-check-label" for="darkTheme">
-                        Dark
-                    </label>
-                </div>
+<div class="settings-page">
+    <div class="settings-card">
+        <div class="settings-card-header">
+            <div>
+                <h3 class="mb-1">Appearance</h3>
+                <p class="settings-muted mb-0">Choose how Scribe looks on this device.</p>
             </div>
-       
-        </main>
-    
+            <span class="settings-preview-icon" aria-hidden="true">☼</span>
+        </div>
+
+        <fieldset class="theme-options">
+            <legend class="visually-hidden">Theme</legend>
+            <label class="theme-option" for="lightTheme">
+                <input class="form-check-input" type="radio" name="theme" id="lightTheme" value="light">
+                <span>
+                    <strong>Light</strong>
+                    <small>Use the standard bright appearance.</small>
+                </span>
+            </label>
+            <label class="theme-option" for="darkTheme">
+                <input class="form-check-input" type="radio" name="theme" id="darkTheme" value="dark">
+                <span>
+                    <strong>Dark</strong>
+                    <small>Reduce brightness for darker environments.</small>
+                </span>
+            </label>
+        </fieldset>
+
+        <p class="settings-muted settings-note mb-0">Your choice is saved in this browser and will be restored the next time you open Scribe.</p>
     </div>
 </div>
-
-<style>
-    .sidebar {
-        background-color: #f0f0f0;
-    }
-</style>

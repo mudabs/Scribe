@@ -3,6 +3,29 @@
 
 // Write your JavaScript code.
 
+// Theme preference////////////////////////////////////////////////////////////////////////////////////////
+function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('scribe-theme', theme);
+
+    document.querySelectorAll('input[name="theme"]').forEach(function (input) {
+        input.checked = input.value === theme;
+    });
+}
+
+$(document).ready(function () {
+    const currentTheme = document.documentElement.dataset.theme || 'light';
+
+    document.querySelectorAll('input[name="theme"]').forEach(function (input) {
+        input.checked = input.value === currentTheme;
+        input.addEventListener('change', function () {
+            if (this.checked) {
+                applyTheme(this.value);
+            }
+        });
+    });
+});
+
 
 //Image Preview///////////////////////////////////////////////////////////////////////////////////////////////
 function readURL(input) {

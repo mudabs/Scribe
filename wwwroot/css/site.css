@@ -1,5 +1,23 @@
 html {
   font-size: 14px;
+  --app-bg: #ffffff;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f0f0f0;
+  --app-text: #212529;
+  --app-muted: #6c757d;
+  --app-border: #dee2e6;
+  --app-link: #0d6efd;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --app-bg: #12161c;
+  --app-surface: #1b222c;
+  --app-surface-muted: #252e3a;
+  --app-text: #e7edf3;
+  --app-muted: #aeb8c4;
+  --app-border: #3a4654;
+  --app-link: #8abfff;
 }
 
 @media (min-width: 768px) {
@@ -18,8 +36,35 @@ html {
 }
 
 body {
-    /*height: 100%*/
+    background-color: var(--app-bg);
+    color: var(--app-text);
 }
+
+a { color: var(--app-link); }
+.app-navbar { background-color: var(--app-surface); }
+.app-navbar .navbar-brand, .app-navbar .nav-link { color: var(--app-text); }
+.accordion-item, .accordion-button, .accordion-body, .card, .settings-card,
+.dropdown-menu, .modal-content { background-color: var(--app-surface); color: var(--app-text); border-color: var(--app-border); }
+.accordion-button:not(.collapsed) { background-color: var(--app-surface-muted); color: var(--app-text); }
+.dropdown-item, .nav-link.text-dark, .text-dark { color: var(--app-text) !important; }
+.dropdown-item:hover, .accordion-button:hover { background-color: var(--app-surface-muted); color: var(--app-text); }
+.table { color: var(--app-text); border-color: var(--app-border); }
+.form-control, .form-select { background-color: var(--app-surface); color: var(--app-text); border-color: var(--app-border); }
+.form-control:focus, .form-select:focus { background-color: var(--app-surface); color: var(--app-text); }
+.breadcrumb { background-color: var(--app-surface-muted); }
+.border-bottom, .border-top { border-color: var(--app-border) !important; }
+.settings-muted { color: var(--app-muted); }
+.settings-page { max-width: 760px; }
+.settings-card { padding: 1.5rem; border: 1px solid var(--app-border); border-radius: 0.75rem; }
+.settings-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.settings-preview-icon { font-size: 2rem; color: var(--app-link); }
+.theme-options { display: grid; gap: 0.75rem; border: 0; padding: 0; margin: 0; }
+.theme-option { display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; border: 1px solid var(--app-border); border-radius: 0.5rem; cursor: pointer; }
+.theme-option:hover, .theme-option:has(input:checked) { background-color: var(--app-surface-muted); border-color: var(--app-link); }
+.theme-option strong, .theme-option small { display: block; }
+.theme-option small { color: var(--app-muted); margin-top: 0.25rem; }
+.settings-note { margin-top: 1.25rem; font-size: 0.875rem; }
+.settings-icon { width: 20px; margin-right: 10px; text-align: center; }
 
 
 
