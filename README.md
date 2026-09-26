@@ -1,131 +1,87 @@
-# Scribe - Inventory Management System
+# Scribe
 
-readme_content = """# 📦 Scribe - Inventory Management System
+[![Build](https://github.com/mudabs/Scribe/actions/workflows/dotnet.yml/badge.svg)](https://github.com/mudabs/Scribe/actions/workflows/dotnet.yml)
 
-Transform Content Creation, Empower Knowledge Sharing Seamlessly
+Scribe is an ASP.NET Core MVC application for managing an organization’s inventory and equipment lifecycle.
 
-![GitHub stars](https://img.shields.io/github/stars/scribe) ![GitHub forks](https://img.shields.io/github/forks/scribe) ![GitHub issues](https://img.shields.io/github/issues/scribe)
+## Features
 
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-5C2D91?style=for-the-badge&logo=dot-net&logoColor=white)
-![MVC](https://img.shields.io/badge/MVC-007ACC?style=for-the-badge&logo=mvc&logoColor=white)
-![NuGet](https://img.shields.io/badge/NuGet-004880?style=for-the-badge&logo=nuget&logoColor=white)
+- Inventory catalog for brands, categories, models, serial numbers, conditions, and locations
+- Asset allocation, deallocation, assignment history, and user/group ownership
+- Maintenance and service-history tracking
+- Dashboard and inventory reporting views
+- CSV, XLS, and XLSX serial-number imports
+- Active Directory integration for Windows deployments
+- Local cookie authentication and seeded demonstration data for container/VPS deployments
 
----
+## Technology
 
-## 📚 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Testing](#testing)
-- [Technologies Used](#technologies-used)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## 🧭 Overview
-
-**Scribe** is a robust and scalable ASP.NET Core MVC application designed to manage inventory, assets, users, and maintenance workflows. It is ideal for organizations looking to streamline their internal operations with a centralized, secure, and extensible platform.
-
----
-
-## 🚀 Features
-
-- 🔧 **Asset Management**: Track devices, tools, and consumables with lifecycle states, conditions, and location mapping.
-- 👥 **User & Role Management**: Integrates with Active Directory for seamless user provisioning and access control.
-- 📊 **Reporting & Analytics**: Export data to Excel/PDF and visualize trends with built-in dashboards.
-- 🧩 **Modular UI Components**: Reusable Razor components for CRUD operations, modals, and validation.
-- ⚙️ **Centralized Configuration**: Manage environment variables, connection strings, and feature toggles.
-- 🛠️ **Maintenance Scheduling**: Log maintenance tasks, assign technicians, and track service history.
-
----
-
-## 🏗️ Architecture
-
-- **Backend**: ASP.NET Core MVC with Entity Framework Core
-- **Frontend**: Razor Views, Bootstrap, jQuery
-- **Database**: SQL Server (or any EF Core-compatible DB)
-- **Authentication**: Active Directory / Identity
-
-### VPS demonstration authentication
-
-The VPS demonstration branch uses local cookie authentication and does not require Windows Authentication or an Active Directory group lookup. Configure the demo account through `DemoAuthentication:Username` and `DemoAuthentication:Password` (environment variables use `DemoAuthentication__Username` and `DemoAuthentication__Password`). The checked-in values are demonstration defaults and should be replaced before exposing the app publicly.
-- **Dependency Injection**: Built-in .NET Core DI container
-
----
-
-## 🛠️ Getting Started
-
-### Run with Docker
-
-Docker and Docker Compose are the only local prerequisites for the demonstration stack. It starts Scribe and a persistent SQL Server container, applies the existing EF Core migrations on first startup, and exposes the app at `http://localhost:8080`.
-
-```bash
-docker compose up --build -d
-```
-
-The default demo login is `demo` / `ChangeMe123!`. Set `DEMO_USERNAME`, `DEMO_PASSWORD`, and `SA_PASSWORD` in the environment before starting the stack to replace the defaults. Stop the containers with `docker compose down`; database data remains in the named Docker volume. To remove the demo database as well, use `docker compose down -v`.
-
-### Prerequisites
-
-- [.NET SDK 6.0+](https://dotnet.microsoft.com/)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server)
-- [Visual Studio 2022+](https://visualstudio.microsoft.com/)
-- NuGet Package Manager
-
-### Installation
-
-1. **Clone the repository**
-   git clone https://github.com/scribe/scribe
-   cd scribe
-
-2. **Restore dependencies**
-   dotnet restore
-
-3. **Update database**
-   dotnet ef database update
-
-4. **Run the application**
-   dotnet run
-
-### Usage
-
-- Access the app at `https://localhost:5001`
-- Login with your Active Directory credentials or seeded admin account
-- Navigate through the dashboard to manage assets, users, and reports
-
-### Testing
-
-- Unit tests are located in the `Scribe.Tests` project
-- Run tests using:
-  dotnet test
-
----
-
-## 🧰 Technologies Used
-
-- ASP.NET Core MVC
-- Entity Framework Core
+- .NET 9 and ASP.NET Core MVC
+- Entity Framework Core 9
 - SQL Server
-- Active Directory
-- Bootstrap 5
-- jQuery
-- NuGet
+- Razor Views, Bootstrap, and jQuery
+- ExcelDataReader for spreadsheet imports
 
----
+## Run with Docker
 
-## 🤝 Contributing
+Docker and Docker Compose are the simplest way to run the demonstration stack. The stack starts Scribe and a persistent SQL Server container, applies EF Core migrations on startup, and exposes the app at http://localhost:8080.
 
-Contributions are welcome! Please fork the repository and submit a pull request with your changes.
+    docker compose up --build -d
 
----
+The default demonstration credentials are demo / ChangeMe123!. Set DEMO_USERNAME, DEMO_PASSWORD, and SA_PASSWORD before starting the stack to replace them.
 
-## 📄 License
+Demo data seeding is enabled by default and adds brands, categories, models, devices, users, groups, warranties, maintenance records, and local image assets. Set SEED_DEMO_DATA=false to disable seeding. The seeder is additive and safe to run against an existing database.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Stop the stack with:
 
+    docker compose down
+
+The named database volume is preserved. To remove it as well, use docker compose down -v.
+
+## Run from source
+
+Prerequisites:
+
+- .NET SDK 9.0
+- SQL Server, or Docker for the database container
+- EF Core CLI tools if you need to manage migrations
+
+Restore and build:
+
+    dotnet restore
+    dotnet build
+
+Configure ConnectionStrings:DefaultConnection for the target SQL Server, then apply migrations and run the app:
+
+    dotnet ef database update
+    dotnet run
+
+## Authentication
+
+The Windows deployment path supports Active Directory. The Docker/VPS demonstration path uses local cookie authentication and does not require Windows Authentication or an Active Directory group lookup.
+
+For the deployed VPS instance, the username is demo. Its password is stored in the protected /opt/apps/scribe/.env file and is intentionally not committed to the repository.
+
+## Deployment
+
+The deployed demonstration instance is available at https://scribe.munashemudabura.com. HTTPS terminates at the public IONOS gateway and is forwarded privately over Tailscale to the Scribe container on vps01; SQL Server is not publicly exposed.
+
+The IONOS site configuration used for this deployment is in the [deployment configuration](deploy/ionos/scribe.munashemudabura.com.conf).
+
+## Verification
+
+The repository currently contains the application project but no dedicated automated test project. The CI workflow restores dependencies, builds the solution with .NET 9, and runs dotnet test so tests can be added later without changing the workflow.
+
+    dotnet build
+    dotnet test --no-build
+
+## Repository layout
+
+- Controllers/ — MVC controllers
+- Data/ — EF Core context and runtime demo seeding
+- Migrations/ — EF Core database migrations
+- Models/ — domain models
+- Services/ and Infrastructure/ — application services and view components
+- Views/ — Razor views
+- wwwroot/ — static assets and seeded brand/model images
+- deploy/ — deployment configuration

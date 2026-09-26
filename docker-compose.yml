@@ -11,6 +11,7 @@ services:
       Http__UseHttpsRedirection: "false"
       ConnectionStrings__DefaultConnection: "Server=db,1433;Database=ScribeDB;User Id=sa;Password=${SA_PASSWORD:-ScribeDemo!ChangeMe123};MultipleActiveResultSets=true;TrustServerCertificate=True"
       Database__ApplyMigrationsOnStartup: "true"
+      Database__SeedDemoData: "${SEED_DEMO_DATA:-true}"
       DemoAuthentication__Username: "${DEMO_USERNAME:-demo}"
       DemoAuthentication__Password: "${DEMO_PASSWORD:-ChangeMe123!}"
       DataProtection__KeyDirectory: "/app/data-protection-keys"
