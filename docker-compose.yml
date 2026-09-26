@@ -9,7 +9,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       Http__UseHttpsRedirection: "false"
-      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=ScribeDB;User Id=sa;Password=${SA_PASSWORD:-ScribeDemo!ChangeMe123};MultipleActiveResultSets=true;TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=ScribeDB;User Id=sa;Password=${SA_PASSWORD:?Set SA_PASSWORD in .env or your environment};MultipleActiveResultSets=true;TrustServerCertificate=True"
       Database__ApplyMigrationsOnStartup: "true"
       Database__SeedDemoData: "${SEED_DEMO_DATA:-true}"
       DemoAuthentication__Username: "${DEMO_USERNAME:-demo}"
@@ -26,7 +26,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "${SA_PASSWORD:-ScribeDemo!ChangeMe123}"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD:?Set SA_PASSWORD in .env or your environment}"
     ports:
       - "1433:1433"
     volumes:

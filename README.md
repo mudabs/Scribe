@@ -51,7 +51,9 @@ Restore and build:
     dotnet restore
     dotnet build
 
-Configure ConnectionStrings:DefaultConnection for the target SQL Server, then apply migrations and run the app:
+Set the connection string through the ConnectionStrings__DefaultConnection environment variable; do not put database credentials in appsettings.json. For a local run, set it before applying migrations:
+
+    $env:ConnectionStrings__DefaultConnection = "Server=localhost;Database=ScribeDB;User Id=sa;Password=YOUR_DATABASE_PASSWORD;MultipleActiveResultSets=true;TrustServerCertificate=True"
 
     dotnet ef database update
     dotnet run
